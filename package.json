@@ -1,0 +1,48 @@
+{
+  "name": "nekogame",
+  "version": "2.0.6",
+  "main": "main.js",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "electron": "^33.0.2",
+    "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "dayjs": "^1.11.13",
+    "sqlite3": "^5.1.7"
+  },
+  "build": {
+    "appId": "com.wenpeng.nekogame",
+    "productName": "NekoGame",
+    "copyright": "Copyright © 2023",
+    "files": [
+      "assets/**/*",
+      "css/**/*",
+      "js/**/*",
+      "node_modules/**/*",
+      "pages/**/*",
+      "*.js",
+      "index.html"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

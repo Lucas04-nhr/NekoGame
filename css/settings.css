@@ -1,0 +1,44 @@
+
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.settings-option {
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+.settings-section h3 {
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #3a3a3a;
+    padding-bottom: 5px;
+}
+
+.settings-option {
+    margin-bottom: 15px;
+}
+
+.divider {
+    border: none;
+    height: 1px;
+    background-color: #3a3a3a;
+    margin: 20px 0;
+}
+

@@ -1,0 +1,328 @@
+/* 设置全局暗色背景和文本颜色 */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #e0e0e0;
+    background-color: #1e1e1e;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* 左侧导航栏 */
+.sidebar {
+    width: 250px;
+    background-color: #2c2c2c;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.sidebar h2 {
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li.active,
+.sidebar ul li:hover {
+    background-color: #3a3a3a;
+}
+
+.sidebar ul li.active {
+    font-weight: bold;
+}
+
+/* 右侧内容区域 */
+.content {
+    flex: 1;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 禁用全局文本框选 */
+* {
+    user-select: none;
+}
+
+
+/* 自定义标题栏样式 */
+.title-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: #2c2c2c;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 10px;
+    box-sizing: border-box;
+    -webkit-app-region: drag; /* 允许拖动窗口 */
+    z-index: 10;
+}
+
+/* 控制按钮样式 */
+.window-controls {
+    display: flex;
+}
+
+.control-button {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 5px;
+    border-radius: 3px;
+    -webkit-app-region: no-drag; /* 防止按钮区域也可拖动 */
+    transition: background 0.3s ease;
+}
+
+.control-button:hover {
+    background-color: #444;
+}
+
+/* 调整 .container 样式，使内容从标题栏下方开始 */
+.container {
+    display: flex;
+    height: calc(100vh - 40px); /* 减去标题栏的高度 */
+    margin-top: 40px; /* 使内容区域不被标题栏遮挡 */
+}
+
+
+
+/* 游戏库界面布局 */
+.library {
+    display: flex;
+    height: 100%;
+}
+
+.game-list {
+    width: 300px;
+    height: calc(100vh - 100px); /* 固定区域高度 */
+    background-color: #2c2c2c;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.header h3 {
+    color: #ffffff;
+    font-size: 18px;
+    margin: 0;
+}
+
+#game-count {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* 游戏列表可滚动 */
+.games-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.game-item:hover {
+    background-color: #444;
+}
+
+.game-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.game-title {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+/* 滚动条样式 */
+.game-list::-webkit-scrollbar,
+.game-details::-webkit-scrollbar {
+    width: 6px;
+}
+
+.game-list::-webkit-scrollbar-thumb,
+.game-details::-webkit-scrollbar-thumb {
+    background-color: #ffffff;
+    border-radius: 3px;
+}
+
+.game-list::-webkit-scrollbar-track,
+.game-details::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+
+
+/* 模态窗口样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: #2c2c2c;
+    padding: 20px;
+    width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); }
+    to { transform: scale(1); }
+}
+
+.image-preview {
+    width: 100%;
+    height: 100px;
+    background-color: #444;
+    border-radius: 5px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-size: cover;
+    background-position: center;
+}
+
+.submit-btn, .close-btn, #browse-path {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.submit-btn:hover, .close-btn:hover, #browse-path:hover {
+    background-color: #555;
+}
+
+
+
+
+
+
+
+/* 选中效果 */
+.game-item.selected {
+    background-color: #555;
+    border: 1px solid #888;
+}
+
+/* 右侧详情区域 */
+.game-details {
+    padding: 15px;
+    background-color: rgba(30, 30, 30, 0.9);
+    color: #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 趋势图 */
+#trend-chart {
+    width: 100%;
+    height: 200px;
+    margin-top: 10px;
+}
+
+/* 省略号菜单 */
+.ellipsis-menu {
+    position: relative;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background-color: #3a3a3a;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+.menu-button:hover + .menu-dropdown,
+.menu-dropdown:hover {
+    display: block;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+}
