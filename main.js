@@ -32,6 +32,8 @@ function createTray() {
                 mainWindow.hide();
             } else {
                 mainWindow.show();
+                // 每次窗口显示时发送刷新事件
+                mainWindow.webContents.send('refresh-content');
                 mainWindow.focus();
             }
         }
@@ -56,11 +58,10 @@ function createWindow() {
         frame: false
     });
 
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     mainWindow.loadFile('index.html');
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('set-app-path', app.getAppPath());
-        startGameTracking(mainWindow); // 传递 mainWindow
     });
     mainWindow.on('minimize', () => {
         isWindowVisible = false;
@@ -263,16 +264,23 @@ if (!gotTheLock) {
 app.whenReady().then(() => {
     initializeDatabase();
     initializeSettings();
-    // 启动后台进程检测，每10秒检测一次（由 gameTracker.js 设置间隔）
-    // 定期触发数据更新通知（可由 gameTracker 完成）
-    setInterval(() => {
-        if (isWindowVisible && mainWindow) {
-            mainWindow.webContents.send('game-data-updated');
-        }
-    }, 10000);
+    // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
+    startGameTracking(); 
 });
 
 module.exports = { mainWindow }; // 确保 `mainWindow` 可供外部访问
+
+
+// 定期触发数据更新通知
+ipcMain.on('running-status-updated', (event, runningStatus) => {
+    console.log("是否有running-status-updated1",runningStatus);
+    if (mainWindow && mainWindow.webContents && mainWindow.isVisible()) {
+        console.log("是否有running-status-updated2")
+        mainWindow.webContents.send('running-status-updated', runningStatus);
+    }
+});
+
+
 
 // 获取游戏时长数据
 ipcMain.handle('get-game-time-data', (event) => {

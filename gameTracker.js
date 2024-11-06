@@ -32,7 +32,7 @@ function initializeTrackedGames() {
 
 
 // 检测后台运行的进程并实时更新时长
-function detectRunningGames(mainWindow) {
+function detectRunningGames() {
     exec('tasklist', (err, stdout) => {
         if (err) {
             console.error("Error fetching process list:", err);
@@ -52,13 +52,13 @@ function detectRunningGames(mainWindow) {
                     } else {
                         console.log(`Started session for ${processName}`);
                         game.sessionId = sessionId;
-                        sendRunningStatus(mainWindow);
+                        sendRunningStatus();
                     }
                 });
             } else if (isRunning && game.isRunning && game.sessionId) {
                 // 游戏仍在运行，实时更新结束时间、时长和 `total_time`
                 const endTime = dayjs().tz(chinaTimezone).format('YYYY-MM-DD HH:mm:ss');
-                const increment = 10;
+                const increment = 15;
 
                 db.run(`
                     UPDATE game_sessions 
@@ -73,7 +73,7 @@ function detectRunningGames(mainWindow) {
                     if (err) console.error("Error updating total time:", err);
                 });
 
-                sendRunningStatus(mainWindow);
+                sendRunningStatus();
             } else if (!isRunning && game.isRunning && game.sessionId) {
                 // 游戏刚关闭，结束会话
                 game.isRunning = false;
@@ -98,7 +98,7 @@ function detectRunningGames(mainWindow) {
                             } else {
                                 console.log(`Ended session for ${processName}`);
                                 game.sessionId = null;
-                                sendRunningStatus(mainWindow);
+                                sendRunningStatus();
                             }
                         });
                     }
@@ -110,20 +110,21 @@ function detectRunningGames(mainWindow) {
 
 
 // 向前端发送游戏运行状态
-function sendRunningStatus(mainWindow) {
+function sendRunningStatus() {
     //if (!mainWindow || !mainWindow.webContents) return; // 添加保护性判断
     const runningStatus = Object.keys(trackedGames).map(processName => {
         const game = trackedGames[processName];
         return { id: game.id, isRunning: game.isRunning };
     });
-    mainWindow.webContents.send('running-status-updated', runningStatus);
+    //mainWindow.webContents.send('running-status-updated', runningStatus);
+    ipcMain.emit('running-status-updated', null, runningStatus);  // 发送到主进程
 }
 
 
-// 启动检测循环，每10秒检测一次
-function startGameTracking(mainWindow) {
+// 启动检测循环，每15秒检测一次
+function startGameTracking() {
     initializeTrackedGames();
-    setInterval(() => detectRunningGames(mainWindow), 10000);
+    setInterval(() => detectRunningGames(), 15000);
 }
 
 module.exports = {

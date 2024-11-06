@@ -182,10 +182,10 @@ function setupEventListeners() {
     });
 }
 
-// 显示加载动画
+// 显示加载动画-待完成
 function showLoadingAnimation() {}
 
-// 隐藏加载动画
+// 隐藏加载动画-待完成
 function hideLoadingAnimation() {}
 
 // 显示分析数据
@@ -229,7 +229,7 @@ function loadAnalysisData() {
 
 // 刷新分析数据
 function refreshData() {
-    showLoadingAnimation();
+    //showLoadingAnimation();
 
     // 获取当前选择的半年内分布范围（按日或按月）
     const halfYearRange = document.getElementById('half-year-range').value || 'daily';
@@ -527,7 +527,11 @@ if (typeof logPage === 'undefined') {
     var logPage = 0;
 }
 function loadLogData(reset = false) {
-    if (reset) logPage = 0; // 重置分页
+    const logContainer = document.getElementById('log-content');
+    if (reset) {
+        logContainer.innerHTML = '';  // 清空日志内容
+        logPage = 0;  // 重置分页
+    }
     window.electronAPI.getLogData(logPage)
         .then(logs => {
             const logContainer = document.getElementById('log-content');

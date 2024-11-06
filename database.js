@@ -136,7 +136,7 @@ module.exports = {
     startSession,  // 确保导出 startSession
     endSession,     // 确保导出 endSession
     getGameTimeData,
-    getGameDetails,  // 导出此函数
+    getGameDetails,  
     getGameTrendData,
     deleteGame,
     updateGame,
