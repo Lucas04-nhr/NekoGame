@@ -14,7 +14,7 @@ Neko Game 是一款游戏管理应用程序，旨在通过现代化、暗色主�
 ## 安装步骤
 1. 克隆此仓库：
    ```bash
-   git clone https://github.com/yourusername/nekogame.git
+   https://github.com/Summer-Neko/NekoGame.git
    ```
 2. 进入项目目录：
    ```bash
