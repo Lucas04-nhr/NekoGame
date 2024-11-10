@@ -48,6 +48,7 @@ Ensure `electron-builder` is configured in the project to manage the packaging p
 - **Edit a Game**: Select a game from the library, click the “Edit” option, update the information, and save changes.
 - **Delete a Game**: Use the “Delete” option in the game details menu to remove a game and its associated data.
 - **Settings**: It is recommended to check all three options for optimal use.
+- **Game Images**: You can visit [steamgriddb](https://www.steamgriddb.com/) to obtain images. Animated images are also supported.
 
 ## Sample Screenshots
 ![image](https://github.com/user-attachments/assets/0778ddec-fd26-49a6-924b-97462f92a490)
