@@ -46,6 +46,7 @@ npm run build
 - **编辑游戏**：从游戏库中选择一个游戏，点击“编辑”选项，更新信息并保存更改。
 - **删除游戏**：使用游戏详情菜单中的“删除”选项来移除游戏及其相关数据。
 - **设置**：建议日常使用时，将设置的三个选项全部勾上。
+- **游戏图片**:可以前往此网站获取[steamgriddb](https://www.steamgriddb.com/)。支持选择动图。
 
 ## 项目部分图片展示
 ![image](https://github.com/user-attachments/assets/0778ddec-fd26-49a6-924b-97462f92a490)
