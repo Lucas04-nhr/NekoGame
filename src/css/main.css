@@ -1,0 +1,442 @@
+/* 全局暗色背景和文本颜色 */
+html, body {
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+}
+
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #e0e0e0;
+    background-color: #1e1e1e;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* 自定义标题栏样式 */
+.title-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: #2c2c2c;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 10px;
+    box-sizing: border-box;
+    -webkit-app-region: drag;
+    z-index: 10;
+}
+
+.window-controls {
+    display: flex;
+}
+
+.control-button {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 5px;
+    border-radius: 3px;
+    -webkit-app-region: no-drag;
+    transition: background 0.3s ease;
+}
+
+.control-button:hover {
+    background-color: #444;
+}
+
+/* 左侧导航栏 */
+.sidebar {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    background-color: #2c2c2c;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 40px;
+}
+
+.sidebar h2 {
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.sidebar ul li.active,
+.sidebar ul li:hover {
+    background-color: #3a3a3a;
+}
+
+.sidebar ul li.active {
+    font-weight: bold;
+}
+
+/* 右侧内容区域 */
+.content {
+    flex: 1;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 40px;
+}
+
+/* 游戏库主布局 */
+.library {
+    display: flex;
+    height: 100%;
+}
+
+.game-list {
+    width: 300px;
+    background-color: #2c2c2c;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.game-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#game-count {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background-color: #3a3a3a;
+    padding: 8px 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    white-space: nowrap; /* 强制内容不换行 */
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* 游戏列表样式 */
+.games-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin: 5px;
+}
+
+/* 选中效果 */
+.game-item.selected {
+    background-color: #555;
+}
+
+.game-item:hover {
+    background-color: #444;
+}
+
+
+/* 游戏图标样式 */
+.game-icon {
+    position: relative;
+    z-index: 2;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+.game-title {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ffffff;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+/* 顶部进度条容器样式 */
+#progress-bar-container {
+    display: none; /* 初始隐藏 */
+    width: 100%; /* 占满标题栏宽度 */
+    height: 5px;
+    background-color: #f3f3f3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 15; /* 确保高于其他标题栏元素 */
+}
+
+/* 进度条样式 */
+#progress-bar {
+    width: 0%; /* 初始宽度为0 */
+    height: 100%;
+    background-color: #76c7c0; /* 自定义进度条颜色 */
+    transition: width 0.3s ease;
+}
+
+/* 悬停时的效果 */
+.progress-bar-container:hover .progress-bar {
+    background-color: #5adbd0; /* 鼠标悬停时稍微变亮 */
+}
+
+/* 下载速度文本 */
+.download-speed {
+    font-size: 10px;
+    color: #ddd;
+    margin-right: 10px; /* 与右边缘保持一些距离 */
+    opacity: 0.8;
+}
+
+
+
+/* 模态窗口样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.modal-content {
+    width: 400px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #2c2c2c;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.modal-header {
+    padding: 10px 20px;
+    background-color: #2c2c2c;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.2em;
+    border-bottom: 1px solid #444;
+}
+
+.modal-body {
+    flex: 1;
+    padding: 10px;
+    padding-bottom: 10px; /* 为底部按钮留出空间 */
+    overflow-y: auto;
+    max-height: calc(80vh - 120px);
+}
+
+.modal-footer {
+    padding: 10px 20px;
+    background-color: #2c2c2c;
+    border-top: 1px solid #444;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+/* 图片预览框调整 */
+.image-preview-square {
+    width: 100%;
+    padding-top: 100%; /* 保持正方形比例 */
+    background-color: #444;
+    border-radius: 5px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 15px;
+}
+
+.image-preview-vertical {
+    width: 100%;
+    padding-top: 175%; /* 4:7 竖版比例 */
+    background-color: #444;
+    border-radius: 5px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 15px;
+}
+
+.image-preview-horizontal {
+    width: 100%;
+    padding-top: 43.75%; /* 16:7 横版比例 */
+    background-color: #444;
+    border-radius: 5px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 15px;
+}
+
+/* 按钮样式 */
+.submit-btn, .close-btn, #browse-path {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover, .close-btn:hover, #browse-path:hover {
+    background-color: #555;
+}
+
+/* 防止文本框选 */
+* {
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE10+ */
+    user-select: none;         /* Standard */
+}
+
+
+.fade-out {
+    animation: fadeOut 0.2s forwards;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 点击效果 */
+.clicked-effect {
+    animation: clickEffect 0.2s ease;
+}
+
+@keyframes clickEffect {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+
+
+
+
+/* 趋势图 */
+#trend-chart {
+    width: 100%;
+    height: 200px;
+    margin-top: 10px;
+}
+
+/* 省略号菜单 */
+.ellipsis-menu {
+    position: relative;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background-color: #3a3a3a;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+.menu-button:hover + .menu-dropdown,
+.menu-dropdown:hover {
+    display: block;
+}
+
+.menu-dropdown a {
+    color: #ffffff;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+}
+

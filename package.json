@@ -1,7 +1,7 @@
 {
   "name": "nekogame",
   "version": "2.1.7",
-  "main": "main.js",
+  "main": "src/main.js",
   "description": "summerneko",
   "author": "",
   "license": "ISC",

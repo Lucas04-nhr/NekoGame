@@ -1,0 +1,93 @@
+
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+
+
+.settings-section h3 {
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #3a3a3a;
+    padding-bottom: 5px;
+}
+
+
+
+/* 开关按钮样式 */
+.settings-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap; 
+}
+
+button {
+    margin: 5px 0;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.switch-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+.switch-label {
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.switch-label .switch-button {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    transition: left 0.3s;
+}
+
+input[type="checkbox"]:checked + .switch-label {
+    background-color: #4caf50;
+}
+
+input[type="checkbox"]:checked + .switch-label .switch-button {
+    left: 22px;
+}
+
+a[target="_blank"] {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+a[target="_blank"]:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}

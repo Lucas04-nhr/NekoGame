@@ -1,0 +1,91 @@
+<div class="home-container">
+    <!-- 中间的游戏列表区域 -->
+    <div class="game-list">
+        <h2 class="game-list-title">游戏列表</h2> <!-- 新增标题 -->
+        <div id="game-list-container">
+            <!-- 游戏列表项将由 JavaScript 动态插入 -->
+        </div>
+    </div>
+
+    <!-- 右侧内容显示区域 -->
+    <div class="content-display">
+        <div class="tabs-container">
+            <button class="tab-button active" data-tab="overview">概况</button>
+            <button class="tab-button" data-tab="leaderboard">排行榜</button>
+            <button class="tab-button" data-tab="log">日志</button>
+        </div>
+        
+        <!-- 概况内容 -->
+        <div class="tab-content" id="overview">
+            <div class="analysis-header">
+                <button id="refresh-button">刷新</button>
+                <span id="last-updated">数据上次更新时间：--:--</span>
+            </div>
+            <div id="today-summary">
+                <p id="total-time-today">今日总时长：-- h</p>
+                <p id="total-time-yesterday">昨日总时长：-- h</p>
+            </div>
+            <div id="overview-content">
+                <!-- 概况数据将由 JS 动态插入 -->
+                <!-- 游戏时间趋势 -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>总游戏时长趋势</h3>
+                        <select id="monthly-range">
+                            <option value="month">近30天</option>
+                            <option value="six_months">近六个月</option>
+                        </select>
+                    </div>
+                    <canvas id="monthly-trend-chart"></canvas>
+                </div>
+                <!-- 游戏时长分布 -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>游戏时长分布</h3>
+                        <select id="weekly-range">
+                            <option value="week">近7天</option>
+                            <option value="six_months">近六个月</option>
+                        </select>
+                    </div>
+                    <canvas id="weekly-game-time-chart"></canvas>
+
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                    <h3>游戏时长趋势图</h3>
+                        <select id="half-year-range">
+                            <option value="daily">按天</option>
+                            <option value="monthly">按月</option>
+                        </select>
+                    </div>
+                    <canvas id="half-year-distribution-chart"></canvas>
+                </div>
+                <!-- 所有游戏的总时长分布 -->
+                <div class="chart-container">
+                    <h3>游戏总时长分布</h3>
+                    <canvas id="total-time-distribution-chart"></canvas>
+                </div>
+            </div>
+        </div>
+            
+
+        <!-- 排行榜内容 -->
+        <div class="tab-content" id="leaderboard" style="display: none;">
+            <h3>游戏时长排行榜</h3>
+            <div id="leaderboard-content">
+                <!-- 游戏列表将通过 JS 动态插入 -->
+            </div>
+        </div>
+        
+        <!-- 日志内容 -->
+        <div class="tab-content" id="log" style="display: none;">
+            <h3>日志</h3>
+            <div id="log-content"></div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="./css/home.css">
+
+
