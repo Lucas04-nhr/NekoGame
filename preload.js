@@ -49,4 +49,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     loadSettings: () => ipcRenderer.invoke("load-settings"),
     setAutoLaunch: (enabled) => ipcRenderer.invoke("set-auto-launch", enabled),
     checkErrors: () => ipcRenderer.invoke("check-errors"), 
+    on: (channel, listener) => {
+        ipcRenderer.on(channel, listener);
+    },
+    send: (channel, data) => {
+        ipcRenderer.send(channel, data);
+    },
+    onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
+    getGameDailyTimeData: (gameId) => ipcRenderer.invoke('get-game-daily-time-data', gameId),
+    openDataPath: (path) => ipcRenderer.send('open-data-path', path),
+    openExternal: (url) => ipcRenderer.send('open-external', url),
+    launchGame: (gamePath) => ipcRenderer.invoke('launch-game', gamePath),
 });

@@ -10,6 +10,11 @@
 <body>
     <!-- 自定义标题栏 -->
     <header class="title-bar">
+        <!-- 顶部进度条，初始隐藏 -->
+        <div id="progress-bar-container" class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+            <span id="download-speed" class="download-speed"></span> 
+        </div>
         <div class="window-controls">
             <span id="minimize" class="control-button">🗕</span>
             <span id="maximize" class="control-button">🗖</span>
@@ -24,6 +29,7 @@
             <ul>
                 <li id="home-tab" class="tab active" data-page="home">主页</li>
                 <li id="library-tab" class="tab" data-page="library">游戏库</li>
+                <li id="tools-tab" class="tab" data-page="gameTools">游戏工具</li> 
                 <li id="settings-tab" class="tab" data-page="settings">设置</li>
             </ul>
         </nav>

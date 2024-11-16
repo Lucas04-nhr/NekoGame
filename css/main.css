@@ -219,6 +219,39 @@ body {
     background-color: transparent;
 }
 
+/* 顶部进度条容器样式 */
+#progress-bar-container {
+    display: none; /* 初始隐藏 */
+    width: 100%; /* 占满标题栏宽度 */
+    height: 5px;
+    background-color: #f3f3f3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 15; /* 确保高于其他标题栏元素 */
+}
+
+/* 进度条样式 */
+#progress-bar {
+    width: 0%; /* 初始宽度为0 */
+    height: 100%;
+    background-color: #76c7c0; /* 自定义进度条颜色 */
+    transition: width 0.3s ease;
+}
+
+/* 悬停时的效果 */
+.progress-bar-container:hover .progress-bar {
+    background-color: #5adbd0; /* 鼠标悬停时稍微变亮 */
+}
+
+/* 下载速度文本 */
+.download-speed {
+    font-size: 10px;
+    color: #ddd;
+    margin-right: 10px; /* 与右边缘保持一些距离 */
+    opacity: 0.8;
+}
+
 
 
 /* 模态窗口样式 */

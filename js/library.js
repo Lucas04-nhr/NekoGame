@@ -88,14 +88,6 @@ function libraryInit() {
         }
     });
     
-    // 编辑模态窗口的图片选择
-    document.getElementById("edit-icon-preview").addEventListener("click", async () => {
-        const filePath = await window.electronAPI.selectImageFile();
-        if (filePath) {
-            document.getElementById("edit-icon-preview").style.backgroundImage = `url(${window.electronAPI.filePathToURL(filePath)})`;
-            document.getElementById("edit-game-icon").dataset.filePath = filePath;
-        }
-    });
 
     document.getElementById("poster-vertical-preview").addEventListener("click", async () => {
         const filePath = await window.electronAPI.selectImageFile();
@@ -119,6 +111,33 @@ function libraryInit() {
         const filePath = await window.electronAPI.openFile();
         if (filePath) document.getElementById("game-path").value = filePath;
     });
+
+    //编辑功能
+    // 编辑模态窗口的图片选择
+    document.getElementById("edit-icon-preview").addEventListener("click", async () => {
+        const filePath = await window.electronAPI.selectImageFile();
+        if (filePath) {
+            document.getElementById("edit-icon-preview").style.backgroundImage = `url(${window.electronAPI.filePathToURL(filePath)})`;
+            document.getElementById("edit-game-icon").dataset.filePath = filePath;
+        }
+    });
+
+    document.getElementById("edit-poster-vertical-preview").addEventListener("click", async () => {
+        const filePath = await window.electronAPI.selectImageFile();
+        if (filePath) {
+            document.getElementById("edit-poster-vertical-preview").style.backgroundImage = `url(${window.electronAPI.filePathToURL(filePath)})`;
+            document.getElementById("edit-game-poster-vertical").dataset.filePath = filePath;
+        }
+    });
+    
+    document.getElementById("edit-poster-horizontal-preview").addEventListener("click", async () => {
+        const filePath = await window.electronAPI.selectImageFile();
+        if (filePath) {
+            document.getElementById("edit-poster-horizontal-preview").style.backgroundImage = `url(${window.electronAPI.filePathToURL(filePath)})`;
+            document.getElementById("edit-game-poster-horizontal").dataset.filePath = filePath;
+        }
+    });
+
     // 编辑模态窗口路径选择
     document.getElementById("edit-browse-path").addEventListener("click", async () => {
         const filePath = await window.electronAPI.openFile();
@@ -203,32 +222,174 @@ function showGameDetails(gameId) {
         return;
     }
 
-    window.electronAPI.getGameDetails(gameId)
-        .then(game => {
-            const lastPlayed = game.last_played ? game.last_played : "--";
-            const rank = game.rank ? game.rank : "--";
-            detailsContainer.innerHTML = `
-                <h2 id="game-name">${game.name}</h2>
-                <p id="total-time">总时长: ${(game.total_time / 3600).toFixed(1)} h</p>
-                <p id="last-played">最后运行时间: ${lastPlayed}</p>
-                <p id="rank">总时长排名: ${rank}</p>
-                <div class="ellipsis-menu">
-                    <button class="menu-button">⋮</button>
-                    <div class="menu-dropdown">
-                        <a href="#" id="edit-game">编辑游戏</a>
-                        <a href="#" id="delete-game">删除游戏</a>
+    detailsContainer.classList.remove('show'); // 先移除显示类以触发消失动画
+
+    // 使用 setTimeout 等待动画完成后再更新内容
+    setTimeout(() => {
+        window.electronAPI.getGameDetails(gameId)
+            .then(game => {
+                const avgDailyTime = game.avg_daily_time ? game.avg_daily_time.toFixed(2) + ' h' : '--';
+                const lastPlayed = game.last_played ? game.last_played : "--";
+                const rank = game.rank ? game.rank : "--";
+                detailsContainer.innerHTML = `
+                    <h2 id="game-name">${game.name}</h2>
+                    <p id="total-time">总时长: ${(game.total_time / 3600).toFixed(1)} h</p>
+                    <p id="average-daily-time">近6个月的平均每日游戏时长（出勤日）: ${avgDailyTime}</p>
+                    <p id="last-played">最后运行时间: ${game.last_played || '--'}</p>
+                    <p id="rank">总时长排名: ${game.rank || '--'}</p>
+                    <div class="ellipsis-menu">
+                        <button class="menu-button">⋮</button>
+                        <div class="menu-dropdown">
+                            <a href="#" id="edit-game">编辑游戏</a>
+                            <a href="#" id="delete-game">删除游戏</a>
+                        </div>
                     </div>
-                </div>
-                <div class="game-trend">
-                    <canvas id="game-trend-chart" width="400" height="200"></canvas>
-                </div>
-            `;
-            loadGameTrendChart(gameId);
-        })
-        .catch(error => {
-            console.error("Error loading game details:", error);
-        });
+                    <div id="daily-time-chart" class="chart-container">
+                    </div>
+                    <div class="game-trend" style="flex-grow: 1;">
+                        <canvas id="game-trend-chart" style="height: 100%;"></canvas>
+                    </div>
+                `;
+
+                // 渲染游戏记录和趋势图
+                renderGameDailyChart(gameId);
+                loadGameTrendChart(gameId);
+
+                // 添加显示类以触发出现动画
+                setTimeout(() => {
+                    detailsContainer.classList.add('show');
+                }, 50);
+            })
+            .catch(error => {
+                console.error("Error loading game details:", error);
+            });
+    }, 200); // 动画持续时间应与 CSS transition 匹配
 }
+
+function renderGameDailyChart(gameId) {
+    window.electronAPI.getGameDailyTimeData(gameId).then(data => {
+        console.log("Received data:", data); // 检查是否包含最新日期的数据
+        const dailyChartContainer = document.getElementById('daily-time-chart');
+        if (!dailyChartContainer) {
+            console.error('Daily time chart container not found');
+            return;
+        }
+
+        // 清空容器，确保重新渲染时不会重复内容
+        dailyChartContainer.innerHTML = '';
+
+        // 创建每日游戏记录表内容
+        const chartContainer = document.createElement('div');
+        chartContainer.classList.add('contribution-chart-container');
+
+        // 添加标题
+        const chartTitle = document.createElement('div');
+        chartTitle.classList.add('chart-title');
+        chartTitle.textContent = '出勤表';
+        chartContainer.appendChild(chartTitle);
+
+        // 创建月份标题行
+        const monthRow = document.createElement('div');
+        monthRow.classList.add('month-row');
+        
+        const today = new Date();
+        today.setHours(today.getHours() + 8);
+        
+        // 获取 180 天前的日期并加 8 小时
+        const startDate = new Date();
+        startDate.setDate(today.getDate() - 180);
+        startDate.setHours(startDate.getHours() + 8);
+        
+
+        let currentMonth = startDate.getMonth();
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        // 计算并插入月份标题的位置
+        for (let date = new Date(startDate); date <= today; date.setDate(date.getDate() + 1)) {
+            if (date.getDate() === 1 || date.getTime() === startDate.getTime()) { // 每月的第一天或开始日期
+                const monthName = months[date.getMonth()];
+                const monthCell = document.createElement('div');
+                monthCell.classList.add('month-cell');
+                monthCell.textContent = monthName;
+                const weekIndex = Math.floor((date - startDate) / (7 * 24 * 60 * 60 * 1000)); // 计算周数
+                monthCell.style.gridColumnStart = weekIndex + 1;
+                monthRow.appendChild(monthCell);
+            }
+        }
+        chartContainer.appendChild(monthRow);
+
+        // 创建每日小方块
+        const contributionChart = document.createElement('div');
+        contributionChart.classList.add('contribution-chart');
+
+        for (let date = new Date(startDate); date <= today; date.setDate(date.getDate() + 1)) {
+            const dateString = date.toISOString().split('T')[0];
+            const dayData = data.find(d => d.date === dateString);
+            const timePlayed = dayData ? dayData.total_time / 3600 : 0;
+
+
+            const cell = document.createElement('div');
+            cell.classList.add('contribution-cell');
+            cell.dataset.date = dateString;
+            cell.dataset.time = timePlayed.toFixed(2);
+            cell.style.backgroundColor = getBackgroundColor(timePlayed);
+
+            cell.addEventListener('mouseover', (event) => {
+                // 检查并移除现有的 tooltip
+                document.querySelector('.tooltip')?.remove();
+
+                const tooltip = document.createElement('div');
+                tooltip.classList.add('tooltip');
+                tooltip.textContent = `${dateString}: ${timePlayed.toFixed(2)} h`;
+                document.body.appendChild(tooltip);
+                tooltip.style.left = `${event.pageX + 10}px`;
+                tooltip.style.top = `${event.pageY + 10}px`;
+            });
+
+            cell.addEventListener('mouseout', () => {
+                const tooltip = document.querySelector('.tooltip');
+                if (tooltip) {
+                    tooltip.classList.add('fade-out'); // 添加淡出动画类
+                    tooltip.addEventListener('animationend', () => {
+                        tooltip.remove(); // 动画结束后移除 tooltip
+                    });
+                }
+            });
+
+            contributionChart.appendChild(cell);
+        }
+        chartContainer.appendChild(contributionChart);
+
+        // 插入到 daily-time-chart 容器中
+        dailyChartContainer.appendChild(chartContainer);
+    }).catch(err => {
+        console.error("Error rendering game daily chart:", err);
+    });
+}
+
+// 获取背景颜色函数
+function getBackgroundColor(hours) {
+    if (hours === 0) return '#e0e0e0';
+    if (hours < 1) return '#c6e48b';
+    if (hours < 3) return '#7bc96f';
+    if (hours < 5) return '#239a3b';
+    return '#196127';
+}
+
+
+
+// 获取颜色深度
+function getBackgroundColor(hours) {
+    if (hours === 0) return '#e0e0e0'; // 浅灰色表示没有记录
+    if (hours < 1) return '#c6e48b'; // 浅绿色
+    if (hours < 3) return '#7bc96f'; // 中绿色
+    if (hours < 5) return '#239a3b'; // 深绿色
+    return '#196127'; // 最深绿色
+}
+
+
+
+
 // 关闭函数
 function closeAddGameModal() {
     document.getElementById("add-game-modal").style.display = "none";
@@ -383,14 +544,14 @@ document.getElementById("edit-game-form").addEventListener("submit", async (e) =
 
 // 初始化趋势图
 function initializeTrendChart() {
-    const ctx = document.getElementById("trend-chart")?.getContext("2d");
+    const ctx = document.getElementById("game-trend-chart")?.getContext("2d");
     if (ctx) {
         window.trendChart = new Chart(ctx, {
             type: "line",
             data: {
                 labels: [],
                 datasets: [{
-                    label: "时长趋势",
+                    label: "游戏时长趋势",
                     data: [],
                     borderColor: "#4BC0C0",
                     backgroundColor: "rgba(75, 192, 192, 0.1)",
@@ -400,6 +561,7 @@ function initializeTrendChart() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     x: { title: { display: true, text: "日期" } },
                     y: { title: { display: true, text: "时长 (小时)" }, beginAtZero: true }
@@ -408,6 +570,8 @@ function initializeTrendChart() {
         });
     }
 }
+
+
 
 // 确保 libraryInit 可以被 renderer.js 调用
 window.libraryInit = libraryInit;

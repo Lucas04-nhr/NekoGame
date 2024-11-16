@@ -27,13 +27,24 @@
             </div>
             <div id="overview-content">
                 <!-- 概况数据将由 JS 动态插入 -->
-                <!-- 本周游戏时长分布 -->
+                <!-- 游戏时间趋势 -->
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3>近7游戏时长分布</h3>
+                        <h3>总游戏时长趋势</h3>
+                        <select id="monthly-range">
+                            <option value="month">近30天</option>
+                            <option value="six_months">近六个月</option>
+                        </select>
+                    </div>
+                    <canvas id="monthly-trend-chart"></canvas>
+                </div>
+                <!-- 游戏时长分布 -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>游戏时长分布</h3>
                         <select id="weekly-range">
-                            <option value="week">按周</option>
-                            <option value="three_months">按月（无效果喵）</option>
+                            <option value="week">近7天</option>
+                            <option value="six_months">近六个月</option>
                         </select>
                     </div>
                     <canvas id="weekly-game-time-chart"></canvas>
@@ -41,29 +52,19 @@
                 </div>
 
                 <div class="chart-container">
+                    <div class="chart-header">
                     <h3>游戏时长趋势图</h3>
-                    <select id="half-year-range">
-                        <option value="daily">按天</option>
-                        <option value="monthly">按月</option>
-                    </select>
+                        <select id="half-year-range">
+                            <option value="daily">按天</option>
+                            <option value="monthly">按月</option>
+                        </select>
+                    </div>
                     <canvas id="half-year-distribution-chart"></canvas>
                 </div>
                 <!-- 所有游戏的总时长分布 -->
                 <div class="chart-container">
                     <h3>游戏总时长分布</h3>
                     <canvas id="total-time-distribution-chart"></canvas>
-                </div>
-
-                <!-- 月度游戏时间趋势 -->
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>游戏时间趋势</h3>
-                        <select id="monthly-range">
-                            <option value="month">本月</option>
-                            <option value="six_months">近六个月（无效果喵）</option>
-                        </select>
-                    </div>
-                    <canvas id="monthly-trend-chart"></canvas>
                 </div>
             </div>
         </div>

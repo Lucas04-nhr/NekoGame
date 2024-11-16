@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { exec,spawn } = require('child_process');
 const { startSession, endSession, db } = require('./database');
 const { ipcMain } = require('electron');
 const dayjs = require('dayjs');
@@ -33,18 +33,21 @@ function initializeTrackedGames() {
 
 // 检测后台运行的进程并实时更新时长
 function detectRunningGames() {
-    exec('tasklist', (err, stdout) => {
-        if (err) {
-            console.error("Error fetching process list:", err);
-            return;
-        }
+    const tasklist = spawn('tasklist');
+    let fullOutput = ''; // 用于存储完整输出
 
+    tasklist.stdout.on('data', (data) => {
+        fullOutput += data.toString(); // 累积输出数据
+    });
+
+    tasklist.stdout.on('end', () => {
+        // 在所有输出完成后处理
         Object.keys(trackedGames).forEach(processName => {
             const game = trackedGames[processName];
-            const isRunning = stdout.includes(processName);
+            const matchName = processName.length > 24 ? processName.slice(0, 24) : processName;
+            const isRunning = fullOutput.includes(matchName);
 
             if (isRunning && !game.isRunning) {
-                // 游戏刚启动
                 game.isRunning = true;
                 startSession(game.id, (err, sessionId) => {
                     if (err) {
@@ -56,7 +59,6 @@ function detectRunningGames() {
                     }
                 });
             } else if (isRunning && game.isRunning && game.sessionId) {
-                // 游戏仍在运行，实时更新结束时间、时长和 `total_time`
                 const endTime = dayjs().tz(chinaTimezone).format('YYYY-MM-DD HH:mm:ss');
                 const increment = 15;
 
@@ -75,10 +77,8 @@ function detectRunningGames() {
 
                 sendRunningStatus();
             } else if (!isRunning && game.isRunning && game.sessionId) {
-                // 游戏刚关闭，结束会话
                 game.isRunning = false;
 
-                // 检查结束时间有效性
                 db.get(`SELECT start_time, end_time FROM game_sessions WHERE id = ?`, [game.sessionId], (err, session) => {
                     if (err) {
                         console.error("Error fetching session:", err);
@@ -86,12 +86,10 @@ function detectRunningGames() {
                     }
 
                     if (!session || session.end_time === null) {
-                        // 删除无效的会话
                         db.run(`DELETE FROM game_sessions WHERE id = ?`, [game.sessionId], (err) => {
                             if (err) console.error("Error deleting invalid session:", err);
                         });
                     } else {
-                        // 正常结束会话
                         endSession(game.id, (err) => {
                             if (err) {
                                 console.error("Error ending session:", err);
@@ -106,7 +104,16 @@ function detectRunningGames() {
             }
         });
     });
+
+    tasklist.stderr.on('data', (data) => {
+        console.error(`Error fetching process list: ${data.toString()}`);
+    });
+
+    tasklist.on('error', (err) => {
+        console.error("Error spawning tasklist:", err);
+    });
 }
+
 
 
 // 向前端发送游戏运行状态
@@ -129,5 +136,6 @@ function startGameTracking() {
 
 module.exports = {
     startGameTracking,
-    initializeTrackedGames
+    initializeTrackedGames,
+    sendRunningStatus
 };

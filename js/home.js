@@ -22,7 +22,7 @@ function initializeCharts() {
     const weeklyCtx = document.getElementById('weekly-game-time-chart').getContext('2d');
     window.weeklyChart = new Chart(weeklyCtx, {
         type: 'bar',
-        data: { labels: [], datasets: [{ label: '本周游戏时长', data: [] }] },
+        data: { labels: [], datasets: [{ label: '本周各游戏时长', data: [] }] },
         options: {
             responsive: true,
             scales: {
@@ -36,7 +36,7 @@ function initializeCharts() {
     const monthlyCtx = document.getElementById('monthly-trend-chart').getContext('2d');
     window.monthlyTrendChart = new Chart(monthlyCtx, {
         type: 'line',
-        data: { labels: [], datasets: [{ label: '月度趋势', data: [] }] },
+        data: { labels: [], datasets: [{ label: '游戏时长', data: [] }] },
         options: {
             responsive: true,
             scales: {
@@ -78,27 +78,30 @@ function initializeCharts() {
     });
 }
 
+function requestRunningStatus() {
+    window.electronAPI.send('request-running-status');
+}
 
 
 // 渲染游戏列表
 function renderGameList(gameData) {
-    console.log("调用了哦")
     const container = document.getElementById('game-list-container');
     if (!container) return;
 
     container.innerHTML = ''; // 清空现有内容
 
-    // 分离正在运行的游戏和未运行的游戏
     const runningGames = gameData.filter(game => game.isRunning);
     const notRunningGames = gameData.filter(game => !game.isRunning);
 
-    // 合并列表：正在运行的游戏排在前面
     const sortedGameData = [...runningGames, ...notRunningGames];
 
     sortedGameData.forEach(game => {
         const gameItem = document.createElement('div');
         gameItem.classList.add('game-item');
+        gameItem.style.position = 'relative'; // 使提示信息定位在内部
+
         const progressColor = game.isRunning ? 'green' : 'gray';
+
         gameItem.innerHTML = `
             <img src="${game.poster_vertical || './assets/poster_vertical.webp'}" alt="${game.name}" class="game-poster">
             <div class="game-info">
@@ -110,10 +113,45 @@ function renderGameList(gameData) {
                     <div class="progress" style="background-color: ${progressColor};"></div>
                 </div>
             </div>
+            <div class="launch-hint hidden">再次点击即可启动游戏</div> <!-- 提示信息 -->
         `;
+
+        let hasClickedOnce = false;
+        let hintTimeout;
+
+        gameItem.addEventListener('click', () => {
+            const launchHint = gameItem.querySelector('.launch-hint');
+
+            if (!hasClickedOnce) {
+                hasClickedOnce = true;
+
+                // 显示启动提示
+                launchHint.classList.remove('hidden');
+                launchHint.classList.add('fade-in');
+
+                // 设置提示淡出动画
+                hintTimeout = setTimeout(() => {
+                    launchHint.classList.remove('fade-in');
+                    launchHint.classList.add('fade-out');
+                    setTimeout(() => {
+                        launchHint.classList.add('hidden');
+                        launchHint.classList.remove('fade-out');
+                        hasClickedOnce = false; // 重置点击状态
+                    }, 500);
+                }, 1000); // 提示显示1秒
+
+            } else {
+                clearTimeout(hintTimeout); // 立即启动游戏，清除淡出计时
+                launchGame(game);
+            }
+        });
+
         container.appendChild(gameItem);
     });
 }
+
+
+
 
 
 // 加载游戏数据
@@ -130,6 +168,35 @@ function loadGameData(runningStatus) {
         })
         .catch(err => console.error("Error loading game data:", err));
 }
+
+function launchGame(game) {
+    // 检查游戏是否已经在运行
+    if (game.isRunning) {
+        alert(`正在运行 ${game.name}，请勿重复点击。`);
+        return;
+    }
+
+    // 使用 ipcRenderer 调用主进程中的 launch-game
+    window.electronAPI.launchGame(game.path)
+        .then(() => {
+            console.log(`成功启动 ${game.name}`);
+            refreshGameList(); // 刷新游戏列表以更新UI显示状态
+        })
+        .catch((error) => {
+            console.error(`无法启动 ${game.name}:`, error);
+            alert(`无法启动 ${game.name}，请检查路径是否正确。`);
+        });
+}
+
+
+// 刷新游戏列表，重新获取状态
+function refreshGameList() {
+    requestRunningStatus();
+    window.electronAPI.onRunningStatusUpdated((runningStatus) => {
+        loadGameData(runningStatus);
+    })
+}
+
 
 // 设置标签切换逻辑
 function setupTabSwitching() {
@@ -169,7 +236,12 @@ function displayDefaultTab() {
 
 // 初始加载和事件监听
 function initialize() {
-    loadGameData(); // 初次加载数据
+    requestRunningStatus(); // 请求初始运行状态
+    // 监听初次运行状态返回事件
+    window.electronAPI.onRunningStatusUpdated((runningStatus) => {
+        // 使用返回的运行状态加载游戏数据
+        loadGameData(runningStatus);
+    });
     displayDefaultTab(); // 默认显示概况
     setupTabSwitching(); // 设置标签切换逻辑
 }
@@ -181,6 +253,9 @@ function setupEventListeners() {
         loadGameData(runningStatus);
     });
 }
+
+
+
 
 // 显示加载动画-待完成
 function showLoadingAnimation() {}
@@ -229,34 +304,32 @@ function loadAnalysisData() {
 
 // 刷新分析数据
 function refreshData() {
-    //showLoadingAnimation();
-
-    // 获取当前选择的半年内分布范围（按日或按月）
     const halfYearRange = document.getElementById('half-year-range').value || 'daily';
+    const weeklyGameTime = document.getElementById('weekly-range').value || 'week';
+    const monthlyTrend = document.getElementById('monthly-range').value || 'month';
 
     Promise.all([
         window.electronAPI.refreshAnalysisData('today_total_time'),
         window.electronAPI.refreshAnalysisData('yesterday_total_time'),
         window.electronAPI.refreshAnalysisData('weekly_game_time'),
         window.electronAPI.refreshAnalysisData('monthly_trend'),
-        // 传递当前选择的范围到 half_year_distribution 的刷新数据中
-        window.electronAPI.refreshAnalysisData('half_year_distribution', halfYearRange),  // 传入正确的范围
+        window.electronAPI.refreshAnalysisData('half_year_distribution', halfYearRange),
         window.electronAPI.refreshAnalysisData('total_time_distribution')
     ])
     .then(([todayResult, yesterdayResult, weeklyResult, monthlyResult, halfYearResult, totalTimeResult]) => {
         hideLoadingAnimation();
 
-        // 更新数据
         displayAnalysisData(todayResult.data, yesterdayResult.data, todayResult.updatedAt);
 
-        // 更新图表数据
-        updateChartData(weeklyChart, weeklyResult.data.map(item => item.total_time / 3600), weeklyResult.data.map(item => item.game_name));
-        updateChartData(monthlyTrendChart, monthlyResult.data.map(item => item.total_time / 3600), monthlyResult.data.map(item => item.date));
-
-        // 重新加载半年内游戏分布图表数据
+        // 更新图表数据，并传入选择范围以正确汇总
+        loadWeeklyGameTime(weeklyGameTime);
+        updateChartData(monthlyTrendChart, monthlyResult.data, monthlyTrend, 'monthly_trend');
+        
+        // 加载半年内游戏分布
         loadHalfYearGameDistribution(halfYearRange);
 
-        updateChartData(totalTimeDistributionChart, totalTimeResult.data.map(item => item.total_time / 3600), totalTimeResult.data.map(item => item.game_name));
+        // 更新总时长分布图表
+        updateChartData(totalTimeDistributionChart, totalTimeResult.data, null, 'total_time_distribution');
     })
     .catch(err => {
         hideLoadingAnimation();
@@ -267,54 +340,215 @@ function refreshData() {
 
 
 
-
 // 更新图表数据
-function updateChartData(chart, data, labels) {
-    if (!chart || !Array.isArray(data) || !Array.isArray(labels)) return;
+function updateChartData(chart, data, range, type) {
+    if (!chart || !Array.isArray(data)) return;
+
+    let labels = [];
+    let values = [];
+
+    if (type === 'weekly_game_time') {
+        const aggregatedData = {};
+
+        if (range === 'week') {
+            data.slice(0, 7).forEach(item => {
+                aggregatedData[item.game_name] = (aggregatedData[item.game_name] || 0) + item.total_time;
+            });
+        } else if (range === 'six_months') {
+            data.forEach(item => {
+                aggregatedData[item.game_name] = (aggregatedData[item.game_name] || 0) + item.total_time;
+            });
+        }
+
+        labels = Object.keys(aggregatedData);
+        values = Object.values(aggregatedData).map(total => total / 3600);
+
+    } else if (type === 'monthly_trend') {
+        if (range === 'month') {
+            const today = new Date();
+            today.setHours(today.getHours() + 8); // 转换为 UTC-8
+            const dateDataMap = {};
+
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateString = date.toISOString().slice(0, 10); // 转换为 YYYY-MM-DD 格式
+                dateDataMap[dateString] = 0;
+            }
+
+            data.forEach(item => {
+                const date = item.date.slice(0, 10);
+                if (dateDataMap.hasOwnProperty(date)) {
+                    dateDataMap[date] = item.total_time / 3600;
+                }
+            });
+
+            labels = Object.keys(dateDataMap);
+            values = Object.values(dateDataMap);
+
+        } else if (range === 'six_months') {
+            const dateDataMap = {};
+
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                date.setHours(date.getHours() + 8); // 转换为 UTC-8
+
+                const monthString = date.toISOString().slice(0, 7); // 转换为 YYYY-MM 格式
+                dateDataMap[monthString] = 0;
+            }
+
+            data.forEach(item => {
+                const month = item.date.slice(0, 7);
+                if (dateDataMap.hasOwnProperty(month)) {
+                    dateDataMap[month] += item.total_time / 3600;
+                }
+            });
+
+            labels = Object.keys(dateDataMap);
+            values = Object.values(dateDataMap);
+        }
+
+        // 计算非零天或月的平均时长
+        const nonZeroValues = values.filter(value => value > 0);
+        const averageTime = nonZeroValues.length ? nonZeroValues.reduce((acc, val) => acc + val, 0) / nonZeroValues.length : 0;
+
+        // 设置平均时长的虚线
+        if (chart.data.datasets.length === 1) {
+            chart.data.datasets.push({
+                label: `平均时长：${averageTime.toFixed(1)} 小时`,
+                data: new Array(values.length).fill(averageTime),
+                borderColor: 'rgba(255, 99, 132, 0.6)',
+                borderDash: [5, 5],
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 1,
+                tension: 0
+            });
+        } else {
+            chart.data.datasets[1].data = new Array(values.length).fill(averageTime);
+            chart.data.datasets[1].label = `平均时长：${averageTime.toFixed(1)} 小时`;
+        }
+    } else if (type === 'total_time_distribution') {
+        labels = data.map(item => item.game_name);
+        values = data.map(item => item.total_time / 3600);
+    }
+
+    // 更新图表数据
     chart.data.labels = labels;
-    chart.data.datasets[0].data = data;
+    chart.data.datasets[0].data = values;
+
+    // 仅在支持 x 轴标签的图表上设置标题
+    if (chart.options.scales && chart.options.scales.x) {
+        chart.options.scales.x.title.text = range === 'six_months' ? '月份' : '日期';
+    }
+
     chart.update();
 }
 
+
+
+
 // 加载并绘制本周游戏时长分布
 function loadWeeklyGameTime(range = 'week') {
-    window.electronAPI.getAnalysisData('weekly_game_time', range)
-        .then(({ data }) => {
+    window.electronAPI.getAnalysisData('weekly_game_time')
+        .then(response => {
+            const { data } = response;
             if (!Array.isArray(data)) {
-                console.error("Invalid data format for weekly game time:", data);
-                throw new Error("Invalid data format");
+                throw new Error("Invalid data format for weekly game time");
             }
-            const labels = data.map(item => item.game_name);
-            const values = data.map(item => item.total_time / 3600);
-            updateChartData(weeklyChart, values, labels);
+
+            let labels = [];
+            let values = [];
+            let labelText = ""; // 动态label
+
+            if (range === 'week') {
+                // 设置 label 为“本周游戏时长”
+                labelText = "游戏时长";
+
+                // 获取最近一周的数据
+                const weeklyData = {};
+                const today = new Date();
+                today.setHours(today.getHours() - 8); // 转换为 UTC-8 (北京时间)
+
+                // 计算过去7天的日期，并将其作为标签
+                const weekStartDate = new Date(today);
+                weekStartDate.setDate(today.getDate() - 6); // 获取一周前的日期
+
+                // 遍历过去7天，初始化游戏数据
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(weekStartDate);
+                    date.setDate(weekStartDate.getDate() + i);
+                    const dateString = date.toISOString().slice(0, 10); // YYYY-MM-DD 格式
+                    labels.push(dateString); // 日期作为标签
+                }
+
+                // 按游戏名汇总数据，计算每个游戏在过去7天的总时长
+                data.forEach(item => {
+                    const itemDate = item.date.slice(0, 10); // 截取日期部分 YYYY-MM-DD
+                    if (labels.includes(itemDate)) {
+                        // 如果该日期在标签中，则累计该游戏的时长
+                        weeklyData[item.game_name] = (weeklyData[item.game_name] || 0) + item.total_time;
+                    }
+                });
+
+                // 获取游戏名和对应的总时长
+                labels = Object.keys(weeklyData);  // 游戏名称
+                values = Object.values(weeklyData).map(total => total / 3600); // 转为小时
+
+            } else if (range === 'six_months') {
+                // 设置 label 为“近6个月游戏时长”
+                labelText = "近6个月各游戏时长";
+
+                // 获取近6个月的数据并按游戏名汇总
+                const sixMonthsData = data.reduce((acc, item) => {
+                    acc[item.game_name] = (acc[item.game_name] || 0) + item.total_time;
+                    return acc;
+                }, {});
+
+                labels = Object.keys(sixMonthsData);
+                values = Object.values(sixMonthsData).map(total => total / 3600); // 转为小时
+            }
+
+            // 如果没有数据，显示“无游戏时长数据”
+            if (labels.length === 0) {
+                labels = ["无游戏时长数据"];
+                values = [0];
+            }
+
+            // 更新图表数据和 label
+            window.weeklyChart.data.labels = labels;
+            window.weeklyChart.data.datasets[0].data = values;
+            window.weeklyChart.data.datasets[0].label = labelText; // 设置动态 label
+            window.weeklyChart.options.scales.x.title.text = '游戏';
+            window.weeklyChart.update();
         })
-        .catch(err => {
-            console.error("Error loading weekly game time data:", err);
-            alert(`Error loading weekly game time data: ${err.message || JSON.stringify(err)}`);
-        });
+        .catch(err => console.error("Error loading weekly game time data:", err));
 }
 
 
 
-// 加载并绘制月度游戏时间趋势
+
+
+
+// 加载并绘制月度游戏时间
 function loadMonthlyTrend(range = 'month') {
-    window.electronAPI.getAnalysisData('monthly_trend', range)
-        .then(({ data, updatedAt }) => {
-            console.log("Received monthly trend data:", data);
-
-            if (!Array.isArray(data) || data.length === 0 || !data[0].date || !data[0].total_time) {
-                console.error("Invalid data format for monthly trend:", data);
-                throw new Error("Invalid data format");
+    window.electronAPI.getAnalysisData('monthly_trend')
+        .then(response => {
+            const { data } = response;
+            if (!Array.isArray(data)) {
+                throw new Error("Invalid data format for monthly trend");
             }
 
-            const labels = data.map(item => item.date);
-            const values = data.map(item => item.total_time / 3600); // 转为小时
-            updateChartData(monthlyTrendChart, values, labels);
+            // 调用 updateChartData 来更新图表，确保数据补全和平均线
+            updateChartData(window.monthlyTrendChart, data, range, 'monthly_trend');
         })
-        .catch(err => {
-            console.error("Error loading monthly trend data:", err);
-        });
+        .catch(err => console.error("Error loading monthly trend data:", err));
 }
+
+
+
+
 
 
 // 定义游戏颜色映射，固定颜色
@@ -469,11 +703,13 @@ function loadTotalTimeDistribution() {
 
 // 初始化事件监听器
 document.getElementById('weekly-range').addEventListener('change', (event) => {
-    loadWeeklyGameTime(event.target.value);
+    const range = event.target.value;
+    loadWeeklyGameTime(range);
 });
 
 document.getElementById('monthly-range').addEventListener('change', (event) => {
-    loadMonthlyTrend(event.target.value);
+    const range = event.target.value;
+    loadMonthlyTrend(range);
 });
 
 // 设置事件监听器用于切换时间范围

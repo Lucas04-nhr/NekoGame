@@ -51,7 +51,7 @@ function getAnalysisData(type, range, callback = () => {}) {
 // 生成分析数据
 function generateAnalysisData(type, range, callback = () => {}) {
     const today = dayjs().tz("Asia/Shanghai").format("YYYY-MM-DD");
-    const yesterday = dayjs().subtract(1, 'day').tz("Asia/Shanghai").format("YYYY-MM-DD");
+    const startDate = dayjs().subtract(6, 'months').startOf('month').format('YYYY-MM-DD');
 
     if (type === 'today_total_time') {
         db.all(`
@@ -69,6 +69,7 @@ function generateAnalysisData(type, range, callback = () => {}) {
         );
 
     } else if (type === 'yesterday_total_time') {
+        const yesterday = dayjs().subtract(1, 'day').tz("Asia/Shanghai").format("YYYY-MM-DD");
         db.all(`
             SELECT SUM(duration) AS total_time FROM game_sessions 
             WHERE DATE(start_time) = ?`, 
@@ -84,24 +85,22 @@ function generateAnalysisData(type, range, callback = () => {}) {
         );
 
     } else if (type === 'weekly_game_time') {
-        const startDate = range === 'three_months' 
-            ? dayjs().subtract(3, 'months').startOf('week').format('YYYY-MM-DD')
-            : dayjs().startOf('week').format('YYYY-MM-DD');
-
         db.all(`
-            SELECT games.name AS game_name, SUM(game_sessions.duration) AS total_time 
+            SELECT games.name AS game_name, DATE(start_time) AS date, SUM(game_sessions.duration) AS total_time 
             FROM game_sessions 
             JOIN games ON games.id = game_sessions.game_id 
             WHERE DATE(start_time) >= ? 
-            GROUP BY game_sessions.game_id`, 
+            GROUP BY game_sessions.game_id, DATE(start_time) 
+            ORDER BY date DESC`, 
             [startDate], 
             (err, rows) => {
                 if (err) {
-                    console.error("Error generating weekly game time:", err);
+                    console.error("Error generating weekly game time data:", err);
                     callback(err, null);
                 } else {
                     const data = rows.map(row => ({
                         game_name: row.game_name,
+                        date: row.date,
                         total_time: row.total_time
                     }));
                     callback(null, data);
@@ -110,15 +109,12 @@ function generateAnalysisData(type, range, callback = () => {}) {
         );
 
     } else if (type === 'monthly_trend') {
-        const startDate = range === 'six_months'
-            ? dayjs().subtract(6, 'months').startOf('month').format('YYYY-MM-DD')
-            : dayjs().startOf('month').format('YYYY-MM-DD');
-
         db.all(`
             SELECT DATE(start_time) AS date, SUM(duration) AS total_time 
             FROM game_sessions 
             WHERE DATE(start_time) >= ? 
-            GROUP BY date`, 
+            GROUP BY date 
+            ORDER BY date DESC`, 
             [startDate], 
             (err, rows) => {
                 if (err) {
@@ -135,8 +131,6 @@ function generateAnalysisData(type, range, callback = () => {}) {
         );
 
     } else if (type === 'half_year_distribution') {
-        const startDate = dayjs().subtract(6, 'months').startOf('month').format('YYYY-MM-DD');
-
         db.all(`
             SELECT games.name AS game_name, DATE(start_time) AS date, SUM(game_sessions.duration) AS total_time 
             FROM game_sessions 
@@ -184,6 +178,7 @@ function generateAnalysisData(type, range, callback = () => {}) {
         callback(new Error(`Unknown analysis type: ${type}`), null);
     }
 }
+
 
 
 

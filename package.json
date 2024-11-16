@@ -1,8 +1,8 @@
 {
   "name": "nekogame",
-  "version": "2.0.6",
+  "version": "2.1.7",
   "main": "main.js",
-  "description": "",
+  "description": "summerneko",
   "author": "",
   "license": "ISC",
   "scripts": {
@@ -18,12 +18,20 @@
   "dependencies": {
     "better-sqlite3": "^11.5.0",
     "dayjs": "^1.11.13",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.3.9",
     "sqlite3": "^5.1.7"
   },
   "build": {
     "appId": "com.wenpeng.nekogame",
     "productName": "NekoGame",
     "copyright": "Copyright © 2023",
+    "releaseInfo": {
+        "releaseNotesFile": "release-notes.md"
+    },
+    "extraMetadata": {
+      "version": "2.1.7"
+    },
     "files": [
       "assets/**/*",
       "css/**/*",
@@ -31,18 +39,27 @@
       "node_modules/**/*",
       "pages/**/*",
       "*.js",
-      "index.html"
+      "index.html",
+      "main.js",
+      "preload.js"
     ],
     "directories": {
       "output": "dist"
     },
     "win": {
       "target": "nsis",
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Summer-Neko",
+        "repo": "NekoGame"
+      }
+    ]
   }
 }

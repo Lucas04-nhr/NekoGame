@@ -332,3 +332,54 @@ canvas {
     font-size: 16px;
     z-index: 1000;
 }
+
+
+
+/* 淡入淡出效果 */
+/* 隐藏元素 */
+.hidden {
+    display: none;
+}
+
+/* 淡入和淡出效果 */
+.fade-in {
+    opacity: 0;
+    display: block;
+    animation: fadeIn 0.25s forwards;
+}
+
+.fade-out {
+    opacity: 1;
+    animation: fadeOut 0.2s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* 启动提示的样式 */
+.launch-hint {
+    background-color: rgba(34, 34, 34, 0.6); /* 深色半透明背景 */
+    color: #f5f5f5;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; /* 控制提示框的大小 */
+    max-width: 200px;
+    z-index: 10; /* 确保显示在前方 */
+}
+
+

@@ -62,7 +62,31 @@ document.addEventListener("DOMContentLoaded", () => {
             loadPage(tab.dataset.page);
         });
     });
-
     // 默认加载主页
     loadPage("home");
+
+    // 监听下载进度
+    window.electronAPI.onDownloadProgress((event, progress) => {
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressBar = document.getElementById('progress-bar');
+        
+        if (progressBarContainer && progressBar) {
+            // 确保进度条容器可见
+            progressBarContainer.style.display = 'block';
+            
+            // 更新进度条宽度
+            progressBar.style.width = `${progress}%`;
+
+            // 下载完成后隐藏进度条
+            if (progress >= 100) {
+                setTimeout(() => {
+                    progressBarContainer.style.display = 'none';
+                }, 1000);
+            }
+        } else {
+            console.warn('进度条元素未找到');
+        }
+    });
+
 });
+

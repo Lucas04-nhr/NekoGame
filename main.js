@@ -1,19 +1,156 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
-const { initializeDatabase, getGameDetails, getGameTimeData, getGameTrendData, addGame, deleteGame, updateGame, getSetting, setSetting } = require('./database'); // 确保导入 getGameTimeData
-const { initializeTrackedGames, startGameTracking } = require('./gameTracker'); 
+const { autoUpdater} = require('electron-updater');
+const { spawn } = require('child_process');
+//在调用database前设置
+const fs = require('fs');
+// 获取用户数据文件夹路径
+const userDataPath = app.getPath('userData');
+// 设置 NekoGame 文件夹路径
+const nekoGameFolderPath = path.join(userDataPath, 'NekoGame');
+// 确保文件夹存在，如果不存在则创建它
+if (!fs.existsSync(nekoGameFolderPath)) {
+    fs.mkdirSync(nekoGameFolderPath, { recursive: true });
+  }
+process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;
+
+const { initializeDatabase, getGameDetails, getGameTimeData, getGameTrendData, addGame, deleteGame, updateGame, getSetting, setSetting, getGameDailyTimeData } = require('./database'); // 确保导入 getGameTimeData
+const { initializeTrackedGames, startGameTracking, sendRunningStatus } = require('./gameTracker'); 
 const { getAnalysisData, refreshAnalysisData, generateAnalysisData } = require('./js/analysis');
-const db = new sqlite3.Database('neko_game.db');
 const gotTheLock = app.requestSingleInstanceLock();
 let tray = null;
 let mainWindow;
 let isWindowVisible = true;
 let minimizeToTraySetting = false;
+let guideWindow = null;
+
+
+// 更新逻辑
+// 创建引导窗口
+function createGuideWindow() {
+    if (!mainWindow) {
+        createWindow();  // 如果主窗口未创建，则创建窗口
+    }
+    guideWindow = new BrowserWindow({
+        width: 600,
+        height: 400,
+        resizable: false,
+        modal: true,
+        parent: mainWindow,
+        frame: false, // 去掉窗口边框
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
+    });
+
+    guideWindow.loadFile(path.resolve(__dirname, './pages/guide.html'));
+
+    // 监听窗口关闭事件，将 guideWindow 设置为 null
+    guideWindow.on('closed', () => {
+        guideWindow = null;
+    });
+}
+
+
+// 使用异步 IIFE（立即调用函数）加载 electron-store 并初始化
+(async () => {
+    const Store = (await import('electron-store')).default;
+    const store = new Store();
+
+    const currentVersion = app.getVersion();
+
+    // 检查是否首次启动或更新
+    const savedVersion = store.get('appVersion');
+    if (!savedVersion || savedVersion !== currentVersion) {
+        // 显示引导窗口并更新版本号
+        createGuideWindow();
+        store.set('appVersion', currentVersion);
+    }
+
+    // 检查用户是否跳过了此版本
+    if (store.get('skippedVersion') !== currentVersion) {
+        autoUpdater.checkForUpdatesAndNotify();
+    }
+
+    // 自动更新逻辑
+    autoUpdater.on('update-available', (info) => {
+        const releaseNotes = info.releaseNotes || '暂无更新日志';
+        const releaseName = info.releaseName || '船新版本';
+        if (mainWindow) {
+            mainWindow.show();
+            mainWindow.focus(); // 确保窗口获得焦点
+        }
+        dialog.showMessageBox(mainWindow, {
+            type: 'info',
+            title: `${releaseName} 已推出！`,
+            message: '发现新版本，是否下载更新喵？',
+            detail: `更新日志：\n${releaseNotes}`,
+            buttons: ['让我们开始吧！', '跳过此版本', '下次再提醒我']
+        }).then(result => {
+            if (result.response === 0) {
+                console.log("现在开始下载");
+                autoUpdater.downloadUpdate();
+            } else if (result.response === 1) {
+                // 用户选择跳过此版本，记录版本号
+                store.set('skippedVersion', autoUpdater.updateInfo.version);
+                console.log(`用户选择跳过版本 ${autoUpdater.updateInfo.version}`);
+            } else {
+                console.log("用户选择下次提醒");
+            }
+        });
+    });
+
+    autoUpdater.on('download-progress', (progressObj) => {
+        let percent = progressObj.percent.toFixed(2);
+        let logMessage = `下载速度: ${progressObj.bytesPerSecond}`;
+        logMessage += ` - 已下载 ${percent}%`;
+        logMessage += ` (${progressObj.transferred}/${progressObj.total})`;
+        console.log(logMessage);
+        
+        // 更新托盘图标的悬浮提示文字
+        if (tray) {
+            tray.setToolTip(`NekoGame - 正在后台更新：已下载 ${percent}%`);
+        }
+        
+        // 可以将进度信息传递到前端并显示
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send('download-progress', percent);
+        }
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+        dialog.showMessageBox({
+            type: 'info',
+            title: '新版本已准备好！',
+            message: '更新已准备好，要立刻重启安装喵？\n更新不会导致数据丢失。如果不放心可以备份',
+            buttons: ['开始吧！', '稍等']
+        }).then(result => {
+            if (result.response === 0) {
+                autoUpdater.quitAndInstall();
+            }
+        });
+
+        // 恢复托盘提示文字
+        if (tray) {
+            tray.setToolTip('NekoGame');
+        }
+    });
+})();
+
+
+const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"), (err) => {
+    if (err) {
+        console.error("Database connection failed:", err.message);
+    } else {
+        console.log("Connected to the database.");
+    }
+});
 
 
 function createTray() {
-    const iconPath = path.join(__dirname, 'assets', 'icon.png'); // 使用绝对路径
+    const iconPath = path.join(__dirname, 'assets', 'icon.ico'); // 使用绝对路径
     tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         { label: '退出应用', click: () => {
@@ -27,13 +164,14 @@ function createTray() {
     tray.on('click', () => {
         if (!mainWindow) {
             createWindow();  // 如果主窗口未创建，则创建窗口
+            autoUpdater.checkForUpdatesAndNotify(); //检查更新
         } else {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
             } else {
                 mainWindow.show();
                 // 每次窗口显示时发送刷新事件
-                mainWindow.webContents.send('refresh-content');
+                sendRunningStatus(); // 立即发送最新的运行状态
                 mainWindow.focus();
             }
         }
@@ -44,8 +182,8 @@ function createTray() {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1200,
-        height: 800,
+        width: 1100,
+        height: 700,
         minWidth: 1000,
         minHeight: 600,
         backgroundColor: '#1e1e1e', // 设置为应用的暗色主题颜色
@@ -191,7 +329,6 @@ ipcMain.handle('get-game-details', async (event, gameId) => {
                 console.error("Database error fetching game details:", err);
                 reject(err);
             } else {
-                console.log("Fetched game details from database:", row); // 调试信息
                 resolve(row);
             }
         });
@@ -266,6 +403,7 @@ app.whenReady().then(() => {
     initializeSettings();
     // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
     startGameTracking(); 
+    autoUpdater.checkForUpdatesAndNotify();
 });
 
 module.exports = { mainWindow }; // 确保 `mainWindow` 可供外部访问
@@ -273,12 +411,11 @@ module.exports = { mainWindow }; // 确保 `mainWindow` 可供外部访问
 
 // 定期触发数据更新通知
 ipcMain.on('running-status-updated', (event, runningStatus) => {
-    console.log("是否有running-status-updated1",runningStatus);
     if (mainWindow && mainWindow.webContents && mainWindow.isVisible()) {
-        console.log("是否有running-status-updated2")
         mainWindow.webContents.send('running-status-updated', runningStatus);
     }
 });
+
 
 
 
@@ -307,10 +444,13 @@ ipcMain.handle('fetch-analysis-data', async (event, { type, range }) => {
     });
 });
 
+
+
+
 // 获取游戏详细信息
 ipcMain.handle("getGameDetails", async (event, gameId) => {
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(path.join(__dirname, "neko_game.db"));
+        const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"));
         db.get(`
             SELECT g.name, g.icon, g.poster_horizontal, 
                    (SELECT SUM(duration) FROM game_sessions WHERE game_id = g.id) AS total_time,
@@ -351,6 +491,10 @@ ipcMain.handle("update-game", async (event, gameData) => {
     });
 });
 
+ipcMain.on('request-running-status', (event) => {
+    sendRunningStatus(); // 立即发送最新的运行状态
+});
+
 // 获取游戏时长趋势数据
 ipcMain.handle("getGameTrendData", async (event, gameId) => {
     return new Promise((resolve, reject) => {
@@ -377,18 +521,45 @@ ipcMain.handle("set-auto-launch", (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
 });
 
-// 检查并清理错误数据
 ipcMain.handle("check-errors", async () => {
     return new Promise((resolve, reject) => {
-        db.run(`DELETE FROM game_sessions WHERE end_time IS NULL OR end_time < start_time`, [], function (err) {
-            if (err) {
-                reject("检查错误时发生问题：" + err.message);
-            } else {
-                resolve(this.changes > 0 ? `已处理 ${this.changes} 条数据` : null); // 返回处理的条数
-            }
+        db.serialize(() => {
+            // 清理 end_time 为 NULL 或 end_time 小于 start_time 的数据
+            db.run(`DELETE FROM game_sessions WHERE end_time IS NULL OR end_time < start_time`, [], function (err) {
+                if (err) {
+                    reject("检查错误时发生问题：" + err.message);
+                    return;
+                }
+                const changes1 = this.changes;
+
+                // 清理 start_time 等于 end_time 的数据
+                db.run(`DELETE FROM game_sessions WHERE start_time = end_time`, [], function (err) {
+                    if (err) {
+                        reject("检查开始时间等于结束时间的记录时发生问题：" + err.message);
+                        return;
+                    }
+                    const changes2 = this.changes;
+
+                    // 清理重复会话记录
+                    db.run(`DELETE FROM game_sessions WHERE rowid NOT IN (
+                        SELECT MIN(rowid)
+                        FROM game_sessions
+                        GROUP BY game_id, start_time
+                    )`, [], function (err) {
+                        if (err) {
+                            reject("检查重复数据时发生问题：" + err.message);
+                        } else {
+                            const changes3 = this.changes;
+                            const totalChanges = changes1 + changes2 + changes3;
+                            resolve(totalChanges > 0 ? `已处理 ${totalChanges} 条数据` : null);
+                        }
+                    });
+                });
+            });
         });
     });
 });
+
 
 
 
@@ -464,6 +635,66 @@ ipcMain.handle('get-log-data', async (event, page) => {
     });
 });
 
+
+//从数据库获取游戏的每日时长数据
+ipcMain.handle("get-game-daily-time-data", (event, gameId) => {
+    return new Promise((resolve, reject) => {
+        getGameDailyTimeData(gameId, (err, rows) => {
+            if (err) {
+                reject(err.message);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+});
+
+//打开数据文件夹逻辑
+ipcMain.on('open-data-path', () => {
+    const dataPath = process.env.NEKO_GAME_FOLDER_PATH;
+    if (dataPath) {
+        shell.openPath(dataPath).then(response => {
+            if (response) {
+                console.error("Failed to open data path:", response);
+            }
+        });
+    } else {
+        console.error("Data path not defined");
+    }
+});
+
+ipcMain.on('open-external', (event, url) => {
+    if (url) {
+        shell.openExternal(url);
+    }
+});
+
+// 启动进程
+ipcMain.handle('launch-game', (event, gamePath) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const gameDir = path.dirname(gamePath);
+            const gameFile = path.basename(gamePath);
+
+            // 使用 shell: true 并确保路径包含在引号内
+            const gameProcess = spawn(`"${gameFile}"`, { cwd: gameDir, shell: true, detached: true });
+
+            gameProcess.on('error', (error) => {
+                console.error(`Failed to start game at ${gamePath}:`, error);
+                reject(error);
+            });
+
+            // 在进程启动后立即返回成功
+            console.log(`Game started successfully at ${gamePath}`);
+            resolve(true); // 立即返回成功状态
+
+            gameProcess.unref(); // 让游戏进程独立运行，不等待其退出
+        } catch (error) {
+            console.error(`Error starting game: ${error.message}`);
+            reject(error);
+        }
+    });
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();

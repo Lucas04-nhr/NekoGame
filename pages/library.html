@@ -15,24 +15,31 @@
     </div>
 
     <div class="game-details">
-        <p id="total-time"></p>
-        <p id="last-played"></p>
-        <p id="rank"></p>
-        <div class="ellipsis-menu">
-            <button class="menu-button">⋮</button>
-            <div class="menu-dropdown">
-                <a href="#" id="edit-game">编辑游戏</a>
-                <a href="#" id="delete-game">删除游戏</a>
+        <!-- 游戏详情区域 -->
+        <div class="tab-content">
+            <p id="total-time"></p>
+            <p id="last-played"></p>
+            <p id="rank"></p>
+            <div class="ellipsis-menu">
+                <button class="menu-button">⋮</button>
+                <div class="menu-dropdown">
+                    <a href="#" id="edit-game">编辑游戏</a>
+                    <a href="#" id="delete-game">删除游戏</a>
+                </div>
+            </div>
+            <div class="game-details">
+                <div class="chart-container">
+                    <h3>游戏数据喵</h3>
+                    <div id="daily-time-chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>时长趋势喵</h3>
+                    <canvas id="trend-chart"></canvas>
+                </div>
+            </div>        
+            <div class="game-achievements">
             </div>
         </div>
-        <div class="game-achievements">
-            <h2 id="game-name">你如果看到了这些，说明你还没有添加游戏喵</h2>
-        </div>
-        <div class="game-trend">
-            <h3>游戏趋势喵</h3>
-            <canvas id="trend-chart"></canvas>
-        </div>
-
     </div>
     
 </div>
@@ -54,6 +61,8 @@
                 
                 <label for="game-name-input">游戏名字</label>
                 <input type="text" id="game-name-input" required>
+
+                <br>
 
                 <label>游戏海报（竖版）</label>
                 <div id="poster-vertical-preview" class="image-preview-vertical" style="background-image: url('./assets/poster_vertical.webp');"></div>
@@ -88,6 +97,8 @@
 
                 <label for="edit-game-name-input">游戏名字</label>
                 <input type="text" id="edit-game-name-input" required>
+
+                <br>
 
                 <label>游戏海报（竖版）</label>
                 <div id="edit-poster-vertical-preview" class="image-preview-vertical"></div>
