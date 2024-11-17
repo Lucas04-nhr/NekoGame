@@ -1,5 +1,6 @@
 // DOM 加载完成后初始化
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("有代码哦")
     libraryInit();
 });
 

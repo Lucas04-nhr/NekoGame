@@ -6,7 +6,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "electron .",
+    "start": "chcp 65001 && electron .",
     "build": "electron-builder"
   },
   "keywords": [],
@@ -16,32 +16,35 @@
     "electron-packager": "^17.1.2"
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "better-sqlite3": "^11.5.0",
+    "cheerio": "^1.0.0",
     "dayjs": "^1.11.13",
     "electron-store": "^10.0.0",
     "electron-updater": "^6.3.9",
-    "sqlite3": "^5.1.7"
+    "iconv-lite": "^0.6.3",
+    "node-fetch": "^3.3.2",
+    "qs": "^6.13.0",
+    "sqlite3": "^5.1.7",
+    "winreg": "^1.2.5"
   },
   "build": {
     "appId": "com.wenpeng.nekogame",
     "productName": "NekoGame",
     "copyright": "Copyright © 2023",
     "releaseInfo": {
-        "releaseNotesFile": "release-notes.md"
+      "releaseNotesFile": "release-notes.md"
     },
     "extraMetadata": {
       "version": "2.1.7"
     },
     "files": [
       "assets/**/*",
+      "src/**/*",
       "css/**/*",
       "js/**/*",
       "node_modules/**/*",
-      "pages/**/*",
-      "*.js",
-      "index.html",
-      "main.js",
-      "preload.js"
+      "pages/**/*"
     ],
     "directories": {
       "output": "dist"

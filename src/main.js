@@ -15,10 +15,15 @@ if (!fs.existsSync(nekoGameFolderPath)) {
   }
 process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;
 
+
 const { initializeDatabase, getGameDetails, getGameTimeData, getGameTrendData, addGame, deleteGame, updateGame, getSetting, setSetting, getGameDailyTimeData } = require('./database'); // 确保导入 getGameTimeData
 const { initializeTrackedGames, startGameTracking, sendRunningStatus } = require('./gameTracker');
 const { getAnalysisData, refreshAnalysisData, generateAnalysisData } = require('./js/analysis');
 const gotTheLock = app.requestSingleInstanceLock();
+const { getGamePath, extractGachaUrl } = require('./utils/getWutheringWavesPath');
+
+
+
 let tray = null;
 let mainWindow;
 let isWindowVisible = true;
@@ -195,9 +200,12 @@ function createWindow() {
         },
         frame: false
     });
-
-    //mainWindow.webContents.openDevTools();
     mainWindow.loadFile('src/index.html');
+    // 打开开发者工具
+    mainWindow.webContents.once('dom-ready', () => {
+        mainWindow.webContents.openDevTools();
+    });
+
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('set-app-path', app.getAppPath());
     });
@@ -395,14 +403,16 @@ async function initializeSettings() {
 if (!gotTheLock) {
     dialog.showErrorBox('Neko Game 已运行', '应用已在运行，请检查喵。'); // 提示用户已有进程
     app.exit(); // 使用 app.exit 退出当前实例
-} 
+}
+// 将 require 替换为动态 import
 
+require('./utils/analysisIpc'); // 引入分析相关的 IPC 逻辑
 // 在应用启动时初始化数据库和进程检测
 app.whenReady().then(() => {
     initializeDatabase();
     initializeSettings();
     // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
-    startGameTracking(); 
+    startGameTracking();
     autoUpdater.checkForUpdatesAndNotify();
 });
 
@@ -695,6 +705,20 @@ ipcMain.handle('launch-game', (event, gamePath) => {
         }
     });
 });
+
+// 获取鸣潮路径
+ipcMain.handle('get-wuthering-waves-gacha-url', async () => {
+    try {
+        const gamePath = await getGamePath(); // 调用更新后的函数
+        const gachaUrl = await extractGachaUrl(gamePath);
+        return { success: true, gachaUrl };
+    } catch (err) {
+        console.error("获取祈愿链接失败:", err.message);
+        return { success: false, error: err.message };
+    }
+});
+
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();

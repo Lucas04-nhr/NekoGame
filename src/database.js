@@ -20,6 +20,13 @@ const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"), (
         console.log("Connected to the database.");
     }
 });
+const db2 = new sqlite3.Database(path.join(nekoGameFolderPath, "gacha_data.db"), (err) => {
+    if (err) {
+        console.error("Database connection failed:", err.message);
+    } else {
+        console.log("Connected to the database.");
+    }
+});
 
 
 // 初始化数据库函数
@@ -112,6 +119,28 @@ function initializeDatabase() {
             }
         });
     });
+    db2.serialize(() => {
+        db2.run(`
+            CREATE TABLE IF NOT EXISTS gacha_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                player_id TEXT NOT NULL,
+                card_pool_type TEXT NOT NULL,
+                resource_id TEXT,
+                quality_level INTEGER,
+                resource_type TEXT,
+                name TEXT,
+                count INTEGER,
+                timestamp TEXT NOT NULL
+            );
+        `, (err) => {
+            if (err) {
+                console.error("Failed to initialize gacha_logs table:", err.message);
+            } else {
+                console.log("gacha_logs table initialized successfully.");
+            }
+        });
+    });
+
 }
 
 
@@ -334,6 +363,7 @@ function getGameAverageDailyTimeData(gameId, callback) {
 // 导出数据库实例和初始化函数
 module.exports = {
     db,
+    db2,
     initializeDatabase,
     addGame,
     startSession, 
