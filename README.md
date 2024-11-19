@@ -4,7 +4,8 @@
 
 ## 概述
 Neko Game 是一款游戏管理应用程序，旨在通过现代化、暗色风格主题的用户界面来监控和分析您的游戏活动。本应用基于 Electron 构建，集成了多个核心功能，包括游戏时长记录、数据可视化和全面的游戏管理工具。在使用前，请先阅读本文（预计用时：5min）。
-![image](https://github.com/user-attachments/assets/496eaaab-a9cf-47ae-b306-cbe75d48a5af)
+![image](https://github.com/user-attachments/assets/bdee36e3-39c6-411c-9cb5-5c47ae7523d1)
+
 
 
 ## 功能特点
@@ -56,8 +57,9 @@ npm run build
 
 ## 项目部分图片展示
 ![image](https://github.com/user-attachments/assets/a580eb08-b6d7-4112-9237-0e1fa8072f56)
-![image](https://github.com/user-attachments/assets/7b20f99c-d93f-4d62-8718-d00fc09e4274)
-![image](https://github.com/user-attachments/assets/22a044dc-ec5f-4cf8-bc46-4bf7f5696f36)
+![image](https://github.com/user-attachments/assets/9da58880-272b-4e18-ad23-b6ebb0dc0b72)
+![image](https://github.com/user-attachments/assets/684150b1-3924-47b1-a313-269374b36f37)
+
 
 
 
