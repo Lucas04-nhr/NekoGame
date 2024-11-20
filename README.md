@@ -59,9 +59,7 @@ npm run build
 ## 项目部分图片展示
 ![image](https://github.com/user-attachments/assets/a580eb08-b6d7-4112-9237-0e1fa8072f56)
 ![image](https://github.com/user-attachments/assets/9da58880-272b-4e18-ad23-b6ebb0dc0b72)
-![image](https://github.com/user-attachments/assets/c9fdcf38-d9ac-4f9c-9fd2-d2cf5c9cbc33)
-
-
+![image](https://github.com/user-attachments/assets/fc38881e-1e69-4c8a-bdb2-88e76fac7bfa)
 
 
 
@@ -76,7 +74,6 @@ npm run build
 
 ### 已知限制
 - 编辑游戏详情在复杂配置时可能需要进一步优化。
-- 更新逻辑需要调整。（发布更新后，无论如何操作，都会一定会更新。不过，您应该也不想错过新版本吧）
 - 部分样式存在问题。
 - 久远数据的处理逻辑有待优化。（指10年前的数据）
 - 目前分析展示的数据只处理近半年。（不过以往数据不会主动删除）
@@ -84,5 +81,6 @@ npm run build
 ### 未来更新方向
 - 添加游戏工具。包含祈愿分析（原神、崩铁）。目前逻辑大概清楚了。未来可能更新
 - 数据展示优化
+- 数据导入与导出
 
 
