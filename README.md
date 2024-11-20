@@ -57,9 +57,9 @@ npm run build
 - **时间记录**:已录入的游戏会自动开始统计使用时间，无需额外操作。
 
 ## 项目部分图片展示
+![image](https://github.com/user-attachments/assets/29d001bf-9394-4b51-ad1c-4d924d13ee1b)
 ![image](https://github.com/user-attachments/assets/a580eb08-b6d7-4112-9237-0e1fa8072f56)
 ![image](https://github.com/user-attachments/assets/9da58880-272b-4e18-ad23-b6ebb0dc0b72)
-![image](https://github.com/user-attachments/assets/29d001bf-9394-4b51-ad1c-4d924d13ee1b)
 
 
 
