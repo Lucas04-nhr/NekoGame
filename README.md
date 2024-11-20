@@ -58,10 +58,7 @@ npm run build
 ## 项目部分图片展示
 ![image](https://github.com/user-attachments/assets/a580eb08-b6d7-4112-9237-0e1fa8072f56)
 ![image](https://github.com/user-attachments/assets/9da58880-272b-4e18-ad23-b6ebb0dc0b72)
-![image](https://github.com/user-attachments/assets/dc20d31e-dde3-4f2e-9ac8-55681f5f9ebc)
-
-
-
+![image](https://github.com/user-attachments/assets/e0242713-1ad8-44d1-b92e-74df2ba9db99)
 
 
 
