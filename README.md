@@ -20,7 +20,7 @@ Neko Game 是一款游戏管理应用程序，旨在通过现代化、暗色风�
 
 ## 安装步骤
 - 1.从发布页面下载最新的 `.exe` 文件（__推荐__）：请访问 [发布页面](https://github.com/Summer-Neko/NekoGame/releases) 下载最新版本的可执行文件并安装。
-- 2.也可以从[百度网盘](https://pan.baidu.com/s/1KMhq4imY2eOMZRNsUq-Jgw?pwd=gh7a) 下载解压后安装。
+- 2.也可以从[百度网盘](https://pan.baidu.com/s/1XO6aw1Lnk7dgrXugyTnu9A?pwd=nt1k) 下载解压后安装。
    
 ## 安装步骤（开发者）
 1. 克隆此仓库：
