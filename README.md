@@ -58,7 +58,9 @@ npm run build
 ## 项目部分图片展示
 ![image](https://github.com/user-attachments/assets/a580eb08-b6d7-4112-9237-0e1fa8072f56)
 ![image](https://github.com/user-attachments/assets/9da58880-272b-4e18-ad23-b6ebb0dc0b72)
-![image](https://github.com/user-attachments/assets/684150b1-3924-47b1-a313-269374b36f37)
+![image](https://github.com/user-attachments/assets/dc20d31e-dde3-4f2e-9ac8-55681f5f9ebc)
+
+
 
 
 
@@ -66,6 +68,7 @@ npm run build
 ## 故障排除&更新方向
 ### 常见问题
 - **托盘图标缺失**：确保打包时图标路径正确并在打包配置中包含。
+- **无法获取祈愿纪录**：请确保游戏正确安装且没有手动迁移过。
 - **游戏时长未记录**：重新加载应用或使用刷新功能来重启时长检测。并确认您选择的路径是否是游戏主程序(一般是游戏名+.exe)而并非启动器（可能是Launcher.exe）。
 - **路径或图片错误**：检查文件路径中的特殊符号，并确保图片文件被正确引用。以及选择文件的后缀是否正常。
 - **有概率权限报错**：如果错误信息中包含gameTracker.js。那么可以忽略，这是由于系统拒绝了查询请求。如果一直出现，请重启应用。
