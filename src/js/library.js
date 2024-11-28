@@ -1,9 +1,3 @@
-// DOM 加载完成后初始化
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("有代码哦")
-    libraryInit();
-});
-
 // 加载游戏列表
 async function loadGames() {
     try {
@@ -379,18 +373,6 @@ function getBackgroundColor(hours) {
 
 
 
-// 获取颜色深度
-function getBackgroundColor(hours) {
-    if (hours === 0) return '#e0e0e0'; // 浅灰色表示没有记录
-    if (hours < 1) return '#c6e48b'; // 浅绿色
-    if (hours < 3) return '#7bc96f'; // 中绿色
-    if (hours < 5) return '#239a3b'; // 深绿色
-    return '#196127'; // 最深绿色
-}
-
-
-
-
 // 关闭函数
 function closeAddGameModal() {
     document.getElementById("add-game-modal").style.display = "none";
@@ -406,6 +388,7 @@ document.getElementById("delete-game")?.addEventListener("click", deleteGame);
 
 
 // 加载并显示游戏趋势图
+// 加载并显示游戏趋势图
 async function loadGameTrendChart(gameId) {
     const ctx = document.getElementById("game-trend-chart")?.getContext("2d");
     if (!ctx) {
@@ -420,26 +403,53 @@ async function loadGameTrendChart(gameId) {
             document.querySelector(".game-trend").innerHTML = "<p>暂无趋势数据</p>";
             return;
         }
+
+        // 提取数据
         const labels = data.map(item => item.date);
         const values = data.map(item => item.total_time / 3600);
 
+        // 计算非零天的平均时长
+        const nonZeroValues = values.filter(value => value > 0);
+        const averageTime = nonZeroValues.length
+            ? nonZeroValues.reduce((acc, val) => acc + val, 0) / nonZeroValues.length
+            : 0;
+
         if (window.gameTrendChart) window.gameTrendChart.destroy(); // 销毁旧图表实例
+
+        // 创建图表实例
         window.gameTrendChart = new Chart(ctx, {
             type: "line",
             data: {
                 labels: labels,
-                datasets: [{
-                    label: "游戏时长趋势",
-                    data: values,
-                    borderColor: "#36A2EB",
-                    fill: false,
-                    tension: 0.1
-                }]
+                datasets: [
+                    {
+                        label: "游戏时长趋势",
+                        data: values,
+                        borderColor: "#36A2EB",
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: `平均时长：${averageTime.toFixed(1)} 小时`,
+                        data: new Array(values.length).fill(averageTime), // 虚线的值为平均时长
+                        borderColor: "rgba(255, 99, 132, 0.6)", // 红色虚线
+                        borderDash: [5, 5], // 虚线样式
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 1,
+                        tension: 0
+                    }
+                ]
             },
             options: {
                 scales: {
-                    x: { title: { display: true, text: "日期" } },
-                    y: { title: { display: true, text: "时长 (小时)" }, beginAtZero: true }
+                    x: {
+                        title: { display: true, text: "日期" }
+                    },
+                    y: {
+                        title: { display: true, text: "时长 (小时)" },
+                        beginAtZero: true
+                    }
                 }
             }
         });
@@ -447,9 +457,6 @@ async function loadGameTrendChart(gameId) {
         console.error("Error loading game trend data:", error);
     }
 }
-
-
-
 
 
     // 提交添加游戏表单
@@ -572,7 +579,3 @@ function initializeTrendChart() {
     }
 }
 
-
-
-// 确保 libraryInit 可以被 renderer.js 调用
-window.libraryInit = libraryInit;

@@ -1,0 +1,346 @@
+// 按卡池分类记录
+function categorizeRecords(records) {
+    const pools = {};
+    records.forEach(record => {
+        if (!pools[record.card_pool_type]) {
+            pools[record.card_pool_type] = [];
+        }
+        pools[record.card_pool_type].push(record);
+    });
+    return pools;
+}
+
+
+// 抽数计算逻辑
+function calculateLastDraws(records, quality) {
+    let drawCount = -1; // 当前累计抽数
+    for (let i = 0; i < records.length; i++) { // 从头开始遍历
+        drawCount++;
+        if (records[i].quality_level === quality) {
+            return drawCount; // 找到目标星级，返回累计抽数
+        }
+    }
+    return drawCount; // 如果没有找到目标星级，返回总抽数
+}
+
+function calculateMostDraws(records, quality) {
+    const qualityRecords = records.filter(r => r.quality_level === quality);
+    if (qualityRecords.length === 0) return "暂未抽出五星";
+
+    let maxDraws = 0;
+    let minDraws = Number.MAX_VALUE;
+
+    qualityRecords.forEach((record, index) => {
+        const nextIndex = index + 1 < qualityRecords.length
+            ? records.indexOf(qualityRecords[index + 1])
+            : records.length;
+
+        const draws = nextIndex - records.indexOf(record);
+        maxDraws = Math.max(maxDraws, draws);
+        minDraws = Math.min(minDraws, draws);
+    });
+
+    return { maxDraws, minDraws };
+}
+
+
+// 计算平均抽卡数
+function calculateDrawsBetween(records, quality) {
+    const qualityRecords = records.filter(r => r.quality_level === quality);
+    if (qualityRecords.length === 0) return "还没抽出五星";
+    let totalDraws = 0;
+    qualityRecords.forEach((record, index) => {
+        const nextIndex = index + 1 < qualityRecords.length
+            ? records.indexOf(qualityRecords[index + 1])
+            : records.length;
+        totalDraws += nextIndex - records.indexOf(record);
+    });
+    return totalDraws / qualityRecords.length;
+}
+function calculateUpAverage(records) {
+    const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈"]; // 常驻角色
+    const upRecords = records.filter(
+        r => r.quality_level === 5 && !commonItems.includes(r.name) && r.card_pool_type === "角色活动唤取"
+    );
+    if (upRecords.length === 0) return "还没抽出UP角色";
+    // 遍历UP角色，累加抽数
+    let totalDraws = 0;
+    upRecords.forEach((record, index) => {
+        const nextIndex = index + 1 < upRecords.length
+            ? records.indexOf(upRecords[index + 1]) // 下一个UP角色的索引
+            : records.length; // 最后一抽的索引
+        totalDraws += nextIndex - records.indexOf(record); // 当前UP角色到下一个UP角色的距离
+    });
+    return totalDraws / upRecords.length; // 平均UP抽数
+}
+
+
+
+// 计算不歪概率
+function calculateNoDeviationRate(records) {
+    const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈"]; // 常驻角色
+    const fiveStarRecords = records.filter(r => r.quality_level === 5); // 筛选五星记录
+
+    if (!fiveStarRecords.length) return "无数据"; // 无五星记录
+
+    let noDeviationCount = 0;
+    let upCount = 0;
+
+    for (let i = 0; i < fiveStarRecords.length; i++) {
+        const record = fiveStarRecords[i];
+
+        // 判断是否为 UP 角色
+        const isUpCharacter = !commonItems.includes(record.name);
+        if (isUpCharacter) {
+            upCount++; // 统计 UP 角色数量
+
+            // 如果是第一个五星角色或者前一个五星也是UP角色
+            if (i === 0 || !commonItems.includes(fiveStarRecords[i - 1]?.name)) {
+                noDeviationCount++;
+            }
+        }
+    }
+
+    if (upCount === 0) return "还没抽出UP哦"; // 无UP角色
+    return `${((noDeviationCount / upCount) * 100).toFixed(2)}%`; // 返回不歪概率
+}
+
+
+
+// 生成概览和详细列表
+function generateOverview(records) {
+    const fiveStarRecords = records.filter(r => r.quality_level === 5);
+    const upItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
+        "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛","漪澜浮录"]; //这里是常驻
+
+    return fiveStarRecords.map((record, index) => {
+        const nextIndex = index + 1 < fiveStarRecords.length
+            ? records.indexOf(fiveStarRecords[index + 1])
+            : records.length;
+
+        const draws = nextIndex - records.indexOf(record);
+        const color = getDrawColor(draws, record.quality_level); // 获取颜色
+        // 判断是否为“歪”
+        const isOffBanner = record.card_pool_type === "角色活动唤取" && upItems.includes(record.name);
+        return `
+            <div class="record">
+                <span class="record-star gold">${record.quality_level} 星</span>
+                <span class="record-name" style="color: ${getColorByQuality(record.quality_level)};">${record.name}</span>
+                <span class="record-draws-with-off-banner">
+                    ${isOffBanner ? `<span class="record-off-banner" title="常驻角色">歪</span>` : ""}
+                    <span class="record-draws" style="color: ${color};">${draws} 抽</span>
+                </span>
+            </div>
+        `;
+    }).join('');
+}
+function generateDetails(records) {
+    const groupedRecords = groupRecordsByDate(records); // 按日期分组
+    const fiveStarRecords = records.filter(r => r.quality_level === 5); // 筛选五星记录
+    const fourStarRecords = records.filter(r => r.quality_level === 4); // 筛选四星记录
+    const upItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
+        "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛", "漪澜浮录"]; // 常驻角色
+
+    return Object.keys(groupedRecords)
+        .map(date => {
+            const recordsForDate = groupedRecords[date]; // 获取该日期的所有记录
+            return `
+                <div class="record-date-group">
+                    <div class="record-date">${date}</div>
+                    ${recordsForDate.map(record => {
+                        let draws = '';
+
+                        if (record.quality_level === 5) {
+                            const currentIndex = records.indexOf(record);
+                            const nextIndex = fiveStarRecords.find(r => records.indexOf(r) > currentIndex);
+                            draws = nextIndex
+                                ? records.indexOf(nextIndex) - currentIndex
+                                : records.length - currentIndex;
+                        } else if (record.quality_level === 4) {
+                            const currentIndex = records.indexOf(record);
+                            const nextIndex = fourStarRecords.find(r => records.indexOf(r) > currentIndex);
+                            draws = nextIndex
+                                ? records.indexOf(nextIndex) - currentIndex
+                                : records.length - currentIndex;
+                        }
+
+                        const color = getDrawColor(draws, record.quality_level); // 获取颜色
+
+                        // 判断是否为“歪”
+                        const isOffBanner =
+                            record.card_pool_type === "角色活动唤取" && upItems.includes(record.name);
+
+                        return `
+                            <div class="record">
+                                <span class="record-star" style="color: ${getColorByQuality(record.quality_level)};">
+                                    ${record.quality_level} 星
+                                </span>
+                                <span class="record-name" style="color: ${getColorByQuality(record.quality_level)};">
+                                    ${record.name}
+                                </span>
+                                ${
+                                    draws
+                                        ? `<span class="record-draws-with-off-banner">
+                                            ${isOffBanner
+                                                ? `<span class="record-off-banner" title="常驻角色">歪</span>`
+                                                : ""
+                                            }
+                                            <span class="record-draws" style="color: ${color};">
+                                                ${draws} 抽
+                                            </span>
+                                        </span>`
+                                        : ""
+                                }
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        })
+        .join('');
+}
+
+
+
+// 分组逻辑
+function groupRecordsByDate(records) {
+    return records.reduce((grouped, record) => {
+        const date = record.timestamp.split(' ')[0]; // 提取日期部分
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(record);
+        return grouped;
+    }, {});
+}
+
+
+// 辅助函数
+// 根据抽数和质量获取颜色
+function getDrawColor(draws, quality) {
+    if (quality === 5) {
+        if (draws <= 30) return '#3399ff'; // 蓝色
+        if (draws <= 70) return '#33cc33'; // 绿色
+        return '#ff6666'; // 红色
+    }
+    if (quality === 4) {
+        if (draws <= 3) return '#3399ff'; // 蓝色
+        if (draws <= 7) return '#33cc33'; // 绿色
+        return '#ff6666'; // 红色
+    }
+    return '#aaa'; // 默认灰色
+}
+
+
+// 根据五星平均抽数返回评价
+function getRating(avg, noDeviationRate = null) {
+    // 检查数据有效性
+    if (avg === "无数据") return "无数据";
+    if (noDeviationRate === "无数据" || noDeviationRate === null) {
+        if (avg < 20) return "万里挑一的欧皇";
+        if (avg < 35) return "欧皇";
+        if (avg < 60) return "欧皇附体";
+        if (avg < 70) return "大多数";
+        if (avg < 75) return "非酋";
+        return "万里挑一的非酋";
+    }
+    // 解析不歪概率为数值
+    const deviation = parseFloat(noDeviationRate.replace('%', ''));
+    if (avg < 30 && deviation > 75) return "万里挑一的欧皇";
+    if (avg < 50 && deviation > 60) return "欧皇";
+    if (avg < 60 && deviation > 50) return "欧皇附体";
+    if (avg < 70 && deviation > 45) return "大多数";
+    if (avg < 75 || deviation < 50) return "非酋";
+    return "万里挑一的非酋";
+}
+
+function getColorByQuality(quality) {
+    if (quality === 5) return '#f3d58a';
+    if (quality === 4) return '#d6c7ff';
+    return '#6699ff';
+}
+
+
+// 生成图表
+function renderPieChart(records, poolType) {
+    const chartId = `star-pie-chart-${poolType}`;
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+        console.error(`Canvas with id ${chartId} not found.`);
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    // 统计星级分布
+    const starCounts = {
+        "五星": records.filter(r => r.quality_level === 5).length,
+        "四星": records.filter(r => r.quality_level === 4).length,
+        "三星": records.filter(r => r.quality_level === 3).length,
+    };
+
+    // 创建图表数据对象
+    const chartData = {
+        labels: Object.keys(starCounts),
+        datasets: [
+            {
+                data: Object.values(starCounts),
+                backgroundColor: ["#f3d58a", "#d6c7ff", "#6699ff"],
+            },
+        ],
+    };
+
+    // 抽卡时间范围（仅显示到日期）
+    const firstRecord = records[0]?.timestamp.split(' ')[0] || "未知";
+    const lastRecord = records[records.length - 1]?.timestamp.split(' ')[0] || "未知";
+    const dateRange = `${lastRecord} - ${firstRecord}`;
+
+    // 动态生成星级数据块
+    const starInfoHtml = `
+        <div class="star-info">
+            <span class="star-five" data-index="0">${starCounts["五星"]}</span> |
+            <span class="star-four" data-index="1">${starCounts["四星"]}</span> |
+            <span class="star-three" data-index="2">${starCounts["三星"]}</span>
+        </div>
+        <div class="date-range">${dateRange}</div>
+    `;
+
+    // 插入到饼状图下方
+    canvas.insertAdjacentHTML('afterend', starInfoHtml);
+
+    // 初始化图表并存储实例
+    charts[poolType] = new Chart(ctx, {
+        type: "doughnut", // 使用 doughnut 类型
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false, // 隐藏默认标签
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw || 0;
+                            return `${value} 抽`;
+                        },
+                    },
+                },
+            },
+            animation: {
+                duration: 1000,
+                animateScale: true,
+                animateRotate: true,
+            },
+        },
+    });
+
+    // 为每个数字绑定点击事件
+    const starElements = canvas.nextElementSibling.querySelectorAll('.star-info span');
+    starElements.forEach((element) => {
+        element.addEventListener('click', function () {
+            const index = this.dataset.index; // 获取对应数据索引
+            const meta = charts[poolType].getDatasetMeta(0); // 获取当前卡池图表的元数据
+            meta.data[index].hidden = !meta.data[index].hidden; // 切换数据可见性
+            charts[poolType].update(); // 更新当前图表
+        });
+    });
+}

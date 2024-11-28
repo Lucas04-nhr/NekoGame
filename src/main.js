@@ -14,13 +14,13 @@ if (!fs.existsSync(nekoGameFolderPath)) {
     fs.mkdirSync(nekoGameFolderPath, { recursive: true });
   }
 process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;
+require("./utils/console");
 
 
 const { initializeDatabase, getGameDetails, getGameTimeData, getGameTrendData, addGame, deleteGame, updateGame, getSetting, setSetting, getGameDailyTimeData } = require('./database'); // 确保导入 getGameTimeData
 const { initializeTrackedGames, startGameTracking, sendRunningStatus } = require('./gameTracker');
 const { getAnalysisData, refreshAnalysisData, generateAnalysisData } = require('./js/analysis');
 const gotTheLock = app.requestSingleInstanceLock();
-const { getGamePath, extractGachaUrl } = require('./utils/getWutheringWavesPath');
 
 
 
@@ -33,9 +33,9 @@ let guideWindow = null;
 
 // 更新逻辑
 // 创建引导窗口
-function createGuideWindow() {
+function createGuideWindow(mainWindow) {
     if (!mainWindow) {
-        createWindow();  // 如果主窗口未创建，则创建窗口
+        createWindow(); // 如果主窗口未创建，则创建窗口
     }
     guideWindow = new BrowserWindow({
         width: 600,
@@ -46,103 +46,29 @@ function createGuideWindow() {
         frame: false, // 去掉窗口边框
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
-        }
+            contextIsolation: false,
+        },
+    });
+    guideWindow.loadFile(path.resolve(__dirname, './pages/guide.html'));
+    // 拦截新窗口打开事件，使用默认浏览器打开外部链接
+    guideWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: 'deny' };
     });
 
-    guideWindow.loadFile(path.resolve(__dirname, './pages/guide.html'));
-
+    // 拦截导航事件，阻止内部导航并改为默认浏览器打开
+    guideWindow.webContents.on('will-navigate', (event, url) => {
+        if (url !== guideWindow.webContents.getURL()) {
+            event.preventDefault(); // 阻止导航
+            shell.openExternal(url); // 在默认浏览器中打开链接
+        }
+    });
     // 监听窗口关闭事件，将 guideWindow 设置为 null
     guideWindow.on('closed', () => {
         guideWindow = null;
     });
+    return guideWindow;
 }
-
-
-// 使用异步 IIFE（立即调用函数）加载 electron-store 并初始化
-(async () => {
-    const Store = (await import('electron-store')).default;
-    const store = new Store();
-
-    const currentVersion = app.getVersion();
-
-    // 检查是否首次启动或更新
-    const savedVersion = store.get('appVersion');
-    if (!savedVersion || savedVersion !== currentVersion) {
-        // 显示引导窗口并更新版本号
-        createGuideWindow();
-        store.set('appVersion', currentVersion);
-    }
-
-    // 检查用户是否跳过了此版本
-    if (store.get('skippedVersion') !== currentVersion) {
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-
-    // 自动更新逻辑
-    autoUpdater.on('update-available', (info) => {
-        const releaseNotes = info.releaseNotes || '暂无更新日志';
-        const releaseName = info.releaseName || '船新版本';
-        if (mainWindow) {
-            mainWindow.show();
-            mainWindow.focus(); // 确保窗口获得焦点
-        }
-        dialog.showMessageBox(mainWindow, {
-            type: 'info',
-            title: `${releaseName} 已推出！`,
-            message: '发现新版本，是否下载更新喵？',
-            detail: `更新日志：\n${releaseNotes}`,
-            buttons: ['让我们开始吧！', '跳过此版本', '下次再提醒我']
-        }).then(result => {
-            if (result.response === 0) {
-                console.log("现在开始下载");
-                autoUpdater.downloadUpdate();
-            } else if (result.response === 1) {
-                // 用户选择跳过此版本，记录版本号
-                store.set('skippedVersion', autoUpdater.updateInfo.version);
-                console.log(`用户选择跳过版本 ${autoUpdater.updateInfo.version}`);
-            } else {
-                console.log("用户选择下次提醒");
-            }
-        });
-    });
-
-    autoUpdater.on('download-progress', (progressObj) => {
-        let percent = progressObj.percent.toFixed(2);
-        let logMessage = `下载速度: ${progressObj.bytesPerSecond}`;
-        logMessage += ` - 已下载 ${percent}%`;
-        logMessage += ` (${progressObj.transferred}/${progressObj.total})`;
-        console.log(logMessage);
-        
-        // 更新托盘图标的悬浮提示文字
-        if (tray) {
-            tray.setToolTip(`NekoGame - 正在后台更新：已下载 ${percent}%`);
-        }
-        
-        // 可以将进度信息传递到前端并显示
-        if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send('download-progress', percent);
-        }
-    });
-
-    autoUpdater.on('update-downloaded', () => {
-        dialog.showMessageBox({
-            type: 'info',
-            title: '新版本已准备好！',
-            message: '更新已准备好，要立刻重启安装喵？\n更新不会导致数据丢失。如果不放心可以备份',
-            buttons: ['开始吧！', '稍等']
-        }).then(result => {
-            if (result.response === 0) {
-                autoUpdater.quitAndInstall();
-            }
-        });
-
-        // 恢复托盘提示文字
-        if (tray) {
-            tray.setToolTip('NekoGame');
-        }
-    });
-})();
 
 
 const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"), (err) => {
@@ -169,7 +95,7 @@ function createTray() {
     tray.on('click', () => {
         if (!mainWindow) {
             createWindow();  // 如果主窗口未创建，则创建窗口
-            autoUpdater.checkForUpdatesAndNotify(); //检查更新
+            autoUpdater.checkForUpdates(); //检查更新
         } else {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
@@ -202,9 +128,9 @@ function createWindow() {
     });
     mainWindow.loadFile('src/index.html');
     // 打开开发者工具
-    mainWindow.webContents.once('dom-ready', () => {
-        mainWindow.webContents.openDevTools();
-    });
+    // mainWindow.webContents.once('dom-ready', () => {
+    //    mainWindow.webContents.openDevTools();
+    // });
 
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('set-app-path', app.getAppPath());
@@ -404,20 +330,105 @@ if (!gotTheLock) {
     dialog.showErrorBox('Neko Game 已运行', '应用已在运行，请检查喵。'); // 提示用户已有进程
     app.exit(); // 使用 app.exit 退出当前实例
 }
-// 将 require 替换为动态 import
+// 引入其他模块
+require('./utils/analysisGacha/analysisIpc'); // 引入分析相关的 IPC 逻辑
+require('./utils/analysisGacha/getStarRailUrl'); // 星铁
+require('./utils/analysisGacha/getGenshinUrl');
+require('./utils/settings/checkError'); // 整理数据
 
-require('./utils/analysisIpc'); // 引入分析相关的 IPC 逻辑
 // 在应用启动时初始化数据库和进程检测
 app.whenReady().then(() => {
     initializeDatabase();
     initializeSettings();
+    initializeUpdater();
     // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
     startGameTracking();
-    autoUpdater.checkForUpdatesAndNotify();
 });
-
 module.exports = { mainWindow }; // 确保 `mainWindow` 可供外部访问
 
+// 使用异步 IIFE（立即调用函数）加载 electron-store 并初始化
+async function initializeUpdater() {
+    const Store = (await import('electron-store')).default;
+    const store = new Store();
+
+    const currentVersion = app.getVersion();
+    // 检查是否首次启动或更新
+    const savedVersion = store.get('appVersion');
+    if (!savedVersion || savedVersion !== currentVersion) {
+        // 显示引导窗口并更新版本号
+        createGuideWindow(mainWindow);
+        store.set('appVersion', currentVersion);
+    }
+    autoUpdater.autoDownload = false;
+    // 检查用户是否跳过了此版本
+    if (store.get('skippedVersion') !== currentVersion) {
+        autoUpdater.checkForUpdates();
+    }
+
+    // 自动更新逻辑
+    autoUpdater.on('update-available', (info) => {
+        const releaseNotes = info.releaseNotes || '暂无更新日志';
+        const releaseName = info.releaseName || '船新版本';
+        if (mainWindow) {
+            mainWindow.show();
+            mainWindow.focus(); // 确保窗口获得焦点
+        }
+        dialog.showMessageBox(mainWindow, {
+            type: 'info',
+            title: `${releaseName} 已推出！`,
+            message: '发现新版本，是否下载更新？',
+            detail: `更新日志：\n${releaseNotes}`,
+            buttons: ['让我们开始吧！', '跳过此版本', '下次再提醒我']
+        }).then(result => {
+            if (result.response === 0) {
+                console.log("现在开始下载");
+                autoUpdater.downloadUpdate();
+            } else if (result.response === 1) {
+                // 用户选择跳过此版本，记录版本号
+                store.set('skippedVersion', currentVersion);
+                console.log(`用户选择跳过版本 ${autoUpdater.updateInfo.version}`);
+            } else {
+                console.log("用户选择下次提醒");
+            }
+        });
+    });
+
+    autoUpdater.on('download-progress', (progressObj) => {
+        let percent = progressObj.percent.toFixed(2);
+        let logMessage = `下载速度: ${progressObj.bytesPerSecond}`;
+        logMessage += ` - 已下载 ${percent}%`;
+        logMessage += ` (${progressObj.transferred}/${progressObj.total})`;
+        console.log(logMessage);
+
+        // 更新托盘图标的悬浮提示文字
+        if (tray) {
+            tray.setToolTip(`NekoGame - 正在后台更新：已下载 ${percent}%`);
+        }
+
+        // 可以将进度信息传递到前端并显示
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send('download-progress', percent);
+        }
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+        dialog.showMessageBox({
+            type: 'info',
+            title: '新版本已准备好！',
+            message: '更新已准备好，要立刻重启安装喵？\n更新不会导致数据丢失。如果不放心可以备份',
+            buttons: ['开始吧！', '稍等']
+        }).then(result => {
+            if (result.response === 0) {
+                autoUpdater.quitAndInstall();
+            }
+        });
+
+        // 恢复托盘提示文字
+        if (tray) {
+            tray.setToolTip('NekoGame');
+        }
+    });
+}
 
 // 定期触发数据更新通知
 ipcMain.on('running-status-updated', (event, runningStatus) => {
@@ -531,49 +542,6 @@ ipcMain.handle("set-auto-launch", (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
 });
 
-ipcMain.handle("check-errors", async () => {
-    return new Promise((resolve, reject) => {
-        db.serialize(() => {
-            // 清理 end_time 为 NULL 或 end_time 小于 start_time 的数据
-            db.run(`DELETE FROM game_sessions WHERE end_time IS NULL OR end_time < start_time`, [], function (err) {
-                if (err) {
-                    reject("检查错误时发生问题：" + err.message);
-                    return;
-                }
-                const changes1 = this.changes;
-
-                // 清理 start_time 等于 end_time 的数据
-                db.run(`DELETE FROM game_sessions WHERE start_time = end_time`, [], function (err) {
-                    if (err) {
-                        reject("检查开始时间等于结束时间的记录时发生问题：" + err.message);
-                        return;
-                    }
-                    const changes2 = this.changes;
-
-                    // 清理重复会话记录
-                    db.run(`DELETE FROM game_sessions WHERE rowid NOT IN (
-                        SELECT MIN(rowid)
-                        FROM game_sessions
-                        GROUP BY game_id, start_time
-                    )`, [], function (err) {
-                        if (err) {
-                            reject("检查重复数据时发生问题：" + err.message);
-                        } else {
-                            const changes3 = this.changes;
-                            const totalChanges = changes1 + changes2 + changes3;
-                            resolve(totalChanges > 0 ? `已处理 ${totalChanges} 条数据` : null);
-                        }
-                    });
-                });
-            });
-        });
-    });
-});
-
-
-
-
-
 // 统一 refresh-analysis-data 格式
 ipcMain.handle('refresh-analysis-data', async (event, type) => {
     return new Promise((resolve, reject) => {
@@ -659,19 +627,6 @@ ipcMain.handle("get-game-daily-time-data", (event, gameId) => {
     });
 });
 
-//打开数据文件夹逻辑
-ipcMain.on('open-data-path', () => {
-    const dataPath = process.env.NEKO_GAME_FOLDER_PATH;
-    if (dataPath) {
-        shell.openPath(dataPath).then(response => {
-            if (response) {
-                console.error("Failed to open data path:", response);
-            }
-        });
-    } else {
-        console.error("Data path not defined");
-    }
-});
 
 ipcMain.on('open-external', (event, url) => {
     if (url) {
@@ -705,19 +660,6 @@ ipcMain.handle('launch-game', (event, gamePath) => {
         }
     });
 });
-
-// 获取鸣潮路径
-ipcMain.handle('get-wuthering-waves-gacha-url', async () => {
-    try {
-        const gamePath = await getGamePath(); // 调用更新后的函数
-        const gachaUrl = await extractGachaUrl(gamePath);
-        return { success: true, gachaUrl };
-    } catch (err) {
-        console.error("获取祈愿链接失败:", err.message);
-        return { success: false, error: err.message };
-    }
-});
-
 
 
 app.on('window-all-closed', () => {

@@ -221,6 +221,7 @@ body {
 
 /* 顶部进度条容器样式 */
 #progress-bar-container {
+    pointer-events: none;
     display: none; /* 初始隐藏 */
     width: 100%; /* 占满标题栏宽度 */
     height: 5px;

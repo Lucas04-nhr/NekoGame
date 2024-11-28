@@ -33,85 +33,93 @@ function initializeTrackedGames() {
 
 // 检测后台运行的进程并实时更新时长
 function detectRunningGames() {
-    const tasklist = spawn('tasklist');
-    let fullOutput = ''; // 用于存储完整输出
+    try {
+        const tasklist = spawn('tasklist');
+        let fullOutput = ''; // 用于存储完整输出
 
-    tasklist.stdout.on('data', (data) => {
-        fullOutput += data.toString(); // 累积输出数据
-    });
+        tasklist.stdout.on('data', (data) => {
+            fullOutput += data.toString(); // 累积输出数据
+        });
 
-    tasklist.stdout.on('end', () => {
-        // 在所有输出完成后处理
-        Object.keys(trackedGames).forEach(processName => {
-            const game = trackedGames[processName];
-            const matchName = processName.length > 24 ? processName.slice(0, 24) : processName;
-            const isRunning = fullOutput.includes(matchName);
+        tasklist.stdout.on('end', () => {
+            try {
+                // 在所有输出完成后处理
+                Object.keys(trackedGames).forEach(processName => {
+                    const game = trackedGames[processName];
+                    const matchName = processName.length > 24 ? processName.slice(0, 24) : processName;
+                    const isRunning = fullOutput.includes(matchName);
 
-            if (isRunning && !game.isRunning) {
-                game.isRunning = true;
-                startSession(game.id, (err, sessionId) => {
-                    if (err) {
-                        console.error("Error starting session:", err);
-                    } else {
-                        console.log(`Started session for ${processName}`);
-                        game.sessionId = sessionId;
-                        sendRunningStatus();
-                    }
-                });
-            } else if (isRunning && game.isRunning && game.sessionId) {
-                const endTime = dayjs().tz(chinaTimezone).format('YYYY-MM-DD HH:mm:ss');
-                const increment = 15;
-
-                db.run(`
-                    UPDATE game_sessions 
-                    SET end_time = ?, duration = strftime('%s', ?) - strftime('%s', start_time)
-                    WHERE id = ? AND datetime(end_time) >= datetime(start_time) 
-                `, [endTime, endTime, game.sessionId], (err) => {
-                    if (err) console.error("Error updating session duration:", err);
-                });
-
-                game.totalTime += increment;
-                db.run(`UPDATE games SET total_time = ? WHERE id = ?`, [game.totalTime, game.id], (err) => {
-                    if (err) console.error("Error updating total time:", err);
-                });
-
-                sendRunningStatus();
-            } else if (!isRunning && game.isRunning && game.sessionId) {
-                game.isRunning = false;
-
-                db.get(`SELECT start_time, end_time FROM game_sessions WHERE id = ?`, [game.sessionId], (err, session) => {
-                    if (err) {
-                        console.error("Error fetching session:", err);
-                        return;
-                    }
-
-                    if (!session || session.end_time === null) {
-                        db.run(`DELETE FROM game_sessions WHERE id = ?`, [game.sessionId], (err) => {
-                            if (err) console.error("Error deleting invalid session:", err);
-                        });
-                    } else {
-                        endSession(game.id, (err) => {
+                    if (isRunning && !game.isRunning) {
+                        game.isRunning = true;
+                        startSession(game.id, (err, sessionId) => {
                             if (err) {
-                                console.error("Error ending session:", err);
+                                console.error("Error starting session:", err);
                             } else {
-                                console.log(`Ended session for ${processName}`);
-                                game.sessionId = null;
+                                console.log(`Started session for ${processName}`);
+                                game.sessionId = sessionId;
                                 sendRunningStatus();
+                            }
+                        });
+                    } else if (isRunning && game.isRunning && game.sessionId) {
+                        const endTime = dayjs().tz(chinaTimezone).format('YYYY-MM-DD HH:mm:ss');
+                        const increment = 15;
+
+                        db.run(`
+                            UPDATE game_sessions 
+                            SET end_time = ?, duration = strftime('%s', ?) - strftime('%s', start_time)
+                            WHERE id = ? AND datetime(end_time) >= datetime(start_time) 
+                        `, [endTime, endTime, game.sessionId], (err) => {
+                            if (err) console.error("Error updating session duration:", err);
+                        });
+
+                        game.totalTime += increment;
+                        db.run(`UPDATE games SET total_time = ? WHERE id = ?`, [game.totalTime, game.id], (err) => {
+                            if (err) console.error("Error updating total time:", err);
+                        });
+
+                        sendRunningStatus();
+                    } else if (!isRunning && game.isRunning && game.sessionId) {
+                        game.isRunning = false;
+
+                        db.get(`SELECT start_time, end_time FROM game_sessions WHERE id = ?`, [game.sessionId], (err, session) => {
+                            if (err) {
+                                console.error("Error fetching session:", err);
+                                return;
+                            }
+
+                            if (!session || session.end_time === null) {
+                                db.run(`DELETE FROM game_sessions WHERE id = ?`, [game.sessionId], (err) => {
+                                    if (err) console.error("Error deleting invalid session:", err);
+                                });
+                            } else {
+                                endSession(game.id, (err) => {
+                                    if (err) {
+                                        console.error("Error ending session:", err);
+                                    } else {
+                                        console.log(`Ended session for ${processName}`);
+                                        game.sessionId = null;
+                                        sendRunningStatus();
+                                    }
+                                });
                             }
                         });
                     }
                 });
+            } catch (err) {
+                console.error("Error processing tasklist output:", err);
             }
         });
-    });
 
-    tasklist.stderr.on('data', (data) => {
-        console.error(`Error fetching process list: ${data.toString()}`);
-    });
+        tasklist.stderr.on('data', (data) => {
+            console.error(`Error fetching process list: ${data.toString()}`);
+        });
 
-    tasklist.on('error', (err) => {
-        console.error("Error spawning tasklist:", err);
-    });
+        tasklist.on('error', (err) => {
+            console.error("Error spawning tasklist:", err);
+        });
+    } catch (err) {
+        console.error("Error in detectRunningGames:", err);
+    }
 }
 
 

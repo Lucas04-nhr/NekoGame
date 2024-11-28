@@ -1,6 +1,7 @@
 const axios = require('axios'); // 使用 axios 代替 fetch
-const { db2 } = require('../database'); // 引入数据库
+const { db2 } = require('../../database'); // 引入数据库
 const db = db2;  // 数据库实例
+const { ipcMain } = require('electron');
 // 祈愿类型映射
 const GACHA_TYPE_MAP = {
     1: "角色活动唤取",
@@ -21,19 +22,22 @@ const HEADERS = {
 /**
  * 获取所有类型的祈愿记录
  * @param {object} params 查询参数（不包含 cardPoolId）
+ * @param event
  * @returns {Promise<object[]>} 祈愿记录数组
  */
-async function fetchAllGachaLogs(params) {
+async function fetchAllGachaLogs(params, event) {
     const allLogs = [];
+    let totalNewRecords = 0; // 新增记录计数
 
     // 循环遍历 GACHA_TYPE_MAP，查询每种类型的祈愿记录
     for (const [cardPoolType, typeName] of Object.entries(GACHA_TYPE_MAP)) {
         console.log(`正在请求卡池类型 ${cardPoolType}: ${typeName}`);
+        sendStatusToRenderer(event, `正在查询卡池: ${typeName}`);
         const currentParams = { ...params, cardPoolType: parseInt(cardPoolType, 10) };
 
         try {
             // 获取当前卡池的所有记录
-            const logs = await fetchGachaLogsByType(currentParams);
+            const logs = await fetchGachaLogsByType(currentParams, event);
             logs.forEach(log => {
                 log.cardPoolType = typeName; // 使用定义的名称
             });
@@ -41,70 +45,78 @@ async function fetchAllGachaLogs(params) {
             allLogs.push(...logs); // 将所有记录收集到 allLogs 数组中
 
             // 插入或更新记录（按倒序插入，且根据时间戳插入新数据）
-            await insertOrUpdateGachaLogs(logs, params.playerId);
+            const newRecordsCount = await insertOrUpdateGachaLogs(logs, params.playerId, event);
+            totalNewRecords += newRecordsCount;
         } catch (err) {
             console.warn(`请求卡池类型 ${typeName} 时出错: ${err.message}`);
-            // 如果是502等错误，可以尝试重试或跳过
             if (err.response && err.response.status === 502) {
-                console.log(`502 错误，重试请求卡池类型 ${typeName}`);
-                const logs = await retryFetch(currentParams); // 重试当前卡池类型
-                await insertOrUpdateGachaLogs(logs, params.playerId);  // 确保重试后插入数据
+                // 如果遇到 502 错误，尝试重新获取数据
+                console.log(`502 错误，尝试重试请求卡池类型 ${typeName}`);
+                sendStatusToRenderer(event, `502 错误，尝试重试请求卡池类型 ${typeName}`);
+                try {
+                    const retryLogs = await retryFetch(currentParams, event);
+                    retryLogs.forEach(log => (log.cardPoolType = typeName));
+                    // 插入重试获取到的记录并统计新增记录数
+                    const retryNewRecordsCount = await insertOrUpdateGachaLogs(retryLogs, params.playerId, event);
+                    totalNewRecords += retryNewRecordsCount;
+                    allLogs.push(...retryLogs);
+                } catch (retryErr) {
+                    console.error(`重试卡池类型 ${typeName} 时依然失败: ${retryErr.message}`);
+                }
             }
         }
     }
-    // 返回所有记录的总数量
-    return allLogs.length;
+    return { totalRecords: allLogs.length, newRecords: totalNewRecords };
 }
-
-
-
 
 
 
 /**
  * 按单个类型查询祈愿记录
  * @param {object} params 查询参数
+ * @param event
  * @returns {Promise<object[]>} 返回单个卡池类型的祈愿记录数组
  */
-async function fetchGachaLogsByType(params) {
+async function fetchGachaLogsByType(params, event) {
     try {
         const response = await axios.post(BASE_URL, params, { headers: HEADERS });
-        console.log("当前请求参数:", params);
-
-        if (response.status !== 200 || response.data.code !== 0 || !response.data.data) {
-            console.log("该卡池的所有祈愿记录已获取完毕。");
-            return [];
+        if (response.status !== 200) throw new Error(`HTTP 状态码: ${response.status}`);
+        if (response.data.code !== 0 || !response.data.data || response.data.data.length === 0) {
+            sendStatusToRenderer(event, `链接可能已过期，请打开祈愿页面再尝试`);
+            throw new Error("链接可能已过期，返回数据为空");
         }
-
-        const logs = response.data.data;  // 直接获取所有响应的数据
-        console.log(`获取到 ${logs.length} 条记录，当前卡池类型: ${params.cardPoolType}`);
-        return logs;
+        console.log(`获取到 ${response.data.data.length} 条记录，当前卡池类型: ${params.cardPoolType}`);
+        sendStatusToRenderer(event, `获取到 ${response.data.data.length} 条记录，当前卡池类型: ${params.cardPoolType}`);
+        return response.data.data;
     } catch (err) {
-        console.error('请求失败:', err.message);
-        throw err; // 抛出错误，以便外部捕获
+        console.error(`请求失败: ${err.message}`);
+        throw err; // 抛出错误，供重试或其他逻辑处理
     }
 }
 
 /**
  * 尝试重试请求
  * @param {object} params 请求参数
+ * @param event
  * @returns {Promise<object[]>} 重新请求并返回记录
  */
-async function retryFetch(params) {
+async function retryFetch(params, event) {
     let retries = 3;  // 设置最大重试次数
     let logs = [];
 
     while (retries > 0) {
         try {
-            logs = await fetchGachaLogsByType(params);
+            logs = await fetchGachaLogsByType(params, event);
             if (logs.length > 0) {
                 return logs; // 如果成功获取数据，返回
             }
         } catch (err) {
             retries--;
             console.log(`重试失败, 剩余重试次数: ${retries}`);
+            sendStatusToRenderer(event, `重试失败, 剩余重试次数: ${retries}`);
             if (retries === 0) {
                 console.warn(`请求失败，跳过卡池类型 ${params.cardPoolType}`);
+                sendStatusToRenderer(event, `请求失败，跳过卡池类型 ${params.cardPoolType}`);
                 return []; // 如果重试次数耗尽，跳过当前卡池
             }
         }
@@ -136,11 +148,12 @@ function parseGachaUrl(url) {
 /**
  * 插入获取到的祈愿记录到数据库
  * @param {object[]} logs 需要插入的祈愿记录数组
+ * @param playerId
+ * @param event
  */
+
 // 插入获取到的祈愿记录到数据库（按倒序插入）
-// 插入获取到的祈愿记录到数据库
-// 插入获取到的祈愿记录到数据库（按倒序插入）
-async function insertGachaLogs(logs, playerId) {
+async function insertGachaLogs(logs, playerId, event) {
     const stmt = db.prepare(`
         INSERT OR REPLACE INTO gacha_logs (player_id, card_pool_type, resource_id, quality_level, resource_type, name, count, timestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
@@ -166,6 +179,7 @@ async function insertGachaLogs(logs, playerId) {
 
     stmt.finalize();
     console.log(`${validLogs.length} 条记录成功插入数据库.`);
+    sendStatusToRenderer(event, `${validLogs.cardPoolType}成功更新${validLogs.length}条`);
 }
 
 // 根据 player_id 和 card_pool_type 判断是否有记录
@@ -183,9 +197,10 @@ async function getLatestTimestampForPlayer(playerId, cardPoolType) {
 }
 
 // 插入数据（按倒序插入，且只插入时间戳更新的数据）
-async function insertOrUpdateGachaLogs(logs, playerId) {
+async function insertOrUpdateGachaLogs(logs, playerId, event) {
     // 获取每个卡池最新的时间戳
     const groupedLogs = {};
+    let newRecordsCount = 0; // 新增记录
 
     // 按卡池类型和玩家 ID 进行分组
     logs.forEach(record => {
@@ -207,9 +222,20 @@ async function insertOrUpdateGachaLogs(logs, playerId) {
         });
 
         if (validRecords.length > 0) {
-            await insertGachaLogs(validRecords, playerId); // 批量插入符合条件的记录
+            await insertGachaLogs(validRecords, playerId, event); // 批量插入符合条件的记录
+            newRecordsCount += validRecords.length;
         }
     }
+    return newRecordsCount;
 }
+
+function sendStatusToRenderer(event, message) {
+    if (event && event.sender) {
+        event.sender.send('gacha-records-status', message);
+    } else {
+        ipcMain.emit('gacha-records-status', message);
+    }
+}
+
 
 module.exports = { parseGachaUrl, fetchAllGachaLogs, GACHA_TYPE_MAP };

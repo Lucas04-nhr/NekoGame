@@ -1,9 +1,16 @@
+.tool-container {
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+     width: calc(80vw - 20px); /* 动态宽度，减去 padding */
+    height: calc(100vh - 5vh); /* 全屏高度 */
+}
 /* 顶部输入框和按钮 */
 .tool-header {
+    position: relative; /* 确保按钮的相对定位生效 */
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    gap: 10px;
 }
 
 #uid-input {
@@ -15,41 +22,129 @@
 .status-display {
     font-size: 14px;
     color: gray;
-    margin-left: 10px;
+    flex-grow: 1; /* 占据剩余空间 */
 }
 
+/* 按钮样式 */
 #refresh-data {
-    padding: 5px 10px;
+    padding: 5px 15px;
     font-size: 14px;
+    color: #fff;
+    background: #444;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#refresh-data:hover {
+    background: #555;
+    transform: translateY(-2px);
+}
+
+#refresh-data:active {
+    background: #666;
+    transform: scale(0.98);
+}
+
+.refresh-button {
+    position: absolute; /* 固定到窗口右上角 */
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    padding: 5px 10px;
+    background: #333;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.record-wrapper {
+    overflow: hidden;
+    position: relative;
+    height: calc(100% - 50px); /* 修正为顶部区域的实际高度 */
+    display: flex;
+    flex-direction: column; /* 确保布局按列显示 */
 }
 
 /* 卡池横向滚动 */
 .record-display {
+    overflow-x: auto; /* 启用横向滚动 */
+    overflow-y: hidden; /* 禁用纵向滚动 */
+    scrollbar-gutter: stable;
     display: flex;
-    overflow-x: auto;
+    flex-wrap: nowrap; /* 禁止子元素换行 */
     gap: 16px;
-    padding: 10px;
+    padding: 15px;
+    height: 100%;
+    max-width: 100%; /* 确保最大宽度 */
+    box-sizing: border-box;
+    scroll-behavior: smooth; /* 平滑滚动 */
 }
 
-/* 单个卡池样式 */
+/* 自定义水平滚动条 */
+.record-display::-webkit-scrollbar {
+    height: 8px; /* 滚动条高度 */
+    background: #2b2b2b; /* 滚动条背景色 */
+}
+
+.record-display::-webkit-scrollbar-thumb {
+    background: #888; /* 滚动条滑块颜色 */
+    border-radius: 4px; /* 滚动条滑块圆角 */
+}
+
+.record-display::-webkit-scrollbar-thumb:hover {
+    background: #555; /* 滑块悬停颜色 */
+}
+
+/* Firefox 支持 */
+.record-display {
+    scrollbar-width: thin; /* 滚动条宽度 */
+    scrollbar-color: #888 #2b2b2b; /* 滑块和背景颜色 */
+}
+
+
+/* 卡片样式 */
 .card-pool {
-    min-width: 300px;
-    max-width: 300px;
+    flex: 0 0 300px; /* 固定宽度 */
+    height: calc(100% - 10px); /* 自适应高度 */
+    margin-bottom: 20px; /* 底部间距 */
+    overflow: hidden;
     background: #2b2b2b;
     color: #fff;
     border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+
+.card-pool:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
 
 /* 卡池内容上下滚动 */
 .card-content {
+    flex-grow: 1;
     overflow-y: auto;
-    max-height: 400px;
-    padding-right: 5px; /* 保留滚动条空间 */
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #2b2b2b;
+}
+
+.card-content::-webkit-scrollbar {
+    width: 8px;
+    background: #2b2b2b;
+}
+
+.card-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.card-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .card-header {
@@ -70,9 +165,466 @@
     border-bottom: none;
 }
 
+/* 下拉菜单样式 */
 .uid-select {
-    padding: 5px;
-    font-size: 14px;
-    margin-right: 10px;
     width: 200px;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #333;
+    color: #fff;
+    outline: none;
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.uid-select:hover {
+    border-color: #555;
+}
+
+.uid-select:focus {
+    border-color: #777;
+    background: #222;
+}
+
+/* 卡片样式 */
+.card-pool {
+    flex: 0 0 300px;
+    background: #2b2b2b;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #444;
+    padding-bottom: 5px;
+}
+
+.total-draws {
+    font-size: 16px;
+    color: #aaa;
+}
+
+.record-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.record-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: #333;
+    color: #fff;
+    cursor: pointer;
+    border: 1px solid #444;
+    transition: background 0.3s ease;
+}
+
+.record-tab:hover {
+    background-color: #3a3a3a;
+}
+
+
+.record-tab.active {
+    background: #555;
+    color: gold;
+}
+
+.record {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #222;
+    border-bottom: 1px solid #444;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.record:hover {
+    background: #333;
+    transform: translateY(-2px);
+}
+
+.record:nth-child(even) {
+    background: #2b2b2b;
+}
+
+.tab-content {
+    min-height: 212px;
+    padding: 5px;
+}
+
+.tab-panel {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.tab-panel.active {
+    display: block;
+    opacity: 1;
+}
+
+
+
+.record {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+}
+
+.record[data-expanded="true"] {
+    background: #444;
+}
+
+.record-star.gold {
+    color: #f3d58a;
+    font-weight: bold;
+}
+
+.record-star.purple {
+    color: #d6c7ff;
+}
+
+.record-star.blue {
+    color: #6699ff;
+}
+
+.expanded-content {
+    background-color: #1e1e1e;
+    color: #fff;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #333;
+}
+/* 抽卡记录详情样式 */
+.record-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #444;
+}
+.record-detail:last-child {
+    border-bottom: none;
+}
+
+
+
+/* 抽卡记录标签选项 */
+.record-list-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    background: #333; /* 背景颜色 */
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.record-list-tabs .record-tab {
+    flex: 1;
+    padding: 8px 10px;
+    text-align: center;
+    background: #333;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 5px;
+    transition: background 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+.record-list-tabs .record-tab.active {
+    background: #555;
+    color: gold;
+}
+
+.record-list-tabs .record-tab:hover {
+    background-color: #3a3a3a;
+}
+
+/* 抽卡记录内容 */
+.record-list {
+    overflow-y: auto;
+    height: 100%;
+    padding: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #2b2b2b;
+}
+
+.record-list::-webkit-scrollbar {
+    width: 8px;
+    background: #2b2b2b;
+}
+
+.record-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.record-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.record-guaranteed {
+    color: #ff9900;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.record-date-group {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #2b2b2b;
+    border-radius: 5px;
+}
+
+.record-date {
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 5px;
+}
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 四列布局 */
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stats-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #2b2b2b;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stats-title, .progress-card-title {
+    font-size: 12px;
+    color: #ccc;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.stats-value{
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+}
+
+.progress-bar {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+}
+
+.progress-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #2b2b2b;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    width: 93%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover, .progress-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background: #444;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
+.rating-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.rating-chart-card,
+.rating-info-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #2b2b2b;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    height: 170px; /* 确保正方形 */
+    width: 150px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+
+.rating-detail {
+    width: 100%;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.rating-detail.full {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.rating-detail h3 {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 5px;
+}
+
+.rating-detail p {
+    font-size: 16px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.rating-chart-card:hover, .rating-info-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* 饼状图下方统计信息样式 */
+.star-info {
+    text-align: center;
+    margin-top: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-size: clamp(11px, 1.5vw, 14px);
+    white-space: nowrap;
+    width: 100%;
+    display: inline-block;
+}
+
+
+.star-info span {
+    padding: 3px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;;
+}
+
+.star-info span:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1); /* 鼠标悬停放大效果 */
+}
+
+.date-range {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.star-info .star-five {
+    color: #f3d58a;
+    font-weight: bold;
+}
+
+.star-info .star-four {
+    color: #d6c7ff;
+    font-weight: bold;
+}
+
+.star-info .star-three {
+    color: #6699ff;
+    font-weight: bold;
+}
+
+.date-range {
+    text-align: center;
+    font-size: 10px;
+    color: #aaa;
+    margin-top: 5px;
+}
+
+/* 子容器：名字居中 */
+.record-name {
+    flex-grow: 1; /* 让名字占据中间空间 */
+    text-align: center; /* 始终居中 */
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff; /* 白色字体 */
+}
+
+/* 抽数和歪容器 */
+.record-draws-with-off-banner {
+    display: flex;
+    justify-content: center; /* 保证内容居中 */
+    align-items: center;
+    position: relative; /* 为子元素提供定位上下文 */
+    gap: 0; /* 去掉间距 */
+}
+
+/* 抽数样式 */
+.record-draws {
+    font-size: 14px;
+    font-weight: bold;
+    color: inherit;
+    z-index: 2;
+}
+
+/* “歪”标识 */
+.record-off-banner {
+    position: absolute; /* 绝对定位，不影响布局 */
+    right: -15%; /* 放置在抽数的左侧 */
+    width: 54px;
+    margin-left: 6px;
+    background: linear-gradient(90deg, rgba(255, 64, 64, 0.8), rgba(255, 255, 255, 0.2));
+    color: rgba(255, 255, 255, 0.9); /* 浅白色字体 */
+    padding: 2px 6px;
+    border-radius: 4px; /* 圆角 */
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+    white-space: nowrap;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+.record-off-banner:hover {
+    background: linear-gradient(90deg, rgba(255, 64, 64, 1), rgba(245, 245, 245, 0.4));
+    color: rgba(255, 255, 255, 1);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }

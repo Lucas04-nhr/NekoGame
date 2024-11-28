@@ -6,6 +6,23 @@
     const checkErrorsButton = document.getElementById("checkErrors");
     const openDataPathButton = document.getElementById("openDataPath");
 
+    const getStarRailUrlButton = document.getElementById("getStarRailUrl");
+    const getGenshinWishLinkButton = document.getElementById('getGenshinWishLink');
+
+    if (getStarRailUrlButton) {
+        getStarRailUrlButton.addEventListener("click", async () => {
+            const result = await window.electronAPI.invoke('getStarRailUrl');
+            alert(result.message);
+        });
+    }
+
+    if (getGenshinWishLinkButton) {
+        getGenshinWishLinkButton.addEventListener('click', async () => {
+            const result = await window.electronAPI.invoke('getGenshinWishLink');
+            alert(result.message);
+        });
+    }
+
     // 加载设置
     if (minimizeToTray && silentMode && autoLaunch) {
         window.electronAPI.loadSettings().then(settings => {
@@ -35,7 +52,7 @@
             console.log("检查错误数据");
             window.electronAPI.checkErrors().then(result => {
                 if (result) {
-                    alert(`错误数据已清理：${result}`);
+                    alert(`${result}`);
                 } else {
                     alert("所有数据正常");
                 }
@@ -58,6 +75,5 @@
             const url = e.currentTarget.href;
             window.electronAPI.openExternal(url);
         });
-    });    
-
+    });
 })();

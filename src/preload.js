@@ -39,7 +39,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     getAnalysisData: (type, range) => ipcRenderer.invoke('fetch-analysis-data', { type, range }),
     refreshAnalysisData: (type) => ipcRenderer.invoke('refresh-analysis-data', type),
-    getGameTimeData: () => ipcRenderer.invoke('get-game-time-data'),
     getLeaderboardData: () => ipcRenderer.invoke('getLeaderboardData'),
     getLogData: (page) => ipcRenderer.invoke('get-log-data', page),
     deleteGame: (gameId) => ipcRenderer.invoke("delete-game", gameId),
@@ -66,4 +65,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getGachaRecords: () => ipcRenderer.invoke('get-gacha-records'),
     getLastQueryUid: () => ipcRenderer.invoke('get-last-query-uid'),
     getPlayerUIDs: () => ipcRenderer.invoke('get-player-uids'),
+
 });

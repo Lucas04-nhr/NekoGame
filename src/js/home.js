@@ -447,8 +447,6 @@ function updateChartData(chart, data, range, type) {
 }
 
 
-
-
 // 加载并绘制本周游戏时长分布
 function loadWeeklyGameTime(range = 'week') {
     window.electronAPI.getAnalysisData('weekly_game_time')
@@ -528,9 +526,6 @@ function loadWeeklyGameTime(range = 'week') {
 
 
 
-
-
-
 // 加载并绘制月度游戏时间
 function loadMonthlyTrend(range = 'month') {
     window.electronAPI.getAnalysisData('monthly_trend')
@@ -545,10 +540,6 @@ function loadMonthlyTrend(range = 'month') {
         })
         .catch(err => console.error("Error loading monthly trend data:", err));
 }
-
-
-
-
 
 
 // 定义游戏颜色映射，固定颜色
@@ -601,7 +592,7 @@ function loadHalfYearGameDistribution(range = 'daily') {
                     if (d.game_name === game) {
                         const label = range === 'daily' ? d.date : d.date.slice(0, 7);
                         if (gameDataMap[label] !== undefined) {
-                            gameDataMap[label] = d.total_time / 3600; // 转为小时
+                            gameDataMap[label] += d.total_time / 3600; // 累计时长
                         }
                     }
                 });
@@ -624,17 +615,6 @@ function loadHalfYearGameDistribution(range = 'daily') {
         .catch(err => console.error("Error loading half-year game distribution data:", err));
 }
 
-
-
-
-function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
 
 
 // 加载所有游戏总时长分布
