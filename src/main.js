@@ -1,8 +1,8 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
-const { autoUpdater} = require('electron-updater');
 const { spawn } = require('child_process');
+const { autoUpdater} = require('electron-updater');
 //在调用database前设置
 const fs = require('fs');
 // 获取用户数据文件夹路径
@@ -23,52 +23,12 @@ const { getAnalysisData, refreshAnalysisData, generateAnalysisData } = require('
 const gotTheLock = app.requestSingleInstanceLock();
 
 
-
 let tray = null;
 let mainWindow;
+global.mainWindow = mainWindow; // 将 mainWindow 保存在全局对象中
 let isWindowVisible = true;
 let minimizeToTraySetting = false;
-let guideWindow = null;
 
-
-// 更新逻辑
-// 创建引导窗口
-function createGuideWindow(mainWindow) {
-    if (!mainWindow) {
-        createWindow(); // 如果主窗口未创建，则创建窗口
-    }
-    guideWindow = new BrowserWindow({
-        width: 600,
-        height: 400,
-        resizable: false,
-        modal: true,
-        parent: mainWindow,
-        frame: false, // 去掉窗口边框
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        },
-    });
-    guideWindow.loadFile(path.resolve(__dirname, './pages/guide.html'));
-    // 拦截新窗口打开事件，使用默认浏览器打开外部链接
-    guideWindow.webContents.setWindowOpenHandler(({ url }) => {
-        shell.openExternal(url);
-        return { action: 'deny' };
-    });
-
-    // 拦截导航事件，阻止内部导航并改为默认浏览器打开
-    guideWindow.webContents.on('will-navigate', (event, url) => {
-        if (url !== guideWindow.webContents.getURL()) {
-            event.preventDefault(); // 阻止导航
-            shell.openExternal(url); // 在默认浏览器中打开链接
-        }
-    });
-    // 监听窗口关闭事件，将 guideWindow 设置为 null
-    guideWindow.on('closed', () => {
-        guideWindow = null;
-    });
-    return guideWindow;
-}
 
 
 const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"), (err) => {
@@ -95,7 +55,6 @@ function createTray() {
     tray.on('click', () => {
         if (!mainWindow) {
             createWindow();  // 如果主窗口未创建，则创建窗口
-            autoUpdater.checkForUpdates(); //检查更新
         } else {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
@@ -107,6 +66,7 @@ function createTray() {
             }
         }
     });
+    global.tray = tray;
 }
 
 
@@ -131,7 +91,8 @@ function createWindow() {
     // mainWindow.webContents.once('dom-ready', () => {
     //    mainWindow.webContents.openDevTools();
     // });
-
+    // 定义后全局导出 mainWindow
+    global.mainWindow = mainWindow; // 更新global.mainWindow
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('set-app-path', app.getAppPath());
     });
@@ -149,10 +110,10 @@ function createWindow() {
             isWindowVisible = false;
         } else {
             mainWindow = null;  // 清除引用，确保可以正常退出
+            global.mainWindow = null;  // 清除全局引用
             app.quit();
         }
     });
-    
 }
 
 
@@ -335,109 +296,23 @@ require('./utils/analysisGacha/analysisIpc'); // 引入分析相关的 IPC 逻�
 require('./utils/analysisGacha/getStarRailUrl'); // 星铁
 require('./utils/analysisGacha/getGenshinUrl');
 require('./utils/settings/checkError'); // 整理数据
-
 // 在应用启动时初始化数据库和进程检测
 app.whenReady().then(() => {
     initializeDatabase();
     initializeSettings();
-    initializeUpdater();
     // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
     startGameTracking();
+    module.exports = { createWindow };
+    require('./update')
 });
-module.exports = { mainWindow }; // 确保 `mainWindow` 可供外部访问
 
-// 使用异步 IIFE（立即调用函数）加载 electron-store 并初始化
-async function initializeUpdater() {
-    const Store = (await import('electron-store')).default;
-    const store = new Store();
 
-    const currentVersion = app.getVersion();
-    // 检查是否首次启动或更新
-    const savedVersion = store.get('appVersion');
-    if (!savedVersion || savedVersion !== currentVersion) {
-        // 显示引导窗口并更新版本号
-        createGuideWindow(mainWindow);
-        store.set('appVersion', currentVersion);
-    }
-    autoUpdater.autoDownload = false;
-    // 检查用户是否跳过了此版本
-    if (store.get('skippedVersion') !== currentVersion) {
-        autoUpdater.checkForUpdates();
-    }
-
-    // 自动更新逻辑
-    autoUpdater.on('update-available', (info) => {
-        const releaseNotes = info.releaseNotes || '暂无更新日志';
-        const releaseName = info.releaseName || '船新版本';
-        if (mainWindow) {
-            mainWindow.show();
-            mainWindow.focus(); // 确保窗口获得焦点
-        }
-        dialog.showMessageBox(mainWindow, {
-            type: 'info',
-            title: `${releaseName} 已推出！`,
-            message: '发现新版本，是否下载更新？',
-            detail: `更新日志：\n${releaseNotes}`,
-            buttons: ['让我们开始吧！', '跳过此版本', '下次再提醒我']
-        }).then(result => {
-            if (result.response === 0) {
-                console.log("现在开始下载");
-                autoUpdater.downloadUpdate();
-            } else if (result.response === 1) {
-                // 用户选择跳过此版本，记录版本号
-                store.set('skippedVersion', currentVersion);
-                console.log(`用户选择跳过版本 ${autoUpdater.updateInfo.version}`);
-            } else {
-                console.log("用户选择下次提醒");
-            }
-        });
-    });
-
-    autoUpdater.on('download-progress', (progressObj) => {
-        let percent = progressObj.percent.toFixed(2);
-        let logMessage = `下载速度: ${progressObj.bytesPerSecond}`;
-        logMessage += ` - 已下载 ${percent}%`;
-        logMessage += ` (${progressObj.transferred}/${progressObj.total})`;
-        console.log(logMessage);
-
-        // 更新托盘图标的悬浮提示文字
-        if (tray) {
-            tray.setToolTip(`NekoGame - 正在后台更新：已下载 ${percent}%`);
-        }
-
-        // 可以将进度信息传递到前端并显示
-        if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send('download-progress', percent);
-        }
-    });
-
-    autoUpdater.on('update-downloaded', () => {
-        dialog.showMessageBox({
-            type: 'info',
-            title: '新版本已准备好！',
-            message: '更新已准备好，要立刻重启安装喵？\n更新不会导致数据丢失。如果不放心可以备份',
-            buttons: ['开始吧！', '稍等']
-        }).then(result => {
-            if (result.response === 0) {
-                autoUpdater.quitAndInstall();
-            }
-        });
-
-        // 恢复托盘提示文字
-        if (tray) {
-            tray.setToolTip('NekoGame');
-        }
-    });
-}
-
-// 定期触发数据更新通知
+// 触发运行状态更新通知
 ipcMain.on('running-status-updated', (event, runningStatus) => {
     if (mainWindow && mainWindow.webContents && mainWindow.isVisible()) {
         mainWindow.webContents.send('running-status-updated', runningStatus);
     }
 });
-
-
 
 
 // 获取游戏时长数据
@@ -614,7 +489,7 @@ ipcMain.handle('get-log-data', async (event, page) => {
 });
 
 
-//从数据库获取游戏的每日时长数据
+//从数据库获取游戏的每日时长数据生成方块
 ipcMain.handle("get-game-daily-time-data", (event, gameId) => {
     return new Promise((resolve, reject) => {
         getGameDailyTimeData(gameId, (err, rows) => {

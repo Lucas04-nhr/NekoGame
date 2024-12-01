@@ -217,8 +217,8 @@ function groupRecordsByDate(records) {
 // 根据抽数和质量获取颜色
 function getDrawColor(draws, quality) {
     if (quality === 5) {
-        if (draws <= 30) return '#3399ff'; // 蓝色
-        if (draws <= 70) return '#33cc33'; // 绿色
+        if (draws <= 35) return '#3399ff'; // 蓝色
+        if (draws <= 67) return '#33cc33'; // 绿色
         return '#ff6666'; // 红色
     }
     if (quality === 4) {
@@ -231,25 +231,32 @@ function getDrawColor(draws, quality) {
 
 
 // 根据五星平均抽数返回评价
-function getRating(avg, noDeviationRate = null) {
+function getRating(avg, avgUpText = null) {
     // 检查数据有效性
     if (avg === "无数据") return "无数据";
-    if (noDeviationRate === "无数据" || noDeviationRate === null) {
-        if (avg < 20) return "万里挑一的欧皇";
-        if (avg < 35) return "欧皇";
-        if (avg < 60) return "欧皇附体";
-        if (avg < 70) return "大多数";
-        if (avg < 75) return "非酋";
-        return "万里挑一的非酋";
+    if (avgUpText === "无数据" || avgUpText === null) {
+        if (avg <= 15) return "万里挑一至尊欧皇";
+        if (avg <= 30) return "万里挑一欧皇";
+        if (avg <= 55) return "尊贵欧皇";
+        if (avg <= 60) return "薛定谔的欧皇";
+        if (avg <= 68) return "欧非守恒";
+        if (avg <= 71) return "薛定谔的非酋";
+        if (avg <= 73) return "绝世非酋";
+        if (avg <= 75) return "万里挑一非酋";
+        return "万里挑一绝世非酋";
     }
-    // 解析不歪概率为数值
-    const deviation = parseFloat(noDeviationRate.replace('%', ''));
-    if (avg < 30 && deviation > 75) return "万里挑一的欧皇";
-    if (avg < 50 && deviation > 60) return "欧皇";
-    if (avg < 60 && deviation > 50) return "欧皇附体";
-    if (avg < 70 && deviation > 45) return "大多数";
-    if (avg < 75 || deviation < 50) return "非酋";
-    return "万里挑一的非酋";
+    // 如果有数据，则以平均up数判断欧非
+    if (avgUpText <= 20) return "万里挑一至臻欧皇";
+    if (avgUpText <= 35) return "万里挑一至尊欧皇";
+    if (avgUpText <= 45) return "万里挑一欧皇";
+    if (avgUpText <= 55) return "至臻欧皇";
+    if (avgUpText <= 75) return "至尊欧皇";
+    if (avgUpText <= 85) return "薛定谔的欧皇";
+    if (avgUpText <= 95) return "欧非守恒";
+    if (avgUpText <= 115) return "薛定谔的非酋";
+    if (avgUpText <= 125) return "绝世非酋";
+    if (avgUpText <= 135) return "万里挑一非酋";
+    return "万里挑一绝世非酋";
 }
 
 function getColorByQuality(quality) {

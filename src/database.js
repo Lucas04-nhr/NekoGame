@@ -217,7 +217,7 @@ function getGameTrendData(gameId, callback) {
         WHERE game_id = ?
         GROUP BY DATE(start_time)
         ORDER BY date ASC
-        LIMIT 12
+        LIMIT 30
     `, [gameId], callback);
 }
 

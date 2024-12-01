@@ -1,4 +1,3 @@
-
 // 加载玩家 UID 下拉列表
 async function loadPlayerUIDs(defaultUid) {
     const players = await window.electronAPI.getPlayerUIDs(); // 从数据库获取所有 UID
@@ -81,7 +80,9 @@ async function loadGachaRecords(uid) {
         const fiveStarAvg = calculateDrawsBetween(records, 5);
         const isCharacterEvent = poolType === "角色活动唤取";
         const noDeviationRate = isCharacterEvent ? calculateNoDeviationRate(records) : null;
-        const careerRating = getRating(fiveStarAvg, noDeviationRate);
+        const avgUp = poolType === "角色活动唤取" ? calculateUpAverage(pools[poolType]) : null;
+        const avgUpText = typeof avgUp === "number" ? `${avgUp.toFixed(2)}` : avgUp;
+        const careerRating = getRating(fiveStarAvg, avgUpText);
         const chartId = `star-pie-chart-${poolType}`; // 动态生成唯一 ID
 
         const ratingDetails = isCharacterEvent

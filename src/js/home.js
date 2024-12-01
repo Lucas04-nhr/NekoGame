@@ -564,12 +564,12 @@ function loadHalfYearGameDistribution(range = 'daily') {
                 throw new Error("Invalid data format");
             }
 
-            // 获取标签，根据 range 设置最近14天或6个月
+            // 获取标签，根据 range 设置最近30天或6个月
             let labels;
             if (range === 'daily') {
                 labels = Array.from(new Set(data.map(d => d.date)))
                     .sort((a, b) => new Date(b) - new Date(a))
-                    .slice(0, 14)
+                    .slice(0, 30)
                     .reverse();
             } else if (range === 'monthly') {
                 labels = Array.from(new Set(data.map(d => d.date.slice(0, 7))))
@@ -767,8 +767,8 @@ function loadLogData(reset = false) {
                     <div class="game-info">
                         <h4>${log.game_name}</h4>
                         <p class="log-date">日期：${new Date(log.start_time).toLocaleDateString()}</p>
-                        <p>开始时间：${new Date(log.start_time).toLocaleTimeString()}</p>
-                        <p>结束时间：${new Date(log.end_time).toLocaleTimeString()}</p>
+                        <p class="log-date">开始时间：${new Date(log.start_time).toLocaleTimeString()}</p>
+                        <p class="log-date">结束时间：${new Date(log.end_time).toLocaleTimeString()}</p>
                         <p class="total-time">时长：${(log.duration / 3600).toFixed(1)} 小时</p>
                     </div>
                 `;

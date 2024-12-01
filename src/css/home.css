@@ -196,7 +196,15 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding: 20px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+#log-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
     margin-top: 10px;
 }
 
@@ -287,7 +295,7 @@ canvas {
 .total-time,
 .log-date {
     font-size: 0.9em;
-    color: #ddd;
+    color: rgb(230, 226, 226);
 }
 
 .game-info p {

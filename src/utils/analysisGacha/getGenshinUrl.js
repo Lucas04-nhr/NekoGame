@@ -28,7 +28,7 @@ function extractGameDir(logContent) {
 // 动态获取缓存文件夹版本
 async function getCacheVersion() {
     const defaultVersion = '2.31.0.0'; // 默认版本号
-    const remoteUrl = `https://raw.githubusercontent.com/Summer-Neko/utils/main/GetUrl/version-Genshin.json?_=${Date.now()}`;
+    const remoteUrl = `https://gitee.com/sunmmerneko/utils/raw/master/getUrl/version-Genshin.json?_=${Date.now()}`;
     const options = {
         headers: {
             'Cache-Control': 'no-cache'

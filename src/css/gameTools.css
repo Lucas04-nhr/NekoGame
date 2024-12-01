@@ -1,8 +1,11 @@
+.content {
+    width: calc(100vw - 200px);
+}
+
 .tool-container {
     position: relative;
     padding: 10px;
     box-sizing: border-box;
-     width: calc(80vw - 20px); /* 动态宽度，减去 padding */
     height: calc(100vh - 5vh); /* 全屏高度 */
 }
 /* 顶部输入框和按钮 */

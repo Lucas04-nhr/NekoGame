@@ -1,19 +1,26 @@
 const fs = require('fs');
 const path = require('path');
+const dayjs = require('dayjs');  // 引入 dayjs
+const utc = require('dayjs/plugin/utc');  // 引入 UTC 插件
+const timezone = require('dayjs/plugin/timezone');  // 引入 timezone 插件
+
+// 使用插件
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // 获取日志文件路径
 const logDirectory = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'logs');
 const logFileName = 'NekoGame';
 const maxLogSize = 5 * 1024 * 1024;
 const logRetentionDays = 8; // 保留 8 天的日志
-const currentDate = new Date().toISOString().split('T')[0];
+const currentDate = dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD'); // 获取当前日期并格式化为 UTC+8 时间
 const logFilePath = path.join(logDirectory, `${logFileName}-${currentDate}.log`); // 按日期命名日志文件
 
 // 确保日志文件夹存在
 if (!fs.existsSync(logDirectory)) {
     fs.mkdirSync(logDirectory);
 }
-// 创建写入流
+
 let logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 // 检查日志文件大小并进行轮转
 function checkLogFileSize() {
@@ -22,8 +29,7 @@ function checkLogFileSize() {
         // 如果日志文件大小超过了最大值，则进行轮转
         if (stats.size >= maxLogSize) {
             const archivedLogFilePath = path.join(logDirectory, `${logFileName}-${currentDate}-${Date.now()}.log`);
-            fs.renameSync(logFilePath, archivedLogFilePath); // 将当前日志文件重命名并归档
-            // 重新创建新的日志文件
+            fs.renameSync(logFilePath, archivedLogFilePath);
             logStream.close();
             logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
             deleteOldLogs(); // 删除旧的日志文件
@@ -52,31 +58,36 @@ function deleteOldLogs() {
     });
 }
 
+// 获取当前时间并格式化为 UTC+8 时间
+function getTimestamp() {
+    return dayjs().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
+}
+
 // 重定向 console.log、console.error 输出到日志文件
 console.log = function (message) {
-    const timestamp = new Date().toISOString();
+    const timestamp = getTimestamp();  // 获取 UTC+8 时间戳
     logStream.write(`[${timestamp}] LOG: ${message}\n`);
     process.stdout.write(`[${timestamp}] LOG: ${message}\n`); // 在控制台显示
     checkLogFileSize(); // 每次写日志后检查日志文件大小
 };
 
 console.error = function (message) {
-    const timestamp = new Date().toISOString();
+    const timestamp = getTimestamp();
     logStream.write(`[${timestamp}] ERROR: ${message}\n`);
     process.stderr.write(`[${timestamp}] ERROR: ${message}\n`);
     checkLogFileSize();
 };
 
 console.warn = function (message) {
-    const timestamp = new Date().toISOString();
+    const timestamp = getTimestamp();
     logStream.write(`[${timestamp}] WARN: ${message}\n`);
     process.stderr.write(`[${timestamp}] WARN: ${message}\n`);
     checkLogFileSize();
 };
 
 console.info = function (message) {
-    const timestamp = new Date().toISOString();
+    const timestamp = getTimestamp();
     logStream.write(`[${timestamp}] INFO: ${message}\n`);
     process.stdout.write(`[${timestamp}] INFO: ${message}\n`);
-    checkLogFileSize(); // 每次写日志后检查日志文件大小
+    checkLogFileSize();
 };

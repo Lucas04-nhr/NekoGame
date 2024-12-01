@@ -9,10 +9,29 @@
     const getStarRailUrlButton = document.getElementById("getStarRailUrl");
     const getGenshinWishLinkButton = document.getElementById('getGenshinWishLink');
 
+    const checkUpdateButton = document.getElementById("checkUpdate");
+    const openUpdateLogButton = document.getElementById("openUpdateLog");
+
     if (getStarRailUrlButton) {
         getStarRailUrlButton.addEventListener("click", async () => {
             const result = await window.electronAPI.invoke('getStarRailUrl');
             alert(result.message);
+        });
+    }
+
+    // 检查更新按钮
+    if (checkUpdateButton) {
+        checkUpdateButton.addEventListener("click", () => {
+            // 发送检查更新事件到主进程
+            window.electronAPI.send('check-for-updates');
+        });
+    }
+
+    // 更新日志按钮
+    if (openUpdateLogButton) {
+        openUpdateLogButton.addEventListener("click", () => {
+            // 发送更新日志事件到主进程
+            window.electronAPI.send('open-update-log');
         });
     }
 

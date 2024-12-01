@@ -112,7 +112,6 @@
     overflow: auto;
     background-color:rgba(30, 30, 30, 0.8); /* 暗色半透明背景 */
     border-radius: 5px;
-    height: 100%;
     flex: 2;
     transform: translateY(0); /* 显示时回到原位置 */
 }
@@ -155,6 +154,27 @@
     font-size: 0.9em;
     color: #d0d0d0;
     margin: 4px 0;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.content {
+    flex: 1;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 40px;
+    max-width: calc(100vw - 200px);  /* 限制最大高度为视口高度 */
+}
+
+
+.tab-content {
+    padding: 10px;
+    background-color:rgba(30, 30, 30, 0.8); /* 暗色半透明背景 */
+    border-radius: 5px;
+    height: 100%;
 }
 
 /* 趋势图部分 */

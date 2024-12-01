@@ -1,4 +1,3 @@
-const sqlite3 = require('sqlite3').verbose();
 const db = require('../database').db;
 const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
@@ -156,20 +155,19 @@ function generateAnalysisData(type, range, callback = () => {}) {
 
     } else if (type === 'total_time_distribution') {
         db.all(`
-            SELECT games.name AS game_name, SUM(duration) AS total_time 
-            FROM game_sessions 
-            JOIN games ON games.id = game_sessions.game_id 
-            GROUP BY game_sessions.game_id`, 
-            (err, rows) => {
-                if (err) {
-                    console.error("Error generating total time distribution data:", err);
-                    callback(err, null);
-                } else {
-                    const data = rows.map(row => ({
-                        game_name: row.game_name,
-                        total_time: row.total_time
-                    }));
-                    callback(null, data);
+            SELECT name AS game_name, total_time 
+            FROM games
+        `,
+        (err, rows) => {
+            if (err) {
+                console.error("Error generating total time distribution data:", err);
+                callback(err, null);
+            } else {
+                const data = rows.map(row => ({
+                    game_name: row.game_name,
+                    total_time: row.total_time
+                }));
+                callback(null, data);
                 }
             }
         );

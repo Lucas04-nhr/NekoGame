@@ -227,6 +227,7 @@ function showGameDetails(gameId) {
                 const lastPlayed = game.last_played ? game.last_played : "--";
                 const rank = game.rank ? game.rank : "--";
                 detailsContainer.innerHTML = `
+                    <div class="tab-content">
                     <h2 id="game-name">${game.name}</h2>
                     <p id="total-time">总时长: ${(game.total_time / 3600).toFixed(1)} h</p>
                     <p id="average-daily-time">近6个月的平均每日游戏时长（出勤日）: ${avgDailyTime}</p>
@@ -241,8 +242,10 @@ function showGameDetails(gameId) {
                     </div>
                     <div id="daily-time-chart" class="chart-container">
                     </div>
-                    <div class="game-trend" style="flex-grow: 1;">
-                        <canvas id="game-trend-chart" style="height: 100%;"></canvas>
+                    <div class="game-trend">
+                        <div class="chart-header"><h3>时间趋势图</h3></div>
+                        <canvas id="game-trend-chart"></canvas>
+                    </div>
                     </div>
                 `;
 
@@ -388,7 +391,6 @@ document.getElementById("delete-game")?.addEventListener("click", deleteGame);
 
 
 // 加载并显示游戏趋势图
-// 加载并显示游戏趋势图
 async function loadGameTrendChart(gameId) {
     const ctx = document.getElementById("game-trend-chart")?.getContext("2d");
     if (!ctx) {
@@ -442,6 +444,7 @@ async function loadGameTrendChart(gameId) {
                 ]
             },
             options: {
+                responsive: true,
                 scales: {
                     x: {
                         title: { display: true, text: "日期" }
@@ -453,32 +456,30 @@ async function loadGameTrendChart(gameId) {
                 }
             }
         });
-    } catch (error) {
-        console.error("Error loading game trend data:", error);
+        } catch (error) {
+            console.error("Error loading game trend data:", error);
     }
 }
 
-
-    // 提交添加游戏表单
-    document.getElementById("add-game-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const gameData = {
-            name: document.getElementById("game-name-input").value,
-            icon: document.getElementById("game-icon").dataset.filePath || './assets/icon.png',
-            poster_vertical: document.getElementById("game-poster-vertical").dataset.filePath || './assets/poster_vertical.webp',
-            poster_horizontal: document.getElementById("game-poster-horizontal").dataset.filePath || './assets/poster_horizontal.webp',
-            path: document.getElementById("game-path").value,
-        };
-    
-        try {
-            await window.electronAPI.addGame(gameData);
-            document.getElementById("add-game-modal").style.display = "none";
-            loadGames();
-        } catch (err) {
-            console.error("Error adding game:", err);
-            alert("无法录入游戏，请重试");
-        }
-    });    
+// 提交添加游戏表单
+document.getElementById("add-game-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const gameData = {
+        name: document.getElementById("game-name-input").value,
+        icon: document.getElementById("game-icon").dataset.filePath || './assets/icon.png',
+        poster_vertical: document.getElementById("game-poster-vertical").dataset.filePath || './assets/poster_vertical.webp',
+        poster_horizontal: document.getElementById("game-poster-horizontal").dataset.filePath || './assets/poster_horizontal.webp',
+        path: document.getElementById("game-path").value,
+    };
+    try {
+        await window.electronAPI.addGame(gameData);
+        document.getElementById("add-game-modal").style.display = "none";
+        loadGames();
+    } catch (err) {
+        console.error("Error adding game:", err);
+        alert("无法录入游戏，请重试");
+    }
+});
 
 function deleteGame() {
     const confirmation = confirm("确认删除此游戏及其所有数据吗？");
@@ -569,7 +570,6 @@ function initializeTrendChart() {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
                     x: { title: { display: true, text: "日期" } },
                     y: { title: { display: true, text: "时长 (小时)" }, beginAtZero: true }
