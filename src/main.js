@@ -1,8 +1,5 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
-const { spawn } = require('child_process');
-const { autoUpdater} = require('electron-updater');
 //在调用database前设置
 const fs = require('fs');
 // 获取用户数据文件夹路径
@@ -13,13 +10,12 @@ const nekoGameFolderPath = path.join(userDataPath, 'NekoGame');
 if (!fs.existsSync(nekoGameFolderPath)) {
     fs.mkdirSync(nekoGameFolderPath, { recursive: true });
   }
-process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;
-require("./utils/console");
+process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;  // 定义全局数据路径
+require("./app/console");  // 导入日志管理
 
 
-const { initializeDatabase, getGameDetails, getGameTimeData, getGameTrendData, addGame, deleteGame, updateGame, getSetting, setSetting, getGameDailyTimeData } = require('./database'); // 确保导入 getGameTimeData
-const { initializeTrackedGames, startGameTracking, sendRunningStatus } = require('./gameTracker');
-const { getAnalysisData, refreshAnalysisData, generateAnalysisData } = require('./js/analysis');
+const { initializeDatabase, getSetting, setSetting} = require('./app/database'); // 确保导入 getGameTimeData
+const { startGameTracking, sendRunningStatus } = require('./app/gameTracker');
 const gotTheLock = app.requestSingleInstanceLock();
 
 
@@ -31,22 +27,13 @@ let minimizeToTraySetting = false;
 
 
 
-const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"), (err) => {
-    if (err) {
-        console.error("Database connection failed:", err.message);
-    } else {
-        console.log("Connected to the database.");
-    }
-});
-
-
 function createTray() {
     const iconPath = path.join(__dirname, 'assets', 'icon.ico'); // 使用绝对路径
     tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         { label: '退出应用', click: () => {
             tray.destroy();  // 销毁托盘图标
-            app.exit();      // 强制退出应用
+            app.exit();      // 退出应用
         }}
     ]);
     tray.setToolTip('Neko Game');
@@ -55,9 +42,13 @@ function createTray() {
     tray.on('click', () => {
         if (!mainWindow) {
             createWindow();  // 如果主窗口未创建，则创建窗口
+            sendRunningStatus(); // 立即发送最新的运行状态
         } else {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
+                // mainWindow.destroy();  // 销毁窗口并释放资源
+                // mainWindow = null; // 确保引用被清除
+                // global.mainWindow = null;  // 清除全局引用
             } else {
                 mainWindow.show();
                 // 每次窗口显示时发送刷新事件
@@ -68,7 +59,6 @@ function createTray() {
     });
     global.tray = tray;
 }
-
 
 
 function createWindow() {
@@ -106,7 +96,11 @@ function createWindow() {
     mainWindow.on('close', (event) => {
         if (minimizeToTraySetting) {
             event.preventDefault();
+            // 隐藏窗口
             mainWindow.hide();
+            // mainWindow.destroy();  // 销毁窗口并释放资源
+            // mainWindow = null; // 确保引用被清除
+            // global.mainWindow = null;  // 清除全局引用
             isWindowVisible = false;
         } else {
             mainWindow = null;  // 清除引用，确保可以正常退出
@@ -116,58 +110,6 @@ function createWindow() {
     });
 }
 
-
-// 选择路径对话框
-ipcMain.handle("dialog:openDirectory", async () => {
-    return dialog.showOpenDialog({ properties: ["openDirectory"] });
-});
-
-// 选择图片文件对话框
-ipcMain.handle("dialog:selectImageFile", async () => {
-    const result = await dialog.showOpenDialog({
-        properties: ["openFile"],
-        filters: [
-            { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
-        ]
-    });
-    if (result.canceled || result.filePaths.length === 0) {
-        return null;
-    }
-    return result.filePaths[0];
-});
-
-// 文件选择对话框，允许选择 .exe 文件
-ipcMain.handle("dialog:openFile", async () => {
-    return dialog.showOpenDialog({
-        properties: ["openFile"],
-        filters: [
-            { name: 'Executable Files', extensions: ['exe'] },
-            { name: 'All Files', extensions: ['*'] }
-        ]
-    });
-});
-
-
-ipcMain.handle("load-games", async () => {
-    return new Promise((resolve, reject) => {
-        getGameTimeData((err, games) => {
-            if (err) reject(err);
-            else resolve(games);
-        });
-    });
-});
-
-ipcMain.handle("add-game", async (event, gameData) => {
-    return new Promise((resolve, reject) => {
-        addGame(gameData, (err, gameId) => {
-            if (err) reject(err);
-            else {
-                resolve(gameId);
-                initializeTrackedGames(); // 在添加新游戏后重新初始化游戏追踪
-            }
-        });
-    });
-});
 
 ipcMain.handle("load-settings", async () => {
     const settings = {};
@@ -200,59 +142,6 @@ ipcMain.handle("save-setting", (event, key, value) => {
     });
 });
 
-ipcMain.handle("select-image", async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-        properties: ["openFile"],
-        filters: [{ name: "Images", extensions: ["jpg", "png", "gif", "webp"] }]
-    });
-    return canceled ? null : filePaths[0];
-});
-
-ipcMain.handle("open-file", async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-        properties: ["openFile"],
-        filters: [{ name: "Executables", extensions: ["exe", "app"] }]
-    });
-    return canceled ? null : filePaths[0];
-});
-
-// 获取游戏详细信息
-ipcMain.handle('get-game-details', async (event, gameId) => {
-    return new Promise((resolve, reject) => {
-        getGameDetails(gameId, (err, row) => {
-            if (err) {
-                console.error("Database error fetching game details:", err);
-                reject(err);
-            } else {
-                resolve(row);
-            }
-        });
-    });
-});
-
-
-// 获取游戏时长趋势数据
-ipcMain.handle("get-game-trend-data", async (event, gameId) => {
-    return new Promise((resolve, reject) => {
-        getGameTrendData(gameId, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
-        });
-    });
-});
-
-
-// 选择图像文件
-ipcMain.handle('select-image-file', async () => {
-    const result = await dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp'] }]
-    });
-    if (result.canceled || result.filePaths.length === 0) {
-        return null;
-    }
-    return result.filePaths[0];
-});
 
 // 窗口控制事件
 ipcMain.on('window-minimize', () => mainWindow.minimize());
@@ -295,7 +184,13 @@ if (!gotTheLock) {
 require('./utils/analysisGacha/analysisIpc'); // 引入分析相关的 IPC 逻辑
 require('./utils/analysisGacha/getStarRailUrl'); // 星铁
 require('./utils/analysisGacha/getGenshinUrl');
-require('./utils/settings/checkError'); // 整理数据
+// 设置页面
+require('./utils/settings/checkError');
+// 页面功能
+require('./app/pagesIpc/gameManager');
+require('./app/pagesIpc/libraryIPC');
+require('./app/pagesIpc/homeIPC');
+require('./app/pagesIpc/launchGame');
 // 在应用启动时初始化数据库和进程检测
 app.whenReady().then(() => {
     initializeDatabase();
@@ -303,7 +198,7 @@ app.whenReady().then(() => {
     // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
     startGameTracking();
     module.exports = { createWindow };
-    require('./update')
+    require('./app/update')
 });
 
 
@@ -315,192 +210,17 @@ ipcMain.on('running-status-updated', (event, runningStatus) => {
 });
 
 
-// 获取游戏时长数据
-ipcMain.handle('get-game-time-data', (event) => {
-    return new Promise((resolve, reject) => {
-        getGameTimeData((err, data) => {
-            if (err) reject(err);
-            else resolve(data);
-        });
-    });
-});
-
-
-// 监听获取分析数据请求
-ipcMain.handle('fetch-analysis-data', async (event, { type, range }) => {
-    return new Promise((resolve, reject) => {
-        getAnalysisData(type, range, (err, data, updatedAt) => {
-            if (err) {
-                console.error("Error fetching analysis data for", type, ":", err);
-                reject(new Error(`Error fetching analysis data for ${type}: ${err.message || err}`));
-            } else {
-                resolve({ data, updatedAt });
-            }
-        });
-    });
-});
-
-
-
-
-// 获取游戏详细信息
-ipcMain.handle("getGameDetails", async (event, gameId) => {
-    return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(path.join(nekoGameFolderPath, "neko_game.db"));
-        db.get(`
-            SELECT g.name, g.icon, g.poster_horizontal, 
-                   (SELECT SUM(duration) FROM game_sessions WHERE game_id = g.id) AS total_time,
-                   (SELECT end_time FROM game_sessions WHERE game_id = g.id ORDER BY end_time DESC LIMIT 1) AS last_played,
-                   (SELECT COUNT(*) + 1 FROM games AS g2
-                    WHERE (SELECT SUM(duration) FROM game_sessions WHERE game_id = g2.id) >
-                          (SELECT SUM(duration) FROM game_sessions WHERE game_id = g.id)) AS rank
-            FROM games AS g
-            WHERE g.id = ?
-        `, [gameId], (err, row) => {
-            db.close();
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row);
-            }
-        });
-    });
-});
-
-// 删除游戏及相关数据
-ipcMain.handle("delete-game", async (event, gameId) => {
-    return new Promise((resolve, reject) => {
-        deleteGame(gameId, (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
-});
-
-// 更新游戏数据
-ipcMain.handle("update-game", async (event, gameData) => {
-    return new Promise((resolve, reject) => {
-        updateGame(gameData, (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
-});
 
 ipcMain.on('request-running-status', (event) => {
     sendRunningStatus(); // 立即发送最新的运行状态
 });
 
-// 获取游戏时长趋势数据
-ipcMain.handle("getGameTrendData", async (event, gameId) => {
-    return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(path.join(__dirname, "neko_game.db"));
-        db.all(`
-            SELECT DATE(start_time) AS date, SUM(duration) AS total_time
-            FROM game_sessions
-            WHERE game_id = ?
-            GROUP BY DATE(start_time)
-            ORDER BY date ASC
-        `, [gameId], (err, rows) => {
-            db.close();
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-});
 
 // 开机自启动
 ipcMain.handle("set-auto-launch", (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
 });
 
-// 统一 refresh-analysis-data 格式
-ipcMain.handle('refresh-analysis-data', async (event, type) => {
-    return new Promise((resolve, reject) => {
-        refreshAnalysisData(type, (err, data, updatedAt) => {
-            if (err) {
-                console.error("Error refreshing analysis data for", type, ":", err);
-                reject(new Error(`Error refreshing analysis data for ${type}: ${err.message || err}`));
-            } else {
-                resolve({ data, updatedAt });
-            }
-        });
-    });
-});
-
-// 获取排行榜数据
-ipcMain.handle('getLeaderboardData', async () => {
-    return new Promise((resolve, reject) => {
-        db.all(`SELECT games.name, games.icon, games.poster_horizontal, MAX(game_sessions.end_time) AS end_time, SUM(game_sessions.duration) AS total_time
-                FROM games
-                LEFT JOIN game_sessions ON games.id = game_sessions.game_id
-                GROUP BY games.id
-                ORDER BY total_time DESC`, 
-            (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-    });
-});
-
-// 获取日志数据
-ipcMain.handle('getLogData', async (event, page) => {
-    const pageSize = 20;
-    return new Promise((resolve, reject) => {
-        db.all(`SELECT games.name AS game_name, games.icon, games.poster_horizontal, game_sessions.start_time, game_sessions.end_time, game_sessions.duration
-                FROM game_sessions
-                LEFT JOIN games ON games.id = game_sessions.game_id
-                ORDER BY game_sessions.start_time DESC
-                LIMIT ? OFFSET ?`, 
-            [pageSize, page * pageSize], 
-            (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-    });
-});
-
-
-ipcMain.handle('get-log-data', async (event, page) => {
-    const logsPerPage = 20;
-    const offset = page * logsPerPage;
-
-    return new Promise((resolve, reject) => {
-        db.all(`
-            SELECT game_sessions.*, games.name AS game_name, games.icon, games.poster_horizontal
-            FROM game_sessions 
-            JOIN games ON games.id = game_sessions.game_id
-            ORDER BY game_sessions.start_time DESC
-            LIMIT ? OFFSET ?`, 
-            [logsPerPage, offset], 
-            (err, rows) => {
-                if (err) {
-                    console.error("Error fetching log data:", err);
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            }
-        );
-    });
-});
-
-
-//从数据库获取游戏的每日时长数据生成方块
-ipcMain.handle("get-game-daily-time-data", (event, gameId) => {
-    return new Promise((resolve, reject) => {
-        getGameDailyTimeData(gameId, (err, rows) => {
-            if (err) {
-                reject(err.message);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-});
 
 
 ipcMain.on('open-external', (event, url) => {
@@ -509,36 +229,11 @@ ipcMain.on('open-external', (event, url) => {
     }
 });
 
-// 启动进程
-ipcMain.handle('launch-game', (event, gamePath) => {
-    return new Promise((resolve, reject) => {
-        try {
-            const gameDir = path.dirname(gamePath);
-            const gameFile = path.basename(gamePath);
-
-            // 使用 shell: true 并确保路径包含在引号内
-            const gameProcess = spawn(`"${gameFile}"`, { cwd: gameDir, shell: true, detached: true });
-
-            gameProcess.on('error', (error) => {
-                console.error(`Failed to start game at ${gamePath}:`, error);
-                reject(error);
-            });
-
-            // 在进程启动后立即返回成功
-            console.log(`Game started successfully at ${gamePath}`);
-            resolve(true); // 立即返回成功状态
-
-            gameProcess.unref(); // 让游戏进程独立运行，不等待其退出
-        } catch (error) {
-            console.error(`Error starting game: ${error.message}`);
-            reject(error);
-        }
-    });
-});
-
-
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
+    // 在托盘模式下不退出应用
+    if (process.platform !== 'darwin' && !tray) {
+        app.quit();
+    }
 });
 
 app.on('activate', () => {

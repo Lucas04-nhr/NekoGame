@@ -122,8 +122,6 @@ function detectRunningGames() {
     }
 }
 
-
-
 // 向前端发送游戏运行状态
 function sendRunningStatus() {
     //if (!mainWindow || !mainWindow.webContents) return; // 添加保护性判断

@@ -1,5 +1,5 @@
 const path = require('path');
-const { createWindow} = require('./main');
+const { createWindow} = require('../main');
 const { autoUpdater} = require('electron-updater');
 const { ipcMain, BrowserWindow, shell,app, dialog} = require('electron');
 

@@ -1,5 +1,5 @@
 const axios = require('axios'); // 使用 axios 代替 fetch
-const { db2 } = require('../../database'); // 引入数据库
+const { db2 } = require('../../app/database'); // 引入数据库
 const db = db2;  // 数据库实例
 const { ipcMain } = require('electron');
 // 祈愿类型映射

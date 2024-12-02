@@ -31,12 +31,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     maximizeWindow: () => ipcRenderer.send('window-maximize'),
     closeWindow: () => ipcRenderer.send('window-close'),
     getGameTimeData: () => ipcRenderer.invoke('get-game-time-data'),
-    onRunningStatusUpdated: (callback) => {
-        ipcRenderer.on('running-status-updated', (event, data) => callback(data));
-    },
-    onGameDataUpdated: (callback) => {
-        ipcRenderer.on('game-data-updated', callback);
-    },
+    onRunningStatusUpdated: (callback) => {ipcRenderer.on('running-status-updated', (event, data) => callback(data));},
+    onGameDataUpdated: (callback) => {ipcRenderer.on('game-data-updated', callback);},
     getAnalysisData: (type, range) => ipcRenderer.invoke('fetch-analysis-data', { type, range }),
     refreshAnalysisData: (type) => ipcRenderer.invoke('refresh-analysis-data', type),
     getLeaderboardData: () => ipcRenderer.invoke('getLeaderboardData'),
@@ -48,12 +44,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     loadSettings: () => ipcRenderer.invoke("load-settings"),
     setAutoLaunch: (enabled) => ipcRenderer.invoke("set-auto-launch", enabled),
     checkErrors: () => ipcRenderer.invoke("check-errors"), 
-    on: (channel, listener) => {
-        ipcRenderer.on(channel, listener);
-    },
-    send: (channel, data) => {
-        ipcRenderer.send(channel, data);
-    },
+    on: (channel, listener) => {ipcRenderer.on(channel, listener);},
+    send: (channel, data) => {ipcRenderer.send(channel, data);},
     onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
     getGameDailyTimeData: (gameId) => ipcRenderer.invoke('get-game-daily-time-data', gameId),
     openDataPath: (path) => ipcRenderer.send('open-data-path', path),
@@ -65,5 +57,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getGachaRecords: () => ipcRenderer.invoke('get-gacha-records'),
     getLastQueryUid: () => ipcRenderer.invoke('get-last-query-uid'),
     getPlayerUIDs: () => ipcRenderer.invoke('get-player-uids'),
-
 });
