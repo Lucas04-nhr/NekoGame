@@ -99,21 +99,19 @@
     opacity: 0;
     transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
     transform: translateY(20px); /* 初始状态有一个轻微的下移 */
-    background-color:rgba(30, 30, 30, 0.8); /* 暗色半透明背景 */
     border-radius: 5px;
     flex: 2;
-    padding: 20px;
+    padding-left: 20px;
     overflow: auto;
 }
 
 .game-details.show {
     opacity: 1;
-    padding: 20px;
+    padding-left: 20px;
     overflow: auto;
-    background-color:rgba(30, 30, 30, 0.8); /* 暗色半透明背景 */
     border-radius: 5px;
     flex: 2;
-    transform: translateY(0); /* 显示时回到原位置 */
+    transform: translateY(0);
 }
 
 /* 游戏信息部分 */
@@ -172,9 +170,9 @@
 
 .tab-content {
     padding: 10px;
-    background-color:rgba(30, 30, 30, 0.8); /* 暗色半透明背景 */
+    background-color:rgba(44, 44, 44, 0.4);
     border-radius: 5px;
-    height: 100%;
+    min-height: 100%;
 }
 
 /* 趋势图部分 */
@@ -183,7 +181,8 @@
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    background-color: rgba(51, 51, 51, 0.4);
+    backdrop-filter: blur(3px);
     transition: transform 0.3s;
 }
 
@@ -218,7 +217,8 @@
     position: absolute;
     top: 100%;
     right: 0;
-    background-color: #333;
+    background-color: rgba(85, 85, 85, 0.5);
+    backdrop-filter: blur(2px);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     z-index: 10;
@@ -234,19 +234,33 @@
     padding: 8px 16px;
     color: #e0e0e0;
     text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
 .menu-dropdown a:hover {
-    background-color: #444;
+    background-color: rgba(119, 119, 119, 0.3);
+    backdrop-filter: blur(1px);
 }
 
+input[type="text"],
+input[type="range"] {
+    width: 95%;
+    padding: 10px;
+    margin-top: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
 
-
-
-
-
-
-
+/* 聚焦时的样式 */
+input[type="text"]:focus {
+    outline: none;  /* 去除默认的蓝色边框 */
+    background-color: rgba(85,85,85,0.5);
+}
 
 
 .contribution-chart-container {
@@ -254,10 +268,11 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background-color: #2b2b2b;
+
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    background-color: #333;
+    background-color: rgba(51, 51, 51, 0.4);
+    backdrop-filter: blur(3px);
     margin-bottom: 20px;
     transition: transform 0.3s;
 }

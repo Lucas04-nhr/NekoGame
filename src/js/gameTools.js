@@ -137,8 +137,8 @@ async function loadGachaRecords(uid) {
             const leastDrawsText = safeValue(leastDraws, "暂未抽出五星");
 
             const progressBars = `
-                ${generateProgressBar(lastFiveStarDraws, 80, '#f3d58a', '距离上个五星')}
-                ${generateProgressBar(lastFourStarDraws, 10, '#d6c7ff', '距离上个四星')}
+                ${generateProgressBar(lastFiveStarDraws, 80, 'rgba(243, 213, 138,0.7)', '距离上个五星')}
+                ${generateProgressBar(lastFourStarDraws, 10, 'rgba(214, 199, 255,0.7)', '距离上个四星')}
             `;
             const ratingContent = generateRatingCards(pools[poolType], poolType)
             poolSection.innerHTML = `

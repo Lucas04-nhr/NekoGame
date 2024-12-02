@@ -6,7 +6,7 @@ const fs = require('fs');
 const userDataPath = app.getPath('userData');
 // 设置 NekoGame 文件夹路径
 const nekoGameFolderPath = path.join(userDataPath, 'NekoGame');
-// 确保文件夹存在，如果不存在则创建它
+// 如果文件夹不存在则创建它
 if (!fs.existsSync(nekoGameFolderPath)) {
     fs.mkdirSync(nekoGameFolderPath, { recursive: true });
   }
@@ -14,7 +14,7 @@ process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;  // 定义全局数据�
 require("./app/console");  // 导入日志管理
 
 
-const { initializeDatabase, getSetting, setSetting} = require('./app/database'); // 确保导入 getGameTimeData
+const { initializeDatabase, getSetting, setSetting} = require('./app/database');
 const { startGameTracking, sendRunningStatus } = require('./app/gameTracker');
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -24,7 +24,6 @@ let mainWindow;
 global.mainWindow = mainWindow; // 将 mainWindow 保存在全局对象中
 let isWindowVisible = true;
 let minimizeToTraySetting = false;
-
 
 
 function createTray() {
@@ -47,7 +46,7 @@ function createTray() {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
                 // mainWindow.destroy();  // 销毁窗口并释放资源
-                // mainWindow = null; // 确保引用被清除
+                // mainWindow = null; // 清除引用
                 // global.mainWindow = null;  // 清除全局引用
             } else {
                 mainWindow.show();
@@ -77,6 +76,8 @@ function createWindow() {
         frame: false
     });
     mainWindow.loadFile('src/index.html');
+    loadBackground(mainWindow);
+
     // 打开开发者工具
     // mainWindow.webContents.once('dom-ready', () => {
     //    mainWindow.webContents.openDevTools();
@@ -99,11 +100,11 @@ function createWindow() {
             // 隐藏窗口
             mainWindow.hide();
             // mainWindow.destroy();  // 销毁窗口并释放资源
-            // mainWindow = null; // 确保引用被清除
+            // mainWindow = null; //清除引用
             // global.mainWindow = null;  // 清除全局引用
             isWindowVisible = false;
         } else {
-            mainWindow = null;  // 清除引用，确保可以正常退出
+            mainWindow = null;  // 清除引用
             global.mainWindow = null;  // 清除全局引用
             app.quit();
         }
@@ -186,6 +187,7 @@ require('./utils/analysisGacha/getStarRailUrl'); // 星铁
 require('./utils/analysisGacha/getGenshinUrl');
 // 设置页面
 require('./utils/settings/checkError');
+const { loadBackground } = require('./utils/settings/background');
 // 页面功能
 require('./app/pagesIpc/gameManager');
 require('./app/pagesIpc/libraryIPC');
@@ -201,7 +203,6 @@ app.whenReady().then(() => {
     require('./app/update')
 });
 
-
 // 触发运行状态更新通知
 ipcMain.on('running-status-updated', (event, runningStatus) => {
     if (mainWindow && mainWindow.webContents && mainWindow.isVisible()) {
@@ -209,19 +210,14 @@ ipcMain.on('running-status-updated', (event, runningStatus) => {
     }
 });
 
-
-
 ipcMain.on('request-running-status', (event) => {
     sendRunningStatus(); // 立即发送最新的运行状态
 });
-
 
 // 开机自启动
 ipcMain.handle("set-auto-launch", (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
 });
-
-
 
 ipcMain.on('open-external', (event, url) => {
     if (url) {

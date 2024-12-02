@@ -100,7 +100,7 @@ function renderGameList(gameData) {
         gameItem.classList.add('game-item');
         gameItem.style.position = 'relative'; // 使提示信息定位在内部
 
-        const progressColor = game.isRunning ? 'green' : 'gray';
+        const progressColor = game.isRunning ? 'rgba(187,253,140,0.7)' : 'rgba(204, 204, 204,0.4)';
 
         gameItem.innerHTML = `
             <img src="${game.poster_vertical || './assets/poster_vertical.webp'}" alt="${game.name}" class="game-poster">
@@ -545,12 +545,12 @@ function loadMonthlyTrend(range = 'month') {
 // 定义游戏颜色映射，固定颜色
 if (typeof gameColors === 'undefined') {
     var gameColors = {
-        "Game 1": '#FF6384',
-        "Game 2": '#36A2EB',
-        "Game 3": '#FFCE56',
-        "Game 4": '#4BC0C0',
-        "Game 5": '#9966FF',
-        "Game 6": '#FF9F40'
+        "Game 1": 'rgba(255, 99, 132, 0.5)',
+        "Game 2": 'rgba(54, 162, 235, 0.5)',
+        "Game 3": 'rgba(255, 206, 86, 0.5)',
+        "Game 4": 'rgba(75, 192, 192, 0.5)',
+        "Game 5": 'rgba(153, 102, 255, 0.5)',
+        "Game 6": 'rgba(255, 159, 64, 0.5)'
     };
 }
 

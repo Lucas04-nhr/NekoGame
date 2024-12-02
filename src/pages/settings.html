@@ -46,7 +46,23 @@
     <p>如果遇到了任何问题，也欢迎反馈</p>
     <div class="settings-option">
         <a href="https://github.com/Summer-Neko/NekoGame" target="_blank">本项目完全免费，访问 GitHub 查看项目详情</a>
-    </div>    
+    </div>
+</div>
+<div class="settings-section">
+    <h3>背景设置</h3>
+    <div class="settings-option">
+        <label for="background-path">背景图片路径</label>
+        <input type="text" id="background-path" readonly required>
+        <button type="button" id="browse-background">选择背景图片</button>
+    </div>
+    <div class="settings-option">
+        <label for="backgroundOpacityInput">调整背景亮度:</label>
+        <input type="range" id="backgroundOpacityInput" min="0" max="1" step="0.1" />
+    </div>
+    <div class="settings-option">
+        <!-- 设置窗口中，加入一个恢复默认设置按钮 -->
+        <button id="restore-defaults">恢复默认背景配置</button>
+    </div>
 </div>
 <div class="settings-section">
     <h3>更新</h3>

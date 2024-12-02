@@ -290,7 +290,7 @@ function renderPieChart(records, poolType) {
         datasets: [
             {
                 data: Object.values(starCounts),
-                backgroundColor: ["#f3d58a", "#d6c7ff", "#6699ff"],
+                backgroundColor: ["rgba(243, 213, 138, 0.8)", "rgba(214, 199, 255, 0.8)", "rgba(112, 158, 250, 0.8)"],
             },
         ],
     };

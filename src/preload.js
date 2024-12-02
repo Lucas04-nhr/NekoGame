@@ -57,4 +57,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getGachaRecords: () => ipcRenderer.invoke('get-gacha-records'),
     getLastQueryUid: () => ipcRenderer.invoke('get-last-query-uid'),
     getPlayerUIDs: () => ipcRenderer.invoke('get-player-uids'),
+    saveBackgroundSettings: (key, value) => {ipcRenderer.invoke('saveBackgroundSettings', key, value); }, // 发送保存设置到主进程
+    selectBackgroundFile: () => ipcRenderer.invoke('selectBackgroundFile'),  // 调用主进程的 `selectBackgroundFile`
 });

@@ -10,7 +10,6 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     color: #e0e0e0;
-    background-color: #1e1e1e;
 }
 
 .container {
@@ -25,7 +24,8 @@ body {
     left: 0;
     width: 100%;
     height: 40px;
-    background-color: #2c2c2c;
+    background-color: rgb(44, 44, 44, 0);
+    backdrop-filter: blur(4px);
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -54,7 +54,8 @@ body {
 }
 
 .control-button:hover {
-    background-color: #444;
+    background-color: rgb(255, 255, 255, 0.3);
+    backdrop-filter: blur(3px);
 }
 
 /* 左侧导航栏 */
@@ -62,7 +63,8 @@ body {
     width: 200px;
     min-width: 200px;
     max-width: 200px;
-    background-color: #2c2c2c;
+    background-color: rgb(44, 44, 44, 0);
+    backdrop-filter: blur(4px);
     padding: 20px;
     box-sizing: border-box;
     margin-top: 40px;
@@ -89,7 +91,7 @@ body {
 
 .sidebar ul li.active,
 .sidebar ul li:hover {
-    background-color: #3a3a3a;
+    background-color: rgb(58, 58, 58, 0.6);
 }
 
 .sidebar ul li.active {
@@ -112,7 +114,7 @@ body {
 
 .game-list {
     width: 300px;
-    background-color: #2c2c2c;
+    background-color: rgb(44, 44, 44, 0.4);
     padding: 10px;
     box-sizing: border-box;
     overflow-y: auto;
@@ -144,23 +146,6 @@ body {
     cursor: pointer;
 }
 
-.menu-dropdown {
-    display: none;
-    position: absolute;
-    top: 25px;
-    right: 0;
-    background-color: #3a3a3a;
-    padding: 8px 12px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
-    white-space: nowrap; /* 强制内容不换行 */
-}
-
-.menu-dropdown a {
-    color: #ffffff;
-    text-decoration: none;
-}
-
 /* 游戏列表样式 */
 .games-list {
     list-style: none;
@@ -180,11 +165,13 @@ body {
 
 /* 选中效果 */
 .game-item.selected {
-    background-color: #555;
+    background-color: rgba(85, 85, 85, 0.4);
+    backdrop-filter: blur(3px);
 }
 
 .game-item:hover {
-    background-color: #444;
+    background-color: rgb(255, 255, 255, 0.2);
+    backdrop-filter: blur(3px);
 }
 
 
@@ -211,7 +198,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #ffffff;
+    background-color: rgb(255, 255, 255, 0.3);
     border-radius: 3px;
 }
 
@@ -263,7 +250,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(44, 44, 44, 0.3);
+    backdrop-filter: blur(4px);
     justify-content: center;
     align-items: center;
     z-index: 10;
@@ -274,7 +262,8 @@ body {
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    background-color: #2c2c2c;
+    background-color: rgba(44, 44, 44, 0.3);
+    backdrop-filter: blur(4px);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     overflow: hidden;
@@ -283,7 +272,8 @@ body {
 
 .modal-header {
     padding: 10px 20px;
-    background-color: #2c2c2c;
+    background-color: rgba(44, 44, 44, 0.3);
+    backdrop-filter: blur(4px);
     text-align: center;
     font-weight: bold;
     color: #fff;
@@ -294,14 +284,14 @@ body {
 .modal-body {
     flex: 1;
     padding: 10px;
-    padding-bottom: 10px; /* 为底部按钮留出空间 */
     overflow-y: auto;
     max-height: calc(80vh - 120px);
 }
 
 .modal-footer {
     padding: 10px 20px;
-    background-color: #2c2c2c;
+    background-color: rgba(44, 44, 44, 0.3);
+    backdrop-filter: blur(4px);
     border-top: 1px solid #444;
     display: flex;
     justify-content: space-between;
@@ -312,7 +302,7 @@ body {
 .image-preview-square {
     width: 100%;
     padding-top: 100%; /* 保持正方形比例 */
-    background-color: #444;
+    background-color: rgba(68,68,68,0.7);
     border-radius: 5px;
     cursor: pointer;
     background-size: cover;
@@ -322,8 +312,8 @@ body {
 
 .image-preview-vertical {
     width: 100%;
-    padding-top: 175%; /* 4:7 竖版比例 */
-    background-color: #444;
+    padding-top: 175%;
+    background-color: rgba(68,68,68,0.7);
     border-radius: 5px;
     cursor: pointer;
     background-size: cover;
@@ -334,7 +324,7 @@ body {
 .image-preview-horizontal {
     width: 100%;
     padding-top: 43.75%; /* 16:7 横版比例 */
-    background-color: #444;
+    background-color: rgba(68,68,68,0.7);
     border-radius: 5px;
     cursor: pointer;
     background-size: cover;
@@ -343,17 +333,18 @@ body {
 }
 
 /* 按钮样式 */
-.submit-btn, .close-btn, #browse-path {
-    background-color: #444;
+.submit-btn, .close-btn, #browse-path, #edit-browse-path {
+    background-color: rgba(255, 255, 255, 0.2);
     color: #fff;
     border: none;
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .submit-btn:hover, .close-btn:hover, #browse-path:hover {
-    background-color: #555;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* 防止文本框选 */
@@ -396,8 +387,6 @@ body {
 
 
 
-
-
 /* 趋势图 */
 #trend-chart {
     width: 100%;
@@ -410,23 +399,17 @@ body {
     position: relative;
 }
 
-.menu-button {
-    background: none;
-    border: none;
-    color: #e0e0e0;
-    font-size: 20px;
-    cursor: pointer;
-}
 
 .menu-dropdown {
     display: none;
     position: absolute;
     top: 25px;
     right: 0;
-    background-color: #3a3a3a;
+    background-color: rgba(209, 209, 209, 0.8);
     padding: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
     border-radius: 4px;
+    white-space: nowrap; /* 强制内容不换行 */
 }
 
 .menu-button:hover + .menu-dropdown,

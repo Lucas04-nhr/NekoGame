@@ -1,14 +1,7 @@
 const {ipcMain, shell } = require('electron');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
-
-
-const db = new sqlite3.Database(path.join(process.env.NEKO_GAME_FOLDER_PATH, "neko_game.db"), (err) => {
-    if (err) {
-        console.error("Database connection failed:", err.message);
-    }
-});
+const {db} = require('../../app/database');
 const dayjs = require('dayjs');
+
 // 合并一年前的数据
 function optimizeOldSessions() {
     return new Promise((resolve, reject) => {

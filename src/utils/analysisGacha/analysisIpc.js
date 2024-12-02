@@ -2,7 +2,6 @@ const { ipcMain, clipboard } = require('electron');
 const { db2 } = require('../../app/database'); // 引入数据库实例
 const { parseGachaUrl, fetchAllGachaLogs } = require('./gachaUtils'); // 工具方法
 const { getGamePath, extractGachaUrl } = require("./getWutheringWavesPath"); // 获取游戏路径和祈愿链接
-
 const db = db2; // 数据库实例
 
 /**

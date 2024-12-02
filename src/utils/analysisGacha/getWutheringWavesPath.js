@@ -1,16 +1,9 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const sqlite3 = require('sqlite3').verbose();
 const iconv = require('iconv-lite');
+const {db} = require('../../app/database');
 
-const db = new sqlite3.Database(path.join(process.env.NEKO_GAME_FOLDER_PATH, "neko_game.db"), (err) => {
-    if (err) {
-        console.error("Database connection failed:", err.message);
-    } else {
-        console.log("Connected to the database.");
-    }
-});
 
 // 注册表路径列表
 const registryPaths = [
