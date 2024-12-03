@@ -23,6 +23,7 @@
     "dayjs": "^1.11.13",
     "electron-store": "^10.0.0",
     "electron-updater": "^6.3.9",
+    "fs-extra": "^11.2.0",
     "iconv-lite": "^0.6.3",
     "node-fetch": "^3.3.2",
     "qs": "^6.13.0",

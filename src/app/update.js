@@ -103,7 +103,7 @@ function createGuideWindow(mainWindow) {
             contextIsolation: false,
         },
     });
-    guideWindow.loadFile(path.resolve(__dirname, './pages/guide.html'));
+    guideWindow.loadFile(path.resolve(__dirname, '../pages/modalPages/guide.html'));
     // 拦截新窗口打开事件，使用默认浏览器打开外部链接
     guideWindow.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url);
@@ -119,6 +119,7 @@ function createGuideWindow(mainWindow) {
     });
     // 监听窗口关闭事件，将 guideWindow 设置为 null
     guideWindow.on('closed', () => {
+        guideWindow.destroy();
         guideWindow = null;
     });
     return guideWindow;
@@ -149,7 +150,6 @@ ipcMain.on('check-for-updates', () => {
 ipcMain.on('open-update-log', () => {
     createGuideWindow(mainWindow);  // 打开更新日志窗口
 });
-
 
 initializeUpdater(); //初始化更新代码
 module.exports = { initializeUpdater };

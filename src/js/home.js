@@ -143,6 +143,8 @@ function renderGameList(gameData) {
             } else {
                 clearTimeout(hintTimeout); // 立即启动游戏，清除淡出计时
                 launchGame(game);
+                launchHint.classList.add('hidden');
+                launchHint.classList.remove('fade-out');
             }
         });
 

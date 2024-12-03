@@ -64,29 +64,33 @@ function getTimestamp() {
 }
 
 // 重定向 console.log、console.error 输出到日志文件
-console.log = function (message) {
+console.log = function (...args) {
     const timestamp = getTimestamp();  // 获取 UTC+8 时间戳
+    const message = args.join(' ');  // 合并所有参数为一个字符串
     logStream.write(`[${timestamp}] LOG: ${message}\n`);
     process.stdout.write(`[${timestamp}] LOG: ${message}\n`); // 在控制台显示
     checkLogFileSize(); // 每次写日志后检查日志文件大小
 };
 
-console.error = function (message) {
+console.error = function (...args) {
     const timestamp = getTimestamp();
+    const message = args.join(' ');
     logStream.write(`[${timestamp}] ERROR: ${message}\n`);
     process.stderr.write(`[${timestamp}] ERROR: ${message}\n`);
     checkLogFileSize();
 };
 
-console.warn = function (message) {
+console.warn = function (...args) {
     const timestamp = getTimestamp();
+    const message = args.join(' ');
     logStream.write(`[${timestamp}] WARN: ${message}\n`);
     process.stderr.write(`[${timestamp}] WARN: ${message}\n`);
     checkLogFileSize();
 };
 
-console.info = function (message) {
+console.info = function (...args) {
     const timestamp = getTimestamp();
+    const message = args.join(' ');  // 合并所有参数为一个字符串
     logStream.write(`[${timestamp}] INFO: ${message}\n`);
     process.stdout.write(`[${timestamp}] INFO: ${message}\n`);
     checkLogFileSize();

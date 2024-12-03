@@ -266,7 +266,7 @@ function showGameDetails(gameId) {
 
 function renderGameDailyChart(gameId) {
     window.electronAPI.getGameDailyTimeData(gameId).then(data => {
-        console.log("Received data:", data); // 检查是否包含最新日期的数据
+        // console.log("Received data:", data); // 检查是否包含最新日期的数据
         const dailyChartContainer = document.getElementById('daily-time-chart');
         if (!dailyChartContainer) {
             console.error('Daily time chart container not found');

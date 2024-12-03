@@ -59,7 +59,6 @@ async function loadBackground(mainWindow) {
     try {
         // 请求加载背景设置
         const settings = await loadBackgroundSettings();
-        console.log("加载的设置:", settings);
         // 检查并应用背景设置
         if (settings.backgroundImage) {
             const backgroundPath = settings.backgroundImage.replace(/\\/g, '/'); // 转换路径分隔符

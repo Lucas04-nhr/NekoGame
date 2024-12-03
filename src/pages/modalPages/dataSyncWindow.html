@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+        }
+        .window {
+            width: 500px;
+            background-color: #2c2f36; /* 窗口背景 */
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 10px 20px;
+            color: #fff;
+        }
+
+        .window-header h3 {
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #f44336;
+        }
+        .window-body {
+            padding: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(92, 107, 192, 0.7);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s ease;
+        }
+
+        .input-group input:hover {
+            background-color: rgba(63, 81, 181, 0.7);
+            transform: scale(1.05);
+        }
+
+        .input-group input:focus {
+            background-color: rgba(170, 177, 250, 0.7);
+            border-color: rgba(78, 154, 230, 0.82);
+            outline: none;
+        }
+        .save-btn {
+            width: 100%;
+            background-color: rgba(92, 107, 192, 0.7);
+            color: white;
+            font-size: 20px;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s ease;
+        }
+        p {
+            margin: 5px 0 0;
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        .error-message {
+            color: #f44336;
+            display: none;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .success-message {
+            color: #ececec;
+            background-color: rgba(82, 255, 82, 0.85);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .fail-message {
+            color: #f44336;
+            background-color: rgba(253, 212, 215, 0.89);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .save-btn:hover, .fail-message:hover, .success-message:hover {
+            background-color: rgba(63, 81, 181, 0.7);
+            transform: scale(1.05);
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步设置</title>
+</head>
+<body>
+    <div class="window">
+        <div class="window-header">
+            <h3>数据同步设置</h3>
+            <button id="closeWindow" class="close-btn">×</button>
+        </div>
+        <div class="window-body">
+            <div class="input-group">
+                <label for="giteeRepoUrl">Gitee/Github 同步数据</label>
+                <input type="text" id="giteeRepoUrl" placeholder="https://gitee.com/username/repository">
+            </div>
+            <div class="input-group">
+                <label for="apiToken">API Token</label>
+                <input type="password" id="apiToken" placeholder="请输入您的 GAPI Token">
+            </div>
+            <p>您的Token会被简单的加密，如果后续不想使用此功能，在数据目录删除key即可</p>
+            <p>不对任何可能的数据泄露或者其他一切可能造成的后果负责</p>
+            <button id="saveSyncSettings" class="save-btn">更新设置</button>
+            <p id="syncErrorMessage" class="error-message">请填写所有字段。</p>
+            <p id="syncSuccessMessage" class="success-message" style="display:none;"></p>
+            <p id="syncFailMessage" class="fail-message" style="display:none;"></p>
+        </div>
+    </div>
+
+    <script>
+        // 关闭窗口
+        document.getElementById('closeWindow').addEventListener('click', () => {
+            window.electronAPI.send('closeDataSyncWindow');
+        });
+
+        // 保存同步设置
+        document.getElementById('saveSyncSettings').addEventListener('click', () => {
+            const repoUrl = document.getElementById('giteeRepoUrl').value;
+            const token = document.getElementById('apiToken').value;
+
+            if (!repoUrl || !token) {
+                document.getElementById('syncErrorMessage').style.display = 'block';
+            } else {
+                // 向主进程发送保存设置的请求
+                window.electronAPI.send('saveSyncSettings', {
+                    repoUrl,
+                    token
+                });
+            }
+        });
+        window.electronAPI.on('syncSettingsStatus', (event, { success, message }) => {
+            document.getElementById('syncErrorMessage').style.display = 'none';
+            document.getElementById('syncSuccessMessage').style.display = 'none';
+            document.getElementById('syncFailMessage').style.display = 'none';
+
+            if (success) {
+                // 显示成功消息
+                document.getElementById('syncSuccessMessage').innerText = message;
+                document.getElementById('syncSuccessMessage').style.display = 'block';
+            } else {
+                // 显示失败消息
+                document.getElementById('syncFailMessage').innerText = message;
+                document.getElementById('syncFailMessage').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

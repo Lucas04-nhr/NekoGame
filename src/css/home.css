@@ -357,7 +357,7 @@ canvas {
 
 /* 启动提示的样式 */
 .launch-hint {
-    background-color: rgba(34, 34, 34, 0.6); /* 深色半透明背景 */
+    background-color: rgba(66, 66, 66, 0.6); /* 深色半透明背景 */
     color: #f5f5f5;
     padding: 10px 20px;
     border-radius: 8px;

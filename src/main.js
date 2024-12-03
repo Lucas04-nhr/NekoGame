@@ -66,7 +66,7 @@ function createWindow() {
         height: 700,
         minWidth: 1000,
         minHeight: 600,
-        backgroundColor: '#1e1e1e', // 设置为应用的暗色主题颜色
+        backgroundColor: '#1e1e1e',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'), // 指定 preload 脚本
             contextIsolation: true,
@@ -88,7 +88,13 @@ function createWindow() {
         mainWindow.webContents.send('set-app-path', app.getAppPath());
     });
     mainWindow.on('minimize', () => {
-        isWindowVisible = false;
+        if (minimizeToTraySetting) {
+            // 隐藏窗口
+            mainWindow.hide();
+            isWindowVisible = false;
+        } else {
+            isWindowVisible = false;
+        }
     });
 
     mainWindow.on('restore', () => {
@@ -99,9 +105,9 @@ function createWindow() {
             event.preventDefault();
             // 隐藏窗口
             mainWindow.hide();
-            // mainWindow.destroy();  // 销毁窗口并释放资源
-            // mainWindow = null; //清除引用
-            // global.mainWindow = null;  // 清除全局引用
+            mainWindow.destroy();  // 销毁窗口并释放资源
+            mainWindow = null; //清除引用
+            global.mainWindow = null;  // 清除全局引用
             isWindowVisible = false;
         } else {
             mainWindow = null;  // 清除引用
@@ -200,7 +206,8 @@ app.whenReady().then(() => {
     // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
     startGameTracking();
     module.exports = { createWindow };
-    require('./app/update')
+    require('./app/update'); // 初始化更新
+    require('./app/uploadData/uploadDataIpc');  // 初始化上传代码
 });
 
 // 触发运行状态更新通知

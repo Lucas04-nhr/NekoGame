@@ -60,15 +60,18 @@
 
     // 监听背景透明度变化
     if (backgroundOpacityInput) {
-        backgroundOpacityInput.addEventListener("input", async (event) => {
+        backgroundOpacityInput.addEventListener("change", async (event) => {
             const opacity = event.target.value;
             await window.electronAPI.saveBackgroundSettings("backgroundOpacity", opacity);
+
+            // 更新背景样式
             document.body.style.background = `linear-gradient(rgba(0, 0, 0, ${opacity}), rgba(0, 0, 0, ${opacity})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
             document.body.style.backgroundSize = "cover";
             document.body.style.backgroundRepeat = "no-repeat";
             document.body.style.backgroundPosition = "center";
         });
     }
+
 
     if (getStarRailUrlButton) {
         getStarRailUrlButton.addEventListener("click", async () => {
@@ -85,7 +88,12 @@
         });
     }
 
-    // 在前端，监听恢复默认配置按钮的点击事件
+    // 创建数据同步设置窗口
+    document.getElementById('openDataSyncWindow').addEventListener('click', () => {
+        window.electronAPI.send('openDataSyncWindow');
+    });
+
+    // 监听恢复默认配置按钮的点击事件
     document.getElementById('restore-defaults').addEventListener('click', () => {
         window.electronAPI.invoke('restoreDefaultBackgroundSettings')
             .then(() => {

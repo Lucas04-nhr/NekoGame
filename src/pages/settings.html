@@ -1,79 +1,126 @@
 <h2>设置</h2>
-<div class="settings-section">
-    <h3>常规设置</h3>
-    <div class="settings-option">
-        <span>点击×最小化到托盘</span>
-        <div class="switch-container">
-            <input type="checkbox" id="minimizeToTray" />
-            <label for="minimizeToTray" class="switch-label"><span class="switch-button"></span></label>
+<div class="settings-container">
+    <!-- 常规设置卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>常规设置</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <span>最小化到托盘</span>
+                <p>点击×销毁主窗口释放内存，点击-则只隐藏窗口</p>
+                <div class="switch-container">
+                    <input type="checkbox" id="minimizeToTray" />
+                    <label for="minimizeToTray" class="switch-label"><span class="switch-button"></span></label>
+                </div>
+            </div>
+            <div class="settings-option">
+                <span>静默运行</span>
+                <p>下次启动时不显示窗口</p>
+                <div class="switch-container">
+                    <input type="checkbox" id="silentMode" />
+                    <label for="silentMode" class="switch-label"><span class="switch-button"></span></label>
+                </div>
+            </div>
+            <div class="settings-option">
+                <span>开机自启动</span>
+                <p>建议以上三个选项都打开</p>
+                <div class="switch-container">
+                    <input type="checkbox" id="autoLaunch" />
+                    <label for="autoLaunch" class="switch-label"><span class="switch-button"></span></label>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="settings-option">
-        <span>静默运行（下次启动时不显示窗口）</span>
-        <div class="switch-container">
-            <input type="checkbox" id="silentMode" />
-            <label for="silentMode" class="switch-label"><span class="switch-button"></span></label>
+
+    <!-- 祈愿工具卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>祈愿工具</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <button id="getStarRailUrl">获取崩铁抽卡链接并复制到剪贴板</button>
+            </div>
+            <div class="settings-option">
+                <button id="getGenshinWishLink">获取原神祈愿链接并复制到剪贴板</button>
+            </div>
         </div>
     </div>
-    <div class="settings-option">
-        <span>开机自启动</span>
-        <div class="switch-container">
-            <input type="checkbox" id="autoLaunch" />
-            <label for="autoLaunch" class="switch-label"><span class="switch-button"></span></label>
+
+    <!-- 背景设置卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>背景设置</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <label for="background-path">背景图片路径</label>
+                <input type="text" id="background-path" readonly required>
+                <button type="button" id="browse-background">选择背景图片</button>
+            </div>
+            <div class="settings-option">
+                <label for="backgroundOpacityInput">调整背景亮度:</label>
+                <input type="range" id="backgroundOpacityInput" min="0" max="1" step="0.001" />
+            </div>
+            <div class="settings-option">
+                <button id="restore-defaults">恢复默认背景配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据管理卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>数据管理</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <button id="checkErrors">检查与整理数据</button>
+            </div>
+            <div class="settings-option">
+                <button id="openDataPath">打开数据文件夹</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <button id="openDataSyncWindow">数据同步设置</button>
+                <p>通过Gitee或Github自动同步您的数据。</p>
+                <p><a href="https://github.com/Summer-Neko/NekoGame" target="_blank" class="guide-link">查看相关信息</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目地址卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>项目地址</h3>
+        </div>
+        <div class="card-body">
+            <p>如果遇到了任何问题，也欢迎反馈</p>
+            <div class="settings-option">
+                <a href="https://github.com/Summer-Neko/NekoGame" target="_blank">本项目完全免费，访问 GitHub 查看项目详情</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 更新卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>更新</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <button id="openUpdateLog">更新日志</button>
+            </div>
+            <div class="settings-option">
+                <button id="checkUpdate">检查更新</button>
+            </div>
+            <div class="settings-option">
+                <a href="https://pan.baidu.com/s/13IdCeOVPxHfxVpq2vO_8kw?pwd=4l1a" target="_blank">或者前往网盘查看是否有更新</a>
+            </div>
         </div>
     </div>
 </div>
-<div class="settings-section">
-    <h3>数据管理</h3>
-    <div class="settings-option">
-        <button id="checkErrors">检查与整理数据</button>
-    </div>
-    <div class="settings-option">
-        <button id="openDataPath">打开数据文件夹</button>
-    </div>
-</div>
-<div class="settings-section">
-    <h3>祈愿工具</h3>
-    <div class="settings-option">
-        <button id="getStarRailUrl">获取崩铁抽卡链接并复制到剪贴板</button>
-    </div>
-    <div class="settings-option">
-        <button id="getGenshinWishLink">获取原神祈愿链接并复制到剪贴板</button>
-    </div>
-</div>
-<div class="settings-section">
-    <h3>项目地址</h3>
-    <p>如果遇到了任何问题，也欢迎反馈</p>
-    <div class="settings-option">
-        <a href="https://github.com/Summer-Neko/NekoGame" target="_blank">本项目完全免费，访问 GitHub 查看项目详情</a>
-    </div>
-</div>
-<div class="settings-section">
-    <h3>背景设置</h3>
-    <div class="settings-option">
-        <label for="background-path">背景图片路径</label>
-        <input type="text" id="background-path" readonly required>
-        <button type="button" id="browse-background">选择背景图片</button>
-    </div>
-    <div class="settings-option">
-        <label for="backgroundOpacityInput">调整背景亮度:</label>
-        <input type="range" id="backgroundOpacityInput" min="0" max="1" step="0.1" />
-    </div>
-    <div class="settings-option">
-        <!-- 设置窗口中，加入一个恢复默认设置按钮 -->
-        <button id="restore-defaults">恢复默认背景配置</button>
-    </div>
-</div>
-<div class="settings-section">
-    <h3>更新</h3>
-    <div class="settings-option">
-        <button id="openUpdateLog">更新日志</button>
-    </div>
-    <div class="settings-option">
-        <button id="checkUpdate">检查更新</button>
-    </div>
-    <div class="settings-option">
-        <a href="https://pan.baidu.com/s/13IdCeOVPxHfxVpq2vO_8kw?pwd=4l1a" target="_blank">或者前往网盘查看是否有更新</a>
-    </div>
-</div>
+
 <link rel="stylesheet" href="./css/settings.css">

@@ -23,63 +23,20 @@ p {
 }
 
 
-
 /* 开关按钮样式 */
 .settings-option {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
-button {
-    margin: 5px 0;
-    padding: 8px 15px;
-    background-color: rgba(0, 123, 255, 0.7);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-button:hover {
-    background-color: rgba(0, 86, 179, 0.7);
-    transform: scale(1.05);
-}
-
-.switch-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
 
 input[type="checkbox"] {
     display: none;
 }
 
-.switch-label {
-    display: inline-block;
-    width: 40px;
-    height: 20px;
-    background-color: rgba(204, 204, 204, 0.6);
-    border-radius: 10px;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.switch-label .switch-button {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: rgba(255,255,255,0.7);
-    transition: left 0.3s;
-}
 
 input[type="checkbox"]:checked + .switch-label {
     background-color: rgba(76, 175, 80,0.6);
@@ -101,54 +58,153 @@ a[target="_blank"]:hover {
     text-decoration: underline;
 }
 
-#backgroundOpacityInput {
-    -webkit-appearance: none;
-    appearance: none;
+
+input[type="text"]{
     width: 100%;
-    height: 8px;
-    background: rgba(211,211,211,0.7);
-    border-radius: 5px;
-    outline: none;
-    transition: background 0.3s ease;
-}
-
-#backgroundOpacityInput:hover {
-    background: rgba(221, 221, 221, 0.7);
-}
-
-#backgroundOpacityInput::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: rgba(29, 114, 184, 0.7);
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-#backgroundOpacityInput::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: rgba(29, 114, 184, 0.7);
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-input[type="text"],
-input[type="range"] {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
 }
 
 /* 聚焦时的样式 */
 input[type="text"]:focus {
     outline: none;  /* 去除默认的蓝色边框 */
     background-color: rgba(85,85,85,0.5);
+}
+
+
+/* 设置容器 */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* 设置卡片 */
+.setting-card {
+  background-color: rgba(44, 47, 54, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.setting-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 卡片标题 */
+.card-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+    padding:5px;
+}
+
+.card-header p {
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* 卡片内容区域 */
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-body button,
+.card-body input {
+  background-color: rgba(92, 107, 192, 0.7);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s ease;
+}
+
+/* 按钮与输入框 hover 效果 */
+.card-body button:hover,
+.card-body input:hover {
+  background-color: rgba(63, 81, 181, 0.7);
+  transform: scale(1.05);
+}
+
+/* 开关按钮 */
+.switch-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+
+.switch-label {
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  background-color: rgba(204, 204, 204, 0.6);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.switch-label .switch-button {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.7);
+  transition: left 0.3s;
+}
+
+/* 背景透明度输入框 */
+#backgroundOpacityInput {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: rgba(211, 211, 211, 0.7);
+  border-radius: 5px;
+  outline: none;
+  transition: background-color 0.3s, transform 0.2s ease;
+}
+
+#backgroundOpacityInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: rgba(29, 114, 184, 0.7);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#backgroundOpacityInput::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: rgba(29, 114, 184, 0.7);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* 文本框聚焦效果 */
+input[type="text"]:focus {
+  outline: none;
+  background-color: rgba(85, 85, 85, 0.5);
+}
+
+/* 链接样式 */
+a[target="_blank"] {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+a[target="_blank"]:hover {
+  color: #0056b3;
+  text-decoration: underline;
 }
