@@ -23,13 +23,15 @@
             if (settings.backgroundImage) {
                 // 如果有背景图片
                 document.getElementById('background-path').value = settings.backgroundImage || '';
+            }else{
+                document.getElementById('background-path').value = '没有设置背景图片';
             }
             // 检查透明度设置是否存在
             if (settings.backgroundOpacity) {
                 // 默认透明度值为0.5
                 document.getElementById('backgroundOpacityInput').value = settings.backgroundOpacity || '0.5';
             }
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, ${backgroundOpacityInput.value}), rgba(0, 0, 0, ${backgroundOpacityInput.value})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
+            document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${backgroundOpacityInput.value}), rgba(33, 33, 33, ${settings.backgroundImage})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
             document.body.style.backgroundSize = "cover";
             document.body.style.backgroundRepeat = "no-repeat";
             document.body.style.backgroundPosition = "center";
@@ -50,7 +52,7 @@
                 document.getElementById('background-path').value = filePath;
                 // 可选择保存路径到数据库或直接应用
                 await window.electronAPI.saveBackgroundSettings("backgroundImage", filePath);
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, ${backgroundOpacityInput.value}), rgba(0, 0, 0, ${backgroundOpacityInput.value})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
+                document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${backgroundOpacityInput.value}), rgba(33, 33, 33, ${backgroundOpacityInput.value})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
                 document.body.style.backgroundSize = "cover";
                 document.body.style.backgroundRepeat = "no-repeat";
                 document.body.style.backgroundPosition = "center";
@@ -65,7 +67,7 @@
             await window.electronAPI.saveBackgroundSettings("backgroundOpacity", opacity);
 
             // 更新背景样式
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, ${opacity}), rgba(0, 0, 0, ${opacity})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
+            document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacity}), rgba(33, 33, 33, ${opacity})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
             document.body.style.backgroundSize = "cover";
             document.body.style.backgroundRepeat = "no-repeat";
             document.body.style.backgroundPosition = "center";
@@ -76,7 +78,7 @@
     if (getStarRailUrlButton) {
         getStarRailUrlButton.addEventListener("click", async () => {
             const result = await window.electronAPI.invoke('getStarRailUrl');
-            alert(result.message);
+            animationMessage(result.success, result.message)
         });
     }
 
@@ -97,13 +99,13 @@
     document.getElementById('restore-defaults').addEventListener('click', () => {
         window.electronAPI.invoke('restoreDefaultBackgroundSettings')
             .then(() => {
-                alert('背景设置已恢复为默认配置');
+                animationMessage(true, '背景设置已恢复为默认配置');
                 // 更新配置
                 loadBackgroundSettings();
             })
             .catch((err) => {
                 console.error('恢复默认设置失败:', err);
-                alert('恢复默认设置失败');
+                animationMessage(false, '恢复默认设置失败');
             });
     });
 
@@ -118,7 +120,7 @@
     if (getGenshinWishLinkButton) {
         getGenshinWishLinkButton.addEventListener('click', async () => {
             const result = await window.electronAPI.invoke('getGenshinWishLink');
-            alert(result.message);
+            animationMessage(result.success, `原神祈愿链接获取成功, 已复制到剪贴板\n${result.message}`)
         });
     }
 
@@ -150,12 +152,13 @@
             console.log("检查错误数据");
             window.electronAPI.checkErrors().then(result => {
                 if (result) {
-                    alert(`${result}`);
+                    animationMessage(true, `${result}`);
                 } else {
-                    alert("所有数据正常");
+                    animationMessage(true, "所有数据正常");
                 }
+
             }).catch(err => {
-                alert("检查错误时发生问题：" + err);
+                animationMessage(false,`检查错误时发生问题${err}`);
             });
         });
     }

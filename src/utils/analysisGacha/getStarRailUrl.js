@@ -75,5 +75,5 @@ ipcMain.handle('getStarRailUrl', async () => {
     const gachaUrl = extractGachaLogUrl(cachePath);
     if (!gachaUrl) return { success: false, message: '未找到抽卡记录链接。' };
     clipboard.writeText(gachaUrl);
-    return { success: true, message: `获取成功，抽卡记录链接已复制到剪贴板。\n${gachaUrl}` };
+    return { success: true, message: `星铁抽卡链接获取成功，已复制到剪贴板。\n${gachaUrl}` };
 });

@@ -82,7 +82,7 @@ function libraryInit() {
             document.getElementById("game-icon").dataset.filePath = filePath;
         }
     });
-    
+
 
     document.getElementById("poster-vertical-preview").addEventListener("click", async () => {
         const filePath = await window.electronAPI.selectImageFile();
@@ -91,7 +91,7 @@ function libraryInit() {
             document.getElementById("game-poster-vertical").dataset.filePath = filePath;
         }
     });
-    
+
     document.getElementById("poster-horizontal-preview").addEventListener("click", async () => {
         const filePath = await window.electronAPI.selectImageFile();
         if (filePath) {
@@ -99,7 +99,7 @@ function libraryInit() {
             document.getElementById("game-poster-horizontal").dataset.filePath = filePath;
         }
     });
-    
+
 
     // 录入模态窗口路径选择
     document.getElementById("browse-path").addEventListener("click", async () => {
@@ -124,7 +124,7 @@ function libraryInit() {
             document.getElementById("edit-game-poster-vertical").dataset.filePath = filePath;
         }
     });
-    
+
     document.getElementById("edit-poster-horizontal-preview").addEventListener("click", async () => {
         const filePath = await window.electronAPI.selectImageFile();
         if (filePath) {
@@ -159,9 +159,9 @@ async function addGame() {
         resetForm();
     } catch (err) {
         if (err.message.includes("UNIQUE constraint failed: games.path")) {
-            alert("路径重复，请检查并重新输入！");
+            animationMessage(false, "路径重复，请检查并重新输入");
         } else {
-            alert("无法录入游戏，请重试");
+            animationMessage(false, "无法录入游戏，请检查");
         }
     }
 }
@@ -289,15 +289,15 @@ function renderGameDailyChart(gameId) {
         // 创建月份标题行
         const monthRow = document.createElement('div');
         monthRow.classList.add('month-row');
-        
+
         const today = new Date();
         today.setHours(today.getHours() + 8);
-        
+
         // 获取 180 天前的日期并加 8 小时
         const startDate = new Date();
         startDate.setDate(today.getDate() - 180);
         startDate.setHours(startDate.getHours() + 8);
-        
+
 
         let currentMonth = startDate.getMonth();
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -349,7 +349,7 @@ function renderGameDailyChart(gameId) {
                 if (tooltip) {
                     tooltip.classList.add('fade-out'); // 添加淡出动画类
                     tooltip.addEventListener('animationend', () => {
-                        tooltip.remove(); // 动画结束后移除 tooltip
+                        tooltip.remove();
                     });
                 }
             });
@@ -367,11 +367,11 @@ function renderGameDailyChart(gameId) {
 
 // 获取背景颜色函数
 function getBackgroundColor(hours) {
-    if (hours === 0) return '#e0e0e0';
-    if (hours < 1) return '#c6e48b';
-    if (hours < 3) return '#7bc96f';
-    if (hours < 5) return '#239a3b';
-    return '#196127';
+    if (hours === 0) return 'rgba(224,224,224,0.5)';
+    if (hours < 1) return 'rgba(198,228,139,0.5)';
+    if (hours < 3) return 'rgba(123,201,111,0.5)';
+    if (hours < 5) return 'rgba(35,154,59,0.5)';
+    return 'rgba(25,97,39,0.5)';
 }
 
 
@@ -474,10 +474,11 @@ document.getElementById("add-game-form").addEventListener("submit", async (e) =>
     try {
         await window.electronAPI.addGame(gameData);
         document.getElementById("add-game-modal").style.display = "none";
+        animationMessage(true, "成功录入游戏");
         loadGames();
     } catch (err) {
         console.error("Error adding game:", err);
-        alert("无法录入游戏，请重试");
+        animationMessage(false, "无法录入游戏，请重试");
     }
 });
 
@@ -489,13 +490,13 @@ function deleteGame() {
 
     window.electronAPI.deleteGame(gameId)
         .then(() => {
-            alert("游戏已删除");
+            animationMessage(false, "游戏已删除")
             loadGames(); // 重新加载游戏列表
             showNoGamesMessage(); // 清空游戏详情
         })
         .catch(error => {
             console.error("Error deleting game:", error);
-            alert("删除游戏时发生错误，请重试。");
+            animationMessage(false, "删除游戏时发生错误，请重试")
         });
 }
 
@@ -539,12 +540,12 @@ document.getElementById("edit-game-form").addEventListener("submit", async (e) =
 
     try {
         await window.electronAPI.updateGame(gameData);
-        alert("游戏已更新");
+        animationMessage(true, "游戏已更新");
         document.getElementById("edit-game-modal").style.display = "none";
         loadGames();
     } catch (err) {
         console.error("Error updating game:", err);
-        alert("更新游戏时发生错误，请重试");
+        animationMessage(false, "更新游戏时发生错误，请重试")
     }
 });
 

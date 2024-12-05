@@ -6,6 +6,7 @@
     <title>Neko Game</title>
     <link rel="stylesheet" href="css/main.css">
     <script src="js/gameTools/gacha.js"></script>
+    <script src="js/gameTools/syncNotification.js"></script>
     <script src="./js/import/chart.js"></script>
 </head>
 <body>
@@ -14,7 +15,7 @@
         <!-- 顶部进度条，初始隐藏 -->
         <div id="progress-bar-container" class="progress-bar-container">
             <div id="progress-bar" class="progress-bar"></div>
-            <span id="download-speed" class="download-speed"></span> 
+            <span id="download-speed" class="download-speed"></span>
         </div>
         <div class="window-controls">
             <span id="minimize" class="control-button">🗕</span>
@@ -22,7 +23,7 @@
             <span id="close" class="control-button">✕</span>
         </div>
     </header>
-    
+
     <div class="container">
         <!-- 左侧导航栏 -->
         <nav class="sidebar">

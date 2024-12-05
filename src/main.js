@@ -12,6 +12,7 @@ if (!fs.existsSync(nekoGameFolderPath)) {
   }
 process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;  // 定义全局数据路径
 require("./app/console");  // 导入日志管理
+require('./utils/syncMessage'); //导入消息通知
 
 
 const { initializeDatabase, getSetting, setSetting} = require('./app/database');
@@ -62,7 +63,7 @@ function createTray() {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1100,
+        width: 1300,
         height: 700,
         minWidth: 1000,
         minHeight: 600,
@@ -121,7 +122,7 @@ function createWindow() {
 ipcMain.handle("load-settings", async () => {
     const settings = {};
     const keys = ["minimizeToTray", "silentMode", "autoLaunch"];
-    
+
     for (const key of keys) {
         settings[key] = await new Promise((resolve) => {
             getSetting(key, (err, value) => {
@@ -187,7 +188,6 @@ if (!gotTheLock) {
     dialog.showErrorBox('Neko Game 已运行', '应用已在运行，请检查喵。'); // 提示用户已有进程
     app.exit(); // 使用 app.exit 退出当前实例
 }
-// 引入其他模块
 require('./utils/analysisGacha/analysisIpc'); // 引入分析相关的 IPC 逻辑
 require('./utils/analysisGacha/getStarRailUrl'); // 星铁
 require('./utils/analysisGacha/getGenshinUrl');

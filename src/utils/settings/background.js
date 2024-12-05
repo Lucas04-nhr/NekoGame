@@ -66,7 +66,7 @@ async function loadBackground(mainWindow) {
 
             // 设置背景样式
             mainWindow.webContents.executeJavaScript(`
-                document.body.style.background = "linear-gradient(rgba(0, 0, 0, ${bgOpacity}), rgba(0, 0, 0, ${bgOpacity})), url('file://${backgroundPath}')";
+                document.body.style.background = "linear-gradient(rgba(33, 33, 33, ${bgOpacity}), rgba(33, 33, 33, ${bgOpacity})), url('file://${backgroundPath}')";
                 document.body.style.backgroundSize = "cover";
                 document.body.style.backgroundRepeat = "no-repeat";
                 document.body.style.backgroundPosition = "center";
@@ -74,21 +74,21 @@ async function loadBackground(mainWindow) {
         } else {
             // 如果没有设置背景图片，使用默认背景样式
             mainWindow.webContents.executeJavaScript(`
-                document.body.style.background = "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5))";
+                document.body.style.background = "linear-gradient(rgba(33, 33, 33, 0.5), rgba(33, 33, 33, 0.5))";
                 document.body.style.backgroundSize = "cover";
                 document.body.style.backgroundRepeat = "no-repeat";
                 document.body.style.backgroundPosition = "center";
             `);
         }
     } catch (err) {
-        console.error('加载背景设置时出错:', err);
+        global.Notify(false, `加载背景设置时出错\n${err}`);
     }
 }
 
 ipcMain.handle('restoreDefaultBackgroundSettings', async () => {
     try {
         // 默认背景图片路径和透明度
-        const defaultBackgroundImage = ' ';
+        const defaultBackgroundImage = null;
         const defaultOpacity = '0.5';  // 默认透明度
 
         // 更新数据库

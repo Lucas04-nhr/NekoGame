@@ -28,7 +28,9 @@
     "node-fetch": "^3.3.2",
     "qs": "^6.13.0",
     "sqlite3": "^5.1.7",
-    "winreg": "^1.2.5"
+    "swiper": "^11.1.15",
+    "winreg": "^1.2.5",
+    "ws": "^8.18.0"
   },
   "build": {
     "appId": "com.wenpeng.nekogame",

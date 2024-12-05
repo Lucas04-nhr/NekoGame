@@ -63,7 +63,7 @@ function initializeCharts() {
             }
         }
     });
-    
+
     // 所有游戏的总时长分布（饼状图）
     const totalTimeCtx = document.getElementById('total-time-distribution-chart').getContext('2d');
     window.totalTimeDistributionChart = new Chart(totalTimeCtx, {
@@ -98,7 +98,7 @@ function renderGameList(gameData) {
     sortedGameData.forEach(game => {
         const gameItem = document.createElement('div');
         gameItem.classList.add('game-item');
-        gameItem.style.position = 'relative'; // 使提示信息定位在内部
+        gameItem.style.position = 'relative';
 
         const progressColor = game.isRunning ? 'rgba(187,253,140,0.7)' : 'rgba(204, 204, 204,0.4)';
 
@@ -124,7 +124,6 @@ function renderGameList(gameData) {
 
             if (!hasClickedOnce) {
                 hasClickedOnce = true;
-
                 // 显示启动提示
                 launchHint.classList.remove('hidden');
                 launchHint.classList.add('fade-in');
@@ -142,12 +141,11 @@ function renderGameList(gameData) {
 
             } else {
                 clearTimeout(hintTimeout); // 立即启动游戏，清除淡出计时
-                launchGame(game);
+                launchGame(game, launchHint);
                 launchHint.classList.add('hidden');
                 launchHint.classList.remove('fade-out');
             }
         });
-
         container.appendChild(gameItem);
     });
 }
@@ -171,14 +169,15 @@ function loadGameData(runningStatus) {
         .catch(err => console.error("Error loading game data:", err));
 }
 
-function launchGame(game) {
+function launchGame(game, launchHint) {
     // 检查游戏是否已经在运行
     if (game.isRunning) {
-        alert(`正在运行 ${game.name}，请勿重复点击。`);
+        animationMessage(false, `正在运行 ${game.name}，请勿重复点击`)
+        launchHint.classList.add('hidden');
+        launchHint.classList.remove('fade-out');
         return;
     }
-
-    // 使用 ipcRenderer 调用主进程中的 launch-game
+    // 调用主进程中的 launch-game
     window.electronAPI.launchGame(game.path)
         .then(() => {
             console.log(`成功启动 ${game.name}`);
@@ -186,7 +185,7 @@ function launchGame(game) {
         })
         .catch((error) => {
             console.error(`无法启动 ${game.name}:`, error);
-            alert(`无法启动 ${game.name}，请检查路径是否正确。`);
+            animationMessage(false ,`无法启动 ${game.name}，请检查路径是否正确。`)
         });
 }
 
@@ -326,7 +325,7 @@ function refreshData() {
         // 更新图表数据，并传入选择范围以正确汇总
         loadWeeklyGameTime(weeklyGameTime);
         updateChartData(monthlyTrendChart, monthlyResult.data, monthlyTrend, 'monthly_trend');
-        
+
         // 加载半年内游戏分布
         loadHalfYearGameDistribution(halfYearRange);
 
@@ -335,8 +334,8 @@ function refreshData() {
     })
     .catch(err => {
         hideLoadingAnimation();
-        console.error("Error refreshing data:", err);
-        alert(`Failed to refresh data: ${err.message || JSON.stringify(err)}`);
+        console.error("刷新数据出现错误:", err);
+        animationMessage(false ,`刷新数据出现错误: ${err.message || JSON.stringify(err)}`);
     });
 }
 
@@ -588,7 +587,7 @@ function loadHalfYearGameDistribution(range = 'daily') {
                     acc[label] = 0; // 默认值为0
                     return acc;
                 }, {});
-                
+
                 // 填充实际数据
                 data.forEach(d => {
                     if (d.game_name === game) {
@@ -710,7 +709,7 @@ function loadLeaderboard() {
             data.forEach(game => {
                 const item = document.createElement('div');
                 item.classList.add('list-item');
-                const backgroundImage = game.poster_horizontal 
+                const backgroundImage = game.poster_horizontal
                     ? `url('${getFilePath(game.poster_horizontal)}')`
                     : `url('./assets/default-poster.jpg')`;
                 item.style.backgroundImage = backgroundImage;
@@ -757,12 +756,12 @@ function loadLogData(reset = false) {
                 const logItem = document.createElement('div');
                 logItem.classList.add('list-item');
                 // 处理背景图片路径
-                const backgroundImage = log.poster_horizontal 
+                const backgroundImage = log.poster_horizontal
                     ? `url('${getFilePath(log.poster_horizontal)}')`
                     : `url('./assets/default-poster.jpg')`;
-            
+
                 logItem.style.backgroundImage = backgroundImage;
-                
+
 
                 logItem.innerHTML = `
                     <img src="${log.icon || './assets/default-icon.jpg'}" alt="${log.game_name}" class="game-icon">

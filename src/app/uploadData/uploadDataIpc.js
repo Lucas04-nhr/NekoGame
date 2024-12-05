@@ -48,13 +48,37 @@ ipcMain.on('saveSyncSettings', (event, { repoUrl, token }) => {
     try {
         // 保存加密配置信息到文件
         saveSyncConfigToFile(repoUrl, token);
-        initUpload();
         event.reply('syncSettingsStatus', { success: true, message: '同步设置已成功更新并已经上传数据、之后每次启动应用后会自动同步数据' });
     } catch (error) {
         console.error('保存设置失败:', error);
         event.reply('syncSettingsStatus', { success: false, message: `保存失败: ${error.message}` });
     }
 });
+ipcMain.on('uploadFirstData', async (event) => {
+    try {
+        await initUpload();  // 确保上传过程是异步执行并等待完成
+        event.reply('syncSettingsStatus', { success: true, message: '数据上传成功' });
+    } catch (error) {
+        console.error('初始化数据失败:', error);
+        event.reply('syncSettingsStatus', { success: false, message: `同步失败: ${error.message}` });
+    }
+});
+
+ipcMain.on('downloadLastedData', async (event, { repoUrl, token }) => {
+    try {
+        const neko_gameFilePath = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'neko_game.db');
+        const gacha_dataFilePath = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'gacha_data.db');
+
+        await downloadFileFromRepo(repoUrl, token, 'neko_game.db', neko_gameFilePath);
+        await downloadFileFromRepo(repoUrl, token, 'gacha_data.db', gacha_dataFilePath);
+
+        event.reply('syncSettingsStatus', { success: true, message: '数据下载成功' });
+    } catch (error) {
+        console.error('下载失败:', error);
+        event.reply('syncSettingsStatus', { success: false, message: `下载失败: ${error.message}` });
+    }
+});
+
 
 // 监听关闭数据同步窗口的事件
 ipcMain.on('closeDataSyncWindow', () => {
@@ -174,8 +198,10 @@ async function checkFileExists(repoUrl, token, fileName, platform) {
 
 // 上传文件到仓库
 async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
+    let platformMessage = '';
     try {
         const { owner, repo, platform } = parseRepoUrl(repoUrl);
+        platformMessage = platform;
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
 
@@ -225,14 +251,15 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
         }
     } catch (error) {
         if (error.response) {
-            console.error(fileName, '上传失败:', JSON.stringify(error.response.data));
+            global.Notify(false, `${fileName}上传失败\n平台:${platformMessage}\n${error.response.data.message}`);
+            console.error(fileName, '上传失败:', JSON.stringify(error.response.data), '平台', platformMessage);
         } else {
-            console.error(fileName, '上传失败:', error.message);
+            global.Notify(false, `${fileName}上传失败\n可通过日志查看具体原因\n平台:${platformMessage}`);
         }
     }
 }
 
-
+const {backupFile} = require("./backupData");
 // 从仓库下载文件
 async function downloadFileFromRepo(repoUrl, token, fileName, localPath) {
     const { owner, repo, platform } = parseRepoUrl(repoUrl);  // 解析 repoUrl 获取 owner 和 repo
@@ -247,6 +274,11 @@ async function downloadFileFromRepo(repoUrl, token, fileName, localPath) {
     }
 
     try {
+        // 备份当前文件
+        if (fs.existsSync(localPath)) {
+            await backupFile(localPath, fileName);
+        }
+
         const headers = platform === 'github' ? {
             'Authorization': `Bearer ${token}`
         } : {};
@@ -254,14 +286,15 @@ async function downloadFileFromRepo(repoUrl, token, fileName, localPath) {
             params: platform === 'gitee' ? { access_token: token } : {},
             headers: headers
         });
+
         const fileContent = Buffer.from(response.data.content, 'base64');
         fs.writeFileSync(localPath, fileContent);
         console.log('文件下载成功:', fileName);
     } catch (error) {
-        console.error('文件下载失败:', error);
+        global.Notify(false, `${fileName}下载失败\n平台:${platform}\n${error.response ? error.response.data.message : error.message}`);
+        console.error('数据下载失败:', error);
     }
 }
-
 // 计算文件的 hash 值
 function calculateFileHash(filePath) {
     const fileBuffer = fs.readFileSync(filePath);
@@ -315,4 +348,5 @@ function initUpload() {
     }
 }
 
-initUpload(); // 执行同步代码
+
+initUpload();

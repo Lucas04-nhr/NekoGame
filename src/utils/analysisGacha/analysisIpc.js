@@ -93,6 +93,7 @@ ipcMain.handle('refresh-gacha-records', async (event) => {
         const errorMessage = (err instanceof Error) ? err.message : String(err);
         console.error("获取记录失败:", errorMessage);
         event.sender.send('gacha-records-status', `获取记录失败: ${errorMessage}`);
+        global.Notify(false, errorMessage);
         return { success: false, error: errorMessage };
     }
 });

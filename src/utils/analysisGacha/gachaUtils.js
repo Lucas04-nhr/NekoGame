@@ -82,8 +82,7 @@ async function fetchGachaLogsByType(params, event) {
         const response = await axios.post(BASE_URL, params, { headers: HEADERS });
         if (response.status !== 200) throw new Error(`HTTP 状态码: ${response.status}`);
         if (response.data.code !== 0 || !response.data.data || response.data.data.length === 0) {
-            sendStatusToRenderer(event, `链接可能已过期，请打开祈愿页面再尝试`);
-            throw new Error("链接可能已过期，返回数据为空");
+            global.Notify(false, '链接可能已过期，请打开祈愿页面再尝试')
         }
         console.log(`获取到 ${response.data.data.length} 条记录，当前卡池类型: ${params.cardPoolType}`);
         sendStatusToRenderer(event, `获取到 ${response.data.data.length} 条记录，当前卡池类型: ${params.cardPoolType}`);

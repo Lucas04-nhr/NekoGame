@@ -424,3 +424,90 @@ body {
     margin-bottom: 5px;
 }
 
+/* 复制提示框样式 */
+.copy-tooltip {
+    position: absolute;
+    background-color: rgba(48, 48, 48, 0.58);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10000;
+}
+
+/* 显示时的样式 */
+.copy-tooltip.show {
+    opacity: 1;
+    transform: translateY(-10px);
+}
+
+/* 提示框的动画 */
+.copy-tooltip.fade-out {
+    opacity: 0;
+    transform: translateY(0);
+}
+
+/* 浮窗样式 */
+.notification {
+    position: fixed;
+    top: -80px;  /* 初始位置在屏幕上方外面 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 80%;
+    max-width: 280px;
+    max-height: 80px;
+    text-align: center;
+    z-index: 1000;
+    transition: top 0.5s ease-in-out, transform 0.2s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+
+
+.notification.overflow {
+    overflow-y: auto;
+}
+
+.notification::-webkit-scrollbar {
+    display: none;
+}
+
+/* 成功通知的样式 */
+.notification.success {
+    background-color: rgba(82, 255, 82, 0.4);
+    backdrop-filter: blur(2px);
+}
+
+/* 失败通知的样式 */
+.notification.fail {
+    background-color: rgba(255, 72, 72, 0.4);
+    backdrop-filter: blur(2px);
+}
+
+.notification:hover {
+    cursor: pointer;
+    transform: translateX(-50%) scale(1.05);
+    opacity: 1;
+}
+
+.notification.clicked {
+    background-color: rgba(63, 81, 181, 0.7);
+}
+
+
+.notification .copy-tooltip {
+    display: none;
+}
+
+.notification .copy-tooltip.show {
+    display: block;
+}

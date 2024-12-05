@@ -268,8 +268,6 @@ async function gameToolsInit() {
         const result = await window.electronAPI.refreshGachaRecords();
         if (result.success) {
             await loadGachaRecords(uid); // 刷新后重新加载
-        } else {
-            alert(`刷新失败：${result.error}`);
         }
     });
 }

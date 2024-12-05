@@ -2,67 +2,87 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步设置</title>
+    <!-- 引入 Swiper 样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none; /* Chrome/Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+ */
+            user-select: none; /* Standard */
         }
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #121212;  /* 背景设为深色 */
+            color: #e0e0e0;  /* 字体颜色为淡灰色 */
             height: 100vh;
             display: flex;
-        }
-        .window {
-            width: 500px;
-            background-color: #2c2f36; /* 窗口背景 */
-            border-radius: 8px;
-            overflow: auto;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
+        /* 窗口容器 */
+        .window {
+            width: 500px;
+            height: 500px;
+            background-color: #2c2f36; /* 深灰色背景 */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;  /* 竖向排列 */
+            overflow: hidden;
+        }
+
+
         .window-header {
+            position: absolute;
+            top: 0;  /* 距离顶部为 0 */
+            left: 0;
+            width: 100%;  /* 宽度为 100% */
+            background-color: rgba(51, 51, 51, 0.59);
+            padding: 10px 20px;
+            color: #fff;
+            z-index: 1000;  /* 确保标题栏显示在所有内容之上 */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #333;
-            padding: 10px 20px;
-            color: #fff;
         }
+
 
         .window-header h3 {
             font-size: 18px;
+            font-weight: bold;
         }
 
-        .close-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .close-btn:hover {
-            color: #f44336;
-        }
         .window-body {
             padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;  /* 竖向排列内容 */
+            justify-content: flex-start;
+            align-items: center;
+            overflow-y: auto;
         }
 
         .input-group {
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .input-group label {
             font-size: 14px;
             display: block;
             margin-bottom: 5px;
+            color: #ccc;
         }
+
         .input-group input {
             width: 100%;
             padding: 10px;
@@ -84,118 +104,277 @@
             border-color: rgba(78, 154, 230, 0.82);
             outline: none;
         }
-        .save-btn {
-            width: 100%;
+
+        button {
+            padding: 10px 20px;
             background-color: rgba(92, 107, 192, 0.7);
             color: white;
-            font-size: 20px;
             border: none;
-            padding: 10px;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s ease;
+            width: 100%;  /* 使按钮宽度与输入框一致 */
         }
+
+        button:hover {
+            background-color: rgba(63, 81, 181, 0.7);
+            transform: scale(1.05);
+        }
+
+        /* 错误、成功、失败消息 */
+        .error-message{
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error-message {
+            color: #f44336;
+            background-color: rgba(253, 212, 215, 0.89);
+            display: none;
+        }
+
+        /* 关闭按钮 */
+        .close-btn {
+            width: auto;
+            background: none;
+            border: none;
+            background: rgba(67, 67, 67, 0.7);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease, background-color 0.3s;
+            }
+
+            .close-btn:hover {
+                background: rgba(218, 215, 215, 0.7);
+                color: #f44336;
+            }
+
+        /* 分页控制 */
+        .swiper-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column; /* 保证分页内容竖向排列 */
+            justify-content: center;
+        }
+
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.59);
+            border-radius: 8px;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 分页小圆点 */
+        .swiper-pagination-bullet {
+            background-color: rgba(255, 255, 255, 0.5);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .swiper-pagination-bullet-active {
+            background-color: #4CAF50;
+        }
+
+        /* 提示文字 */
         p {
             margin: 5px 0 0;
             color: #9ca3af;
             font-size: 0.9em;
-        }
-        .error-message {
-            color: #f44336;
-            display: none;
-            font-size: 14px;
-            margin-top: 10px;
+            padding-bottom: 20px;
             text-align: center;
-            transition: all 0.3s ease;
         }
-        .success-message {
-            color: #ececec;
-            background-color: rgba(82, 255, 82, 0.85);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            margin-top: 15px;
+
+        /* 浮窗样式 */
+        .notification {
+            position: fixed;
+            top: -80px;  /* 初始位置在屏幕上方外面 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 300px;
             text-align: center;
-            transition: all 0.3s ease;
+            z-index: 1000;  /* 确保浮窗在其他元素之上 */
+            transition: top 0.5s ease-in-out;  /* 使浮窗滑入的动画 */
         }
-        .fail-message {
-            color: #f44336;
-            background-color: rgba(253, 212, 215, 0.89);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            margin-top: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
+
+        /* 成功通知的样式 */
+        .notification.success {
+            background-color: rgba(82, 255, 82, 0.63);
+            backdrop-filter: blur(2px);
         }
-        .save-btn:hover, .fail-message:hover, .success-message:hover {
-            background-color: rgba(63, 81, 181, 0.7);
-            transform: scale(1.05);
+
+        /* 失败通知的样式 */
+        .notification.fail {
+            background-color: rgba(255, 72, 72, 0.78);
+            backdrop-filter: blur(2px);
         }
     </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据同步设置</title>
 </head>
 <body>
     <div class="window">
-        <div class="window-header">
-            <h3>数据同步设置</h3>
-            <button id="closeWindow" class="close-btn">×</button>
-        </div>
-        <div class="window-body">
-            <div class="input-group">
-                <label for="giteeRepoUrl">Gitee/Github 同步数据</label>
-                <input type="text" id="giteeRepoUrl" placeholder="https://gitee.com/username/repository">
-            </div>
-            <div class="input-group">
-                <label for="apiToken">API Token</label>
-                <input type="password" id="apiToken" placeholder="请输入您的 GAPI Token">
-            </div>
-            <p>您的Token会被简单的加密，如果后续不想使用此功能，在数据目录删除key即可</p>
-            <p>不对任何可能的数据泄露或者其他一切可能造成的后果负责</p>
-            <button id="saveSyncSettings" class="save-btn">更新设置</button>
-            <p id="syncErrorMessage" class="error-message">请填写所有字段。</p>
-            <p id="syncSuccessMessage" class="success-message" style="display:none;"></p>
-            <p id="syncFailMessage" class="fail-message" style="display:none;"></p>
-        </div>
+    <!-- 窗口标题栏，常驻在上方 -->
+    <div class="window-header">
+        <h3 id="pageTitle">开始前须知</h3>
+        <button id="closeWindow" class="close-btn">×</button>
     </div>
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <!-- 第一个分页: 风险提示 -->
+            <div class="swiper-slide">
+                <div class="input-group">
+                    <p>
+                        配置完成后，应用在每次启动的时候都会自动同步数据，有时上传可能会发生错误, 如果急需上传，可以回到本页手动上传或者重启应用<br>
+                        如果本地数据较新，就会上传更新云端数据。<br>
+                        如果云端数据较新，就会下载覆盖本地数据。<br>
+                        不支持云端和本地数据的整合，若需多端同步，请清楚这一点。<br>
+                        并在最后选择上传或者下载<br>
+                        多端同步后，游戏时长功能将不再受到支持<br>
+                        因为游戏时长是根据进程名判断的，但是启动游戏不再支持<br>
+                        应用不会悄咪咪将您的数据上传到其他地方<br>
+                        本人对任何后果均不负责
+                    </p>
+                    <button id="acknowledgeBtn">我已知晓</button>
+                </div>
+            </div>
 
-    <script>
-        // 关闭窗口
-        document.getElementById('closeWindow').addEventListener('click', () => {
-            window.electronAPI.send('closeDataSyncWindow');
-        });
+            <!-- 第二个分页: 同步设置 -->
+            <div class="swiper-slide">
+                <div class="input-group">
+                    <label for="giteeRepoUrl">Gitee/Github 同步数据</label>
+                    <input type="text" id="giteeRepoUrl" placeholder="https://gitee.com/username/repository">
+                </div>
+                <div class="input-group">
+                    <label for="apiToken">API Token</label>
+                    <input type="password" id="apiToken" placeholder="请输入您的 Gitee/GitHub Token">
+                </div>
+                <button id="saveSyncSettings">更新设置</button>
+            </div>
 
-        // 保存同步设置
-        document.getElementById('saveSyncSettings').addEventListener('click', () => {
-            const repoUrl = document.getElementById('giteeRepoUrl').value;
-            const token = document.getElementById('apiToken').value;
+            <!-- 第三个分页: 手动上传/下载 -->
+            <div class="swiper-slide">
+                <div class="input-group">
+                    <p>请选择上传或下载数据。后续会自动同步</p>
+                    <button id="uploadData">上传数据</button>
+                    <p> </p>
+                    <button id="downloadData">下载数据</button>
+                </div>
+                <p>提示：如果是第一次使用，可以现在手动上传数据。<br>
+                    数据同步不支持多端同时使用，因为新数据会直接覆盖旧数据<br>
+                    如果不是，请先下载数据，否则本地数据可能会覆盖云端数据<br>
+                    如果你发现你的数据出现了问题，可以前往数据库文件下的backup<br>
+                    backup会保管近10次的同步数据，方便你恢复<br>
+                    在数据上传后，你可以下载手机应用同步数据，随时随地查看
+                </p>
+            </div>
+        </div>
 
-            if (!repoUrl || !token) {
-                document.getElementById('syncErrorMessage').style.display = 'block';
-            } else {
-                // 向主进程发送保存设置的请求
-                window.electronAPI.send('saveSyncSettings', {
-                    repoUrl,
-                    token
-                });
-            }
-        });
-        window.electronAPI.on('syncSettingsStatus', (event, { success, message }) => {
-            document.getElementById('syncErrorMessage').style.display = 'none';
-            document.getElementById('syncSuccessMessage').style.display = 'none';
-            document.getElementById('syncFailMessage').style.display = 'none';
+        <div class="swiper-pagination"></div>
+    </div>
+</div>
 
-            if (success) {
-                // 显示成功消息
-                document.getElementById('syncSuccessMessage').innerText = message;
-                document.getElementById('syncSuccessMessage').style.display = 'block';
-            } else {
-                // 显示失败消息
-                document.getElementById('syncFailMessage').innerText = message;
-                document.getElementById('syncFailMessage').style.display = 'block';
-            }
-        });
-    </script>
-</body>
-</html>
+<script src="../../js/import/swiper-bundle.min.js"></script>
+<script>
+    // 初始化 Swiper，竖向分页
+    const swiper = new Swiper('.swiper-container', {
+        direction: 'vertical',  // 设置为竖向滑动
+        loop: false,
+        pagination: {
+            el: '.swiper-pagination', // 分页控制
+            clickable: false,
+        },
+    });
+    swiper.allowTouchMove = false;
+
+    document.getElementById('acknowledgeBtn').addEventListener('click', () => {
+        swiper.slideNext();
+        document.getElementById('pageTitle').innerText = '同步设置';
+        swiper.pagination.clickable = true;
+        swiper.allowTouchMove = true;
+    });
+
+    // 保存同步设置
+    document.getElementById('saveSyncSettings').addEventListener('click', () => {
+        const repoUrl = document.getElementById('giteeRepoUrl').value;
+        const token = document.getElementById('apiToken').value;
+
+        if (!repoUrl || !token) {
+            animationMessage('', '请填写所有字段');
+        } else {
+            window.electronAPI.send('saveSyncSettings', { repoUrl, token });
+            document.getElementById('pageTitle').innerText = '同步数据';  // 更新标题
+            swiper.slideNext();  // 跳转到第三页
+        }
+    });
+    function animationMessage(success, message) {
+        // 创建浮窗
+        const notification = document.createElement('div');
+        notification.classList.add('notification');  // 默认样式
+        notification.innerText = message;
+
+        // 根据操作结果添加不同的类
+        if (success) {
+            notification.classList.add('success');  // 成功消息
+        } else {
+            notification.classList.add('fail');  // 失败消息
+        }
+
+        // 添加浮窗到 body
+        document.body.appendChild(notification);
+
+        // 动画显示浮窗
+        setTimeout(() => {
+            notification.style.top = '20px';  // 滑入
+        }, 10);
+
+        // 设置浮窗在显示后消失
+        setTimeout(() => {
+            notification.style.top = '-80px';  // 滑出
+            // 等动画结束后，移除浮窗
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
+    }
+
+    // 监听同步设置的状态
+    window.electronAPI.on('syncSettingsStatus', (event, { success, message }) => {
+        animationMessage(success, message);
+    });
+
+
+    // 关闭窗口
+    document.getElementById('closeWindow').addEventListener('click', () => {
+        window.electronAPI.send('closeDataSyncWindow');
+    });
+
+    // 手动上传和下载数据
+    document.getElementById('uploadData').addEventListener('click', () => {
+        window.electronAPI.send('uploadFirstData');
+    });
+
+    document.getElementById('downloadData').addEventListener('click', () => {
+        const repoUrl = document.getElementById('giteeRepoUrl').value;
+        const token = document.getElementById('apiToken').value;
+        window.electronAPI.send('downloadLastedData', { repoUrl, token });
+    });
+</script>
