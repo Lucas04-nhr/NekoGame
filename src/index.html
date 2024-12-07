@@ -10,9 +10,7 @@
     <script src="./js/import/chart.js"></script>
 </head>
 <body>
-    <!-- 自定义标题栏 -->
     <header class="title-bar">
-        <!-- 顶部进度条，初始隐藏 -->
         <div id="progress-bar-container" class="progress-bar-container">
             <div id="progress-bar" class="progress-bar"></div>
             <span id="download-speed" class="download-speed"></span>
@@ -25,7 +23,6 @@
     </header>
 
     <div class="container">
-        <!-- 左侧导航栏 -->
         <nav class="sidebar">
             <h2>Neko Game</h2>
             <ul>
@@ -35,8 +32,6 @@
                 <li id="settings-tab" class="tab" data-page="settings">设置</li>
             </ul>
         </nav>
-
-        <!-- 右侧内容区域（加载子页面） -->
         <main id="content" class="content"></main>
     </div>
     <script src="js/renderer.js"></script>
