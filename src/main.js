@@ -69,6 +69,7 @@ function createWindow() {
         minHeight: 600,
         backgroundColor: '#1e1e1e',
         webPreferences: {
+            sandbox: false,
             preload: path.join(__dirname, 'preload.js'), // 指定 preload 脚本
             contextIsolation: true,
             enableRemoteModule: false,
@@ -189,10 +190,11 @@ if (!gotTheLock) {
     app.exit(); // 使用 app.exit 退出当前实例
 }
 require('./utils/analysisGacha/analysisIpc'); // 引入分析相关的 IPC 逻辑
-require('./utils/analysisGacha/getStarRailUrl'); // 星铁
-require('./utils/analysisGacha/getGenshinUrl');
+require('./utils/analysisGacha/miHoMo/genShinIpc');
+require('./utils/analysisGacha/miHoMo/starRailIpc');
 // 设置页面
 require('./utils/settings/checkError');
+require('./utils/settings/export/exportExcel');
 const { loadBackground } = require('./utils/settings/background');
 // 页面功能
 require('./app/pagesIpc/gameManager');

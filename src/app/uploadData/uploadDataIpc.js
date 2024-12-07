@@ -9,7 +9,7 @@ const crypto = require('crypto');
 let dataSyncWindow = null;
 function createDataSyncWindow() {
     if (dataSyncWindow) {
-        return;  // 如果已有窗口，直接返回
+        return;
     }
     dataSyncWindow = new BrowserWindow({
         width: 500,
@@ -18,7 +18,7 @@ function createDataSyncWindow() {
         parent: mainWindow,
         modal: true,
         show: false,
-        backgroundColor: '#1e1e1e',
+        backgroundColor: 'rgba(60,60,60,0.64)',
         frame: false,
         webPreferences: {
             nodeIntegration: false,

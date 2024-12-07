@@ -1,3 +1,18 @@
+const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
+        "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛","漪澜浮录",
+    "布洛妮娅", "瓦尔特", "克拉拉", "杰帕德", "姬子", "白露", "彦卿",
+"拂晓之前", "于夜色中", "时节不居", "但战斗还未结束", "制胜的瞬间", "如泥酣眠",
+"银河铁道之夜", "无可取代的东西", "以世界之名",
+"七七", "莫娜", "刻晴", "迪卢克", "琴", "天空之脊", "和璞鸢", "四风原典", "天空之卷", "天空之翼", "阿莫斯之弓",
+"狼的末路", "天空之傲", "天空之刃", "风鹰剑"]; //这里是常驻
+const upItems = commonItems;
+// 判断是否为歪
+function isOffBanners(record, upItems) {
+    return (record.card_pool_type === "角色活动跃迁" || record.card_pool_type === "光锥活动跃迁" ||
+        record.card_pool_type === "角色活动唤取" || record.card_pool_type === "武器活动祈愿" || record.card_pool_type === "角色活动祈愿")
+        && upItems.includes(record.name);
+}
+
 // 按卡池分类记录
 function categorizeRecords(records) {
     const pools = {};
@@ -58,11 +73,13 @@ function calculateDrawsBetween(records, quality) {
     return totalDraws / qualityRecords.length;
 }
 function calculateUpAverage(records) {
-    const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈"]; // 常驻角色
     const upRecords = records.filter(
-        r => r.quality_level === 5 && !commonItems.includes(r.name) && r.card_pool_type === "角色活动唤取"
+        r => r.quality_level === 5
+        && !commonItems.includes(r.name)
+        && (r.card_pool_type === "角色活动跃迁" || r.card_pool_type === "光锥活动跃迁" || r.card_pool_type === "角色活动唤取"
+            || r.card_pool_type === "武器活动祈愿" || r.card_pool_type === "角色活动祈愿")
     );
-    if (upRecords.length === 0) return "还没抽出UP角色";
+    if (upRecords.length === 0) return "还没抽出UP";
     // 遍历UP角色，累加抽数
     let totalDraws = 0;
     upRecords.forEach((record, index) => {
@@ -78,7 +95,6 @@ function calculateUpAverage(records) {
 
 // 计算不歪概率
 function calculateNoDeviationRate(records) {
-    const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈"]; // 常驻角色
     const fiveStarRecords = records.filter(r => r.quality_level === 5); // 筛选五星记录
 
     if (!fiveStarRecords.length) return "无数据"; // 无五星记录
@@ -101,7 +117,7 @@ function calculateNoDeviationRate(records) {
         }
     }
 
-    if (upCount === 0) return "还没抽出UP哦"; // 无UP角色
+    if (upCount === 0) return "还没抽出UP"; // 无UP角色
     return `${((noDeviationCount / upCount) * 100).toFixed(2)}%`; // 返回不歪概率
 }
 
@@ -110,8 +126,6 @@ function calculateNoDeviationRate(records) {
 // 生成概览和详细列表
 function generateOverview(records) {
     const fiveStarRecords = records.filter(r => r.quality_level === 5);
-    const upItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
-        "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛","漪澜浮录"]; //这里是常驻
 
     return fiveStarRecords.map((record, index) => {
         const nextIndex = index + 1 < fiveStarRecords.length
@@ -121,7 +135,7 @@ function generateOverview(records) {
         const draws = nextIndex - records.indexOf(record);
         const color = getDrawColor(draws, record.quality_level); // 获取颜色
         // 判断是否为“歪”
-        const isOffBanner = record.card_pool_type === "角色活动唤取" && upItems.includes(record.name);
+        const isOffBanner = isOffBanners(record, upItems);
         return `
             <div class="record">
                 <span class="record-star gold">${record.quality_level} 星</span>
@@ -138,8 +152,6 @@ function generateDetails(records) {
     const groupedRecords = groupRecordsByDate(records); // 按日期分组
     const fiveStarRecords = records.filter(r => r.quality_level === 5); // 筛选五星记录
     const fourStarRecords = records.filter(r => r.quality_level === 4); // 筛选四星记录
-    const upItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
-        "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛", "漪澜浮录"]; // 常驻角色
 
     return Object.keys(groupedRecords)
         .map(date => {
@@ -167,8 +179,7 @@ function generateDetails(records) {
                         const color = getDrawColor(draws, record.quality_level); // 获取颜色
 
                         // 判断是否为“歪”
-                        const isOffBanner =
-                            record.card_pool_type === "角色活动唤取" && upItems.includes(record.name);
+                        const isOffBanner = isOffBanners(record, upItems);
 
                         return `
                             <div class="record">

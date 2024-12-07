@@ -28,7 +28,7 @@ function decrypt(encryptedText, secretKey, iv) {
 
 // 存储加密信息到本地并保存加密密码
 function saveSyncConfigToFile(repoUrl, token) {
-    const secretKey = generateSecretKey();  // 自动生成随机密钥
+    const secretKey = generateSecretKey();
 
     // 加密 repoUrl 和 token
     const { encryptedText: encryptedRepoUrl, iv: repoUrlIV } = encrypt(repoUrl, secretKey);

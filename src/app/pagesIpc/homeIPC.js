@@ -26,7 +26,6 @@ ipcMain.handle('fetch-analysis-data', async (event, { type, range }) => {
     });
 });
 
-// 统一 refresh-analysis-data 格式
 ipcMain.handle('refresh-analysis-data', async (event, type) => {
     return new Promise((resolve, reject) => {
         refreshAnalysisData(type, (err, data, updatedAt) => {

@@ -8,7 +8,7 @@ html, body {
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #e0e0e0;
 }
 
@@ -58,6 +58,34 @@ body {
     backdrop-filter: blur(3px);
 }
 
+#global-back-button {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 5px;
+    border-radius: 3px;
+    -webkit-app-region: no-drag;
+    transition: background 0.3s ease;
+}
+#global-back-button.hidden {
+    opacity: 0;
+    transform: translateX(-50px); /* 初始偏移 */
+    pointer-events: none; /* 不可点击 */
+}
+#global-back-button.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+#global-back-button:hover {
+    background-color: rgb(255, 255, 255, 0.3);
+    backdrop-filter: blur(3px);
+}
+
 /* 左侧导航栏 */
 .sidebar {
     width: 200px;
@@ -91,7 +119,7 @@ body {
 
 .sidebar ul li.active,
 .sidebar ul li:hover {
-    background-color: rgb(58, 58, 58, 0.6);
+    background-color: rgba(117, 117, 117, 0.4);
 }
 
 .sidebar ul li.active {
@@ -453,7 +481,7 @@ body {
 /* 浮窗样式 */
 .notification {
     position: fixed;
-    top: -80px;  /* 初始位置在屏幕上方外面 */
+    top: -120px;  /* 初始位置在屏幕上方外面 */
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(0, 0, 0, 0.8);
@@ -510,4 +538,7 @@ body {
 
 .notification .copy-tooltip.show {
     display: block;
+    pointer-events: none;
 }
+
+

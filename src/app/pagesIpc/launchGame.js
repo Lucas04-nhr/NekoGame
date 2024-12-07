@@ -13,17 +13,17 @@ ipcMain.handle('launch-game', (event, gamePath) => {
             const gameProcess = spawn(`"${gameFile}"`, { cwd: gameDir, shell: true, detached: true });
 
             gameProcess.on('error', (error) => {
-                console.error(`Failed to start game at ${gamePath}:`, error);
+                console.error(`打开游戏失败 ${gamePath}:`, error);
                 reject(error);
             });
 
             // 在进程启动后立即返回成功
-            console.log(`Game started successfully at ${gamePath}`);
+            console.log(`游戏打开成功: ${gamePath}`);
             resolve(true); // 立即返回成功状态
 
             gameProcess.unref(); // 让游戏进程独立运行，不等待其退出
         } catch (error) {
-            console.error(`Error starting game: ${error.message}`);
+            console.error(`打开游戏失败: ${error.message}`);
             reject(error);
         }
     });

@@ -88,8 +88,9 @@ async function fetchGachaLogsByType(params, event) {
         sendStatusToRenderer(event, `获取到 ${response.data.data.length} 条记录，当前卡池类型: ${params.cardPoolType}`);
         return response.data.data;
     } catch (err) {
+        global.Notify(false, `请求失败: ${err.message}`)
         console.error(`请求失败: ${err.message}`);
-        throw err; // 抛出错误，供重试或其他逻辑处理
+        throw err;
     }
 }
 

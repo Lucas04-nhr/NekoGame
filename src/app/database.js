@@ -139,8 +139,49 @@ function initializeDatabase() {
                 console.log("gacha_logs table initialized successfully.");
             }
         });
+        db2.run(`
+            CREATE TABLE IF NOT EXISTS starRail_gacha (
+                id TEXT PRIMARY KEY,
+                uid TEXT NOT NULL,
+                gacha_id TEXT NOT NULL,
+                gacha_type TEXT NOT NULL,
+                item_id TEXT,
+                count INTEGER,
+                time TEXT NOT NULL,
+                name TEXT,
+                lang TEXT,
+                item_type TEXT,
+                rank_type INTEGER
+            );
+        `, (err) => {
+            if (err) {
+                console.error("Failed to initialize starRail_gacha table:", err.message);
+            } else {
+                console.log("starRail_gacha table initialized successfully.");
+            }
+        });
+        db2.run(`
+            CREATE TABLE IF NOT EXISTS genshin_gacha (
+                id TEXT PRIMARY KEY,
+                uid TEXT NOT NULL,
+                gacha_id TEXT,
+                gacha_type TEXT NOT NULL,
+                item_id TEXT DEFAULT '',
+                count INTEGER,
+                time TEXT NOT NULL,
+                name TEXT,
+                lang TEXT,
+                item_type TEXT,
+                rank_type INTEGER
+            );
+        `, (err) => {
+            if (err) {
+                console.error("Failed to initialize starRail_gacha table:", err.message);
+            } else {
+                console.log("starRail_gacha table initialized successfully.");
+            }
+        });
     });
-
 }
 
 
@@ -366,14 +407,14 @@ module.exports = {
     db2,
     initializeDatabase,
     addGame,
-    startSession, 
-    endSession,  
+    startSession,
+    endSession,
     getGameTimeData,
-    getGameDetails,  
+    getGameDetails,
     getGameTrendData,
     deleteGame,
     updateGame,
-    getSetting, 
+    getSetting,
     setSetting,
     getGameDailyTimeData,
 };

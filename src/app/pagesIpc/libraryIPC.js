@@ -7,7 +7,7 @@ ipcMain.handle('get-game-details', async (event, gameId) => {
     return new Promise((resolve, reject) => {
         getGameDetails(gameId, (err, row) => {
             if (err) {
-                console.error("Database error fetching game details:", err);
+                console.error("从数据库中获取游戏详情失败:", err);
                 reject(err);
             } else {
                 resolve(row);

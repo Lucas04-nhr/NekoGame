@@ -20,9 +20,9 @@ function initializeTrackedGames() {
         rows.forEach(row => {
             // 使用进程名（仅文件名部分）作为 key
             const processName = row.path.split('\\').pop(); // 只保留 `game.exe`
-            trackedGames[processName] = { 
-                id: row.id, 
-                isRunning: false, 
+            trackedGames[processName] = {
+                id: row.id,
+                isRunning: false,
                 sessionId: null,
                 totalTime: row.total_time // 初始化总时长
             };
@@ -118,6 +118,7 @@ function detectRunningGames() {
             console.error("Error spawning tasklist:", err);
         });
     } catch (err) {
+        global.Notify(false, `发生了权限错误${err}\n如果频繁出现，请重启应用`);
         console.error("Error in detectRunningGames:", err);
     }
 }

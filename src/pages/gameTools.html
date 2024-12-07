@@ -1,24 +1,60 @@
-<div class="tool-container">
-    <div class="tool-header">
-        <select id="uid-select" class="uid-select"></select>
-        <div id="status-display" class="status-display">刷新数据前请确保至少半小时内打开过祈愿界面</div>
-        <button id="refresh-data" class="refresh-button">刷新数据</button>
-    </div>
-    <div class="record-wrapper">
-        <div id="record-display" class="record-display">
-            <!-- 动态加载内容 -->
-            <div class="card-pool">
-                <div class="card-header">
-                </div>
-                <div class="record-tabs">
-                </div>
-                <div class="tab-content">
-
-                </div>
-            </div>
+<div id="tool-container">
+    <!-- 工具列表 -->
+<div id="tool-list">
+    <div class="tool-card" data-tool="gachaWuwa">
+        <h3 class="tool-title">鸣潮唤取分析</h3>
+        <p class="tool-description">查看并分析鸣潮抽卡历史数据。</p>
+        <div class="tool-actions">
+            <button id = 'exportWuWa' class="action-button">导出数据</button>
         </div>
     </div>
+
+    <div class="tool-card" data-tool="gachaStarRail">
+        <h3 class="tool-title">崩铁跃迁分析</h3>
+        <p class="tool-description">查看崩铁抽卡历史数据。</p>
+        <div class="tool-actions">
+            <button id = 'exportStarRail' class="action-button">导出数据</button>
+            <button id = 'importStarRail' class="action-button">导入数据</button>
+        </div>
+    </div>
+
+    <div class="tool-card" data-tool="gachaGenshin">
+        <h3 class="tool-title">原神祈愿分析</h3>
+        <p class="tool-description">查看原神抽卡历史数据。</p>
+        <div class="tool-actions">
+            <button id = 'exportGenshin' class="action-button">导出数据</button>
+            <button id = 'importGenshin' class="action-button">导入数据</button>
+        </div>
+    </div>
+
+
+    <div class="tool-card" data-tool="report-data">
+        <h3 class="tool-title">数据汇报</h3>
+        <p class="tool-description">在这里查看您的数据汇报</p>
+    </div>
+
+    <div class="tool-card" data-tool="tool2">
+        <h3 class="tool-title">工具 1</h3>
+        <p class="tool-description">工具 1 test。</p>
+        <div class="tool-actions">
+            <button id = 'getStarRailRecords' class="action-button">获取崩铁记录</button>
+        </div>
+    </div>
+
+<!--    <div class="tool-card" data-tool="tool3">-->
+<!--        <h3 class="tool-title">工具 3</h3>-->
+<!--        <p class="tool-description">工具 3 的功能描述。</p>-->
+<!--        <div class="tool-actions">-->
+<!--            <button class="action-button">开始</button>-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 
 
+    <!-- 子页面区域 -->
+    <div id="subpage-content" class="hidden"></div>
+</div>
+<!--返回按钮-->
+<span id="global-back-button" class="global-back-button hidden">↩</span>
+<!-- 引入样式 -->
 <link rel="stylesheet" href="./css/gameTools.css">

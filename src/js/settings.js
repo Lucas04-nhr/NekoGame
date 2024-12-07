@@ -65,7 +65,9 @@
         backgroundOpacityInput.addEventListener("change", async (event) => {
             const opacity = event.target.value;
             await window.electronAPI.saveBackgroundSettings("backgroundOpacity", opacity);
-
+        });
+        backgroundOpacityInput.addEventListener("input", async (event) => {
+            const opacity = event.target.value;
             // 更新背景样式
             document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacity}), rgba(33, 33, 33, ${opacity})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
             document.body.style.backgroundSize = "cover";
@@ -78,7 +80,8 @@
     if (getStarRailUrlButton) {
         getStarRailUrlButton.addEventListener("click", async () => {
             const result = await window.electronAPI.invoke('getStarRailUrl');
-            animationMessage(result.success, result.message)
+            console.log(result);
+            animationMessage(result.success, result.message);
         });
     }
 
@@ -108,6 +111,10 @@
                 animationMessage(false, '恢复默认设置失败');
             });
     });
+    document.getElementById('exportWuWa').addEventListener('click', async () => {
+        const result = await window.electronAPI.invoke('exportGachaData');
+        animationMessage(result.success, result.message);
+    });
 
     // 更新日志按钮
     if (openUpdateLogButton) {
@@ -120,7 +127,11 @@
     if (getGenshinWishLinkButton) {
         getGenshinWishLinkButton.addEventListener('click', async () => {
             const result = await window.electronAPI.invoke('getGenshinWishLink');
-            animationMessage(result.success, `原神祈愿链接获取成功, 已复制到剪贴板\n${result.message}`)
+            if(result.success){
+                animationMessage(result.success, `原神祈愿链接获取成功, 已复制到剪贴板\n${result.message}`);
+            }else{
+                animationMessage(result.success, `原神祈愿链接获取失败\n${result.message}`);
+            }
         });
     }
 

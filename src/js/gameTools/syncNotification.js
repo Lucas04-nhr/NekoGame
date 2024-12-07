@@ -35,7 +35,7 @@ function animationMessage(success, message) {
 
     // 动画显示浮窗
     setTimeout(() => {
-        notification.style.top = '20px';
+        notification.style.top = '42px';
     }, 10);
 
     let hoverTimeout;
@@ -45,12 +45,10 @@ function animationMessage(success, message) {
             document.body.removeChild(notification);}, 500);
         }, 3000);
 
-    // 鼠标悬浮时，浮窗保持显示，不会消失
     notification.addEventListener('mouseenter', () => {
         clearTimeout(hoverTimeout);
     });
 
-    // 鼠标移开后，延迟 1 秒后滑回去并销毁浮窗
     notification.addEventListener('mouseleave', () => {
         hoverTimeout = setTimeout(() => {
             notification.style.top = '-120px';
@@ -61,7 +59,6 @@ function animationMessage(success, message) {
     });
 }
 
-// 显示复制成功提示，显示在鼠标旁边
 function showCopyTooltip(event, copyMessage) {
     const tooltip = document.createElement('div');
     tooltip.classList.add('copy-tooltip');
@@ -85,7 +82,7 @@ function showCopyTooltip(event, copyMessage) {
         setTimeout(() => {
             document.body.removeChild(tooltip);
         }, 300);
-    }, 1000);  // 显示 2 秒后消失
+    }, 1000);
 }
 
 
@@ -93,7 +90,6 @@ const socket = new WebSocket('ws://localhost:22334');  // 连接到 WebSocket �
 
 // 监听服务器发送的消息
 socket.onmessage = (event) => {
-    // 监听同步设置的状态
     const data = JSON.parse(event.data);
     animationMessage(data.success, data.message);
 };
