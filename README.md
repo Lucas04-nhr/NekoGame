@@ -3,18 +3,18 @@
 **中文** | **[English](README-en.md)** 
 
 ## 概述
-Neko Game 是一款游戏管理应用程序，旨在通过现代化、暗色风格主题的用户界面来监控和分析您的游戏活动。本应用基于 Electron 构建，集成了多个核心功能，例如游戏时长记录、数据可视化、祈愿分析等。在使用前，请先阅读本文（预计用时：5min）。
-![image](https://github.com/user-attachments/assets/bdee36e3-39c6-411c-9cb5-5c47ae7523d1)
-
-
+Neko Game 是一款游戏管理与抽卡分析程序，旨在通过现代化、可自定义主题的界面来记录和分析您的游戏活动。本应用基于 Electron 构建，集成了多个核心功能，例如抽卡记录分析游戏时长记录、数据可视化等。在使用前，推荐先阅读本文（预计用时：5min）。
+<img width="974" alt="preview" src="https://github.com/user-attachments/assets/02593354-a4c5-4a41-89fe-e0f51591fc13">
 
 ## 功能特点
 - **游戏记录**：自动跟踪并记录游戏时长，提供详细的统计数据。
-- **祈愿分析**：支持一键鸣潮抽卡分析。支持崩铁、原神的抽卡链接获取。获取后可以复制到其他分析工具中使用。
+- **抽卡分析**：支持一键鸣潮崩铁原神绝区零抽卡分析。所有的链接均会自动复制
+- **抽卡数据导入导出**: 支持原神崩铁绝区零UIGF4.0导出与有限导入
 - **游戏库管理**：轻松添加、编辑和删除您的游戏库中需要记录的游戏。
 - **数据分析**：通过趋势图与丰富的数据分析展示，让您深入了解您的游戏习惯。
 - **无感使用**：可应用最小化至系统托盘，并支持后台运行与开机自启动。
-- **本地数据存储**：使用 SQLite 本地安全地存储游戏数据。并且更新不会导致数据丢失。
+- **数据存储**：可以选择本地安全地存储游戏数据。也可以选择进行配置自动上传数据。[配置指南]([https://github.com/Summer-Neko/NekoGame/releases](https://gitee.com/sunmmerneko/utils/blob/master/info/infoTips.md))
+- **自动同步数据**: 支持多端同步数据，只要配置了Github，Gitee就可以自动多端同步你在云端的数据。（手机需要现在对应的手机版本，可在度盘下载）
 - **高性能，低占用**：低功耗，高性能。无需担心会影响您的日常使用。
 - **及时获取最新版本**：支持自动更新，在新版本发布时您将会收到通知
 
@@ -40,28 +40,21 @@ Neko Game 是一款游戏管理应用程序，旨在通过现代化、暗色风�
    npm start
    ```
 
-## 打包应用程序（开发者）
-要将应用程序打包分发，请运行：
-```bash
-npm run build
-```
-确保项目中已配置 `electron-builder` 来管理打包。
-
 ## 使用指南
+- **祈愿分析**：确认半小时内打开过游戏界面的祈愿页面。然后点击刷新即可。
 - **添加游戏**：点击“添加游戏”按钮，填写所需信息，包括名称、图标、海报和游戏路径(__游戏主程序exe，不是启动器__)，然后录入游戏。
 - **编辑游戏**：从游戏库中选择一个游戏，点击“编辑”选项，更新信息并保存更改。
 - **删除游戏**：使用游戏详情菜单中的“删除”选项来移除游戏及其相关数据。
-- **祈愿分析**：确认半小时内打开过游戏界面的祈愿页面。然后点击刷新即可。
-- **设置**：建议日常使用时，将设置的三个选项全部勾上。
+- **设置**：建议日常使用时，将设置的三个常规选项全部勾上。可以在此处配置数据同步与自定义窗口
 - **游戏图片**:可以前往[steamgriddb](https://www.steamgriddb.com/)获取图片(仅做推荐，搜索需要用游戏对应英文)。支持选择动图。
 - **时间记录**:已录入的游戏会自动开始统计使用时间，无需额外操作。
 
 ## 项目部分图片展示
-![image](https://github.com/user-attachments/assets/29d001bf-9394-4b51-ad1c-4d924d13ee1b)
-![image](https://github.com/user-attachments/assets/a580eb08-b6d7-4112-9237-0e1fa8072f56)
-![image](https://github.com/user-attachments/assets/9da58880-272b-4e18-ad23-b6ebb0dc0b72)
-
-
+![image](https://github.com/user-attachments/assets/f6dc59a2-a53b-48a4-8c42-cf5c92ca65f2)
+![image](https://github.com/user-attachments/assets/8377ee8d-a7e2-4afa-b2ca-d4672d4d268e)
+![image](https://github.com/user-attachments/assets/b38468b8-1dee-44ea-8948-8fb78e989989)
+![image](https://github.com/user-attachments/assets/ad7d5932-9653-4aa9-af46-ec28d6d63880)
+![image](https://github.com/user-attachments/assets/19805a17-c749-4c96-973c-49cd2c185a33)
 
 ## 故障排除&更新方向
 ### 常见问题
@@ -71,8 +64,7 @@ npm run build
 - **路径或图片错误**：检查文件路径中的特殊符号，并确保图片文件被正确引用。以及选择文件的后缀是否正常。
 - **有概率权限报错**：如果错误信息中包含gameTracker.js。那么可以忽略，这是由于系统拒绝了查询请求。如果一直出现，请重启应用。
 - **发布者未知**：请忽视
-- **原神祈愿链接获取慢**：这是因为原神日志文件夹每个版本都会换一个，为了避免频繁更新，我将版本配置放到了[GitHub](https://github.com/Summer-Neko/utils/blob/main/GetUrl/version-Genshin.json)上，所以可能存在这样的问题。
-
+- **原神与绝区零祈愿链接获取慢**：这是因为原神和绝区零日志文件夹每个版本都会换一个，为了避免频繁更新，我将版本配置放到了[GitHub](https://github.com/Summer-Neko/utils/blob/main/GetUrl/version-Genshin.json)上，所以可能存在这样的问题。
 ### 已知限制
 - 编辑游戏详情在复杂配置时可能需要进一步优化。
 - 部分样式存在问题。
@@ -80,10 +72,5 @@ npm run build
 - 目前分析展示的游戏时长数据只处理近半年。（不过以往数据不会主动删除）
 
 ### 未来更新方向
-- 添加游戏工具。包含祈愿分析（原神、崩铁）。目前逻辑大概清楚了。未来可能更新
+- 添加更多功能
 - 数据展示优化
-- 数据导入与导出
-- 自动通过您的Github或者Gitee（国内）账户保管您的数据，方便多端协同（咕咕）
-- 开发移动端，自动获取您在Github或者Gitee上的保管的数据，随时随地查看自己的时长与祈愿数据（咕咕咕）
-
-
