@@ -53,7 +53,6 @@ Neko Game 是一款游戏管理与抽卡分析程序，旨在通过现代化、�
 ![image](https://github.com/user-attachments/assets/f6dc59a2-a53b-48a4-8c42-cf5c92ca65f2)
 ![image](https://github.com/user-attachments/assets/8377ee8d-a7e2-4afa-b2ca-d4672d4d268e)
 ![image](https://github.com/user-attachments/assets/b38468b8-1dee-44ea-8948-8fb78e989989)
-![image](https://github.com/user-attachments/assets/ad7d5932-9653-4aa9-af46-ec28d6d63880)
 ![image](https://github.com/user-attachments/assets/19805a17-c749-4c96-973c-49cd2c185a33)
 
 ## 故障排除&更新方向
