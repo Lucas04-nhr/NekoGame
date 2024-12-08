@@ -63,7 +63,7 @@ function createTray() {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1300,
+        width: 1250,
         height: 700,
         minWidth: 1000,
         minHeight: 600,
@@ -190,8 +190,6 @@ if (!gotTheLock) {
     app.exit(); // 使用 app.exit 退出当前实例
 }
 require('./utils/analysisGacha/analysisIpc'); // 引入分析相关的 IPC 逻辑
-require('./utils/analysisGacha/miHoMo/genShinIpc');
-require('./utils/analysisGacha/miHoMo/starRailIpc');
 // 设置页面
 require('./utils/settings/checkError');
 require('./utils/settings/export/exportExcel');

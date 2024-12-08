@@ -22,7 +22,6 @@ async function exportHKrpgUIGFData(tableName) {
         });
 
         const formattedData = {
-            $schema: "https://json-schema.org/draft/2020-12/schema",
             info: {
                 export_timestamp: Math.floor(Date.now() / 1000), // 当前时间戳（秒）
                 export_app: "NekoGame",
@@ -60,7 +59,7 @@ async function exportHKrpgUIGFData(tableName) {
         formattedData.hkrpg = Object.values(groupedByUID);
 
         // 写入 JSON 文件
-        const outputFile = path.resolve(outputPath, `UIGF4.0_${tableName}Export.json`);
+        const outputFile = path.resolve(outputPath, `UIGF4_${tableName}_NekoGame_hkrpg.json`);
         fs.writeFileSync(outputFile, JSON.stringify(formattedData, null, 4), 'utf-8');
         console.log(`抽卡数据已成功导出: ${outputFile}`);
         global.Notify(true, `已成功导出\n${outputFile}\nUIGF V4.0`);
@@ -116,7 +115,7 @@ async function exportHK4eUIGFData(tableName) {
                     try {
                         itemId = await fetchItemId(name);
                     } catch (error) {
-                        console.error(`终止导出流程: ${error.message}`);
+                        console.error(`因网络问题终止导出流程: ${error.message}`);
                         global.Notify(false, `终止导出流程: ${error.message}`);
                         return { success: false, message: `终止导出流程: ${error.message}` };
                     }
@@ -141,7 +140,7 @@ async function exportHK4eUIGFData(tableName) {
 
         formattedData.hk4e = Object.values(groupedByUID);
 
-        const outputFile = path.resolve(outputPath, `UIGF4.0_${tableName}Export.json`);
+        const outputFile = path.resolve(outputPath, `UIGF4_${tableName}_NekoGame_hk4e.json`);
         fs.writeFileSync(outputFile, JSON.stringify(formattedData, null, 4), 'utf-8');
         console.log(`抽卡数据已成功导出: ${outputFile}`);
         global.Notify(true, `已成功导出\n${outputFile}\nUIGF V4.0`);
@@ -151,10 +150,77 @@ async function exportHK4eUIGFData(tableName) {
     }
 }
 
+async function exportNapUIGFData(tableName) {
+    const query = `SELECT * FROM ${tableName} ORDER BY id ASC`;
+    const outputPath = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'export');
+    if (!fs.existsSync(outputPath)) {
+        fs.mkdirSync(outputPath);
+    }
+
+    try {
+        const records = await new Promise((resolve, reject) => {
+            db2.all(query, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+        const formattedData = {
+            info: {
+                export_timestamp: Math.floor(Date.now() / 1000), // 当前时间戳（秒）
+                export_app: "NekoGame",
+                export_app_version: "2.5.0",
+                version: "v4.0"
+            },
+            nap: []
+        };
+
+        // 按 UID 分组
+        const groupedByUID = {};
+        for (const record of records) {
+            if (!groupedByUID[record.uid]) {
+                groupedByUID[record.uid] = {
+                    uid: record.uid,
+                    timezone: 8, // 默认 UTC+8
+                    lang: record.lang || "zh-cn", // 语言代码
+                    list: []
+                };
+            }
+            groupedByUID[record.uid].list.push({
+                gacha_id: record.gacha_id,
+                gacha_type: record.gacha_type,
+                item_id: record.item_id,
+                count: record.count.toString(),
+                time: record.time,
+                name: record.name,
+                item_type: record.item_type,
+                rank_type: record.rank_type.toString(),
+                id: record.id.toString()
+            });
+        }
+
+        // 将分组数据填入 nap
+        formattedData.nap = Object.values(groupedByUID);
+
+        // 写入 JSON 文件
+        const outputFile = path.resolve(outputPath, `UIGF4_${tableName}_NekoGame_nap.json`);
+        fs.writeFileSync(outputFile, JSON.stringify(formattedData, null, 4), 'utf-8');
+        console.log(`抽卡数据已成功导出: ${outputFile}`);
+        global.Notify(true, `已成功导出\n${outputFile}\nUIGF V4.0`);
+    } catch (error) {
+        console.error("导出 UIGF 数据时发生错误:", error.message);
+        global.Notify(false, `导出 UIGF 数据时发生错误:${error.message}`);
+    }
+}
+
 ipcMain.handle('export-genshin-data', async () => {
     await exportHK4eUIGFData('genshin_gacha');
 });
 
 ipcMain.handle('export-starRail-data', async () => {
     await exportHKrpgUIGFData('starRail_gacha');
+});
+
+ipcMain.handle('export-zzz-data', async () => {
+    await exportNapUIGFData('zzz_gacha');
 });

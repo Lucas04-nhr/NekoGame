@@ -91,8 +91,8 @@ function createGuideWindow(mainWindow) {
         createWindow(); // 如果主窗口未创建，则创建窗口
     }
     guideWindow = new BrowserWindow({
-        width: 600,
-        height: 400,
+        width: 570,
+        height: 600,
         resizable: false,
         modal: true,
         parent: mainWindow,

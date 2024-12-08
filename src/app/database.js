@@ -181,6 +181,27 @@ function initializeDatabase() {
                 console.log("starRail_gacha table initialized successfully.");
             }
         });
+               db2.run(`
+                CREATE TABLE IF NOT EXISTS zzz_gacha (
+                    id TEXT PRIMARY KEY,
+                    uid TEXT NOT NULL,
+                    gacha_id TEXT,
+                    gacha_type TEXT NOT NULL,
+                    item_id TEXT,
+                    count INTEGER,
+                    time TEXT NOT NULL,
+                    name TEXT,
+                    lang TEXT,
+                    item_type TEXT,
+                    rank_type INTEGER
+                );
+        `, (err) => {
+            if (err) {
+                console.error("Failed to initialize starRail_gacha table:", err.message);
+            } else {
+                console.log("starRail_gacha table initialized successfully.");
+            }
+        });
     });
 }
 

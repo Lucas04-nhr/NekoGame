@@ -199,20 +199,18 @@ async function checkFileExists(repoUrl, token, fileName, platform) {
 // 上传文件到仓库
 async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
     let platformMessage = '';
+    const maxRetries = 3; // 最大重试次数
+    let retries = 0;
+
     try {
         const { owner, repo, platform } = parseRepoUrl(repoUrl);
         platformMessage = platform;
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
 
-        // 检查文件是否已经存在
-        const existingSha = await checkFileExists(repoUrl, token, fileName, platform);
-        let apiUrl;
-        let data = {
-            message: 'NekoGame数据文件',
-            content: base64Content
-        };
+        const localFileHash = calculateFileHash(filePath); // 计算本地文件的 hash 值
 
+        let apiUrl;
         if (platform === 'gitee') {
             apiUrl = `https://gitee.com/api/v5/repos/${owner}/${repo}/contents/NekoGame/${fileName}`;
         } else if (platform === 'github') {
@@ -221,33 +219,59 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
             throw new Error('不支持的仓库平台');
         }
 
+        // 检查文件是否存在
+        const existingSha = await checkFileExists(repoUrl, token, fileName, platform);
+
+        let data = {
+            message: 'NekoGame数据文件',
+            content: base64Content
+        };
         if (existingSha) {
-            const localFileHash = calculateFileHash(filePath);  // 计算本地文件的 hash 值
-            data.sha = existingSha;
-            if (localFileHash !== existingSha) {
-                console.log('localFileHash,existingSha', localFileHash,existingSha);
-                // 文件内容不同，准备更新
-                console.log(`文件已存在，准备更新: ${fileName}`);
+            data.sha = existingSha; // 添加 SHA 用于更新
+        }
+
+        try {
+            if (existingSha) {
+                console.log(`尝试更新文件 (PUT): ${fileName}`);
+                // 文件存在，尝试 PUT 更新
                 const response = await axios.put(apiUrl, data, {
                     headers: platform === 'github'
-                    ? { 'Authorization': `Bearer ${token}` }
-                    : {},  // Gitee认证通过参数传递token
-                    params: platform === 'gitee' ? { access_token: token } : {}  // Gitee需要在参数中传递token
+                        ? { 'Authorization': `Bearer ${token}` }
+                        : {},
+                    params: platform === 'gitee' ? { access_token: token } : {}
                 });
                 console.log(fileName, '更新成功', response.data);
             } else {
-                console.log('文件内容未更改，无需上传');
+                throw new Error('文件不存在，准备进行 POST 上传');
             }
-        } else {
-            // 文件不存在，准备上传
-            console.log(`文件不存在，准备上传: ${fileName}`);
-            const response = await axios.post(apiUrl, data, {
-                headers: platform === 'github'
-                    ? { 'Authorization': `Bearer ${token}` }
-                    : {},
-                params: platform === 'gitee' ? { access_token: token } : {}
-            });
-            console.log(fileName, '上传成功', response.data);
+        } catch (error) {
+            if (error.response) {
+                console.error(`PUT 请求失败，错误信息: ${error.response.data.message}`);
+            } else {
+                console.error(`PUT 请求失败: ${error.message}`);
+            }
+            console.log(`尝试上传文件 (POST): ${fileName}`);
+            // 如果 PUT 失败，尝试 POST 上传
+            delete data.sha; // 删除 SHA 用于 POST 上传
+            while (retries < maxRetries) {
+                try {
+                    const response = await axios.post(apiUrl, data, {
+                        headers: platform === 'github'
+                            ? { 'Authorization': `Bearer ${token}` }
+                            : {},
+                        params: platform === 'gitee' ? { access_token: token } : {}
+                    });
+                    console.log(fileName, '上传成功 (POST)', response.data);
+                    return; // POST 成功后直接返回
+                } catch (error) {
+                    retries++;
+                    console.error(`POST 上传失败 (尝试 ${retries}/${maxRetries}):`, error.message);
+                    if (retries >= maxRetries) {
+                        throw new Error(`POST 上传失败: ${error.message}`);
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 500)); // 等待 500ms 重试
+                }
+            }
         }
     } catch (error) {
         if (error.response) {
@@ -258,6 +282,7 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
         }
     }
 }
+
 
 const {backupFile} = require("./backupData");
 // 从仓库下载文件

@@ -1,4 +1,5 @@
 .content {
+    padding: 0;
     width: calc(100vw - 200px);
 }
 
@@ -77,7 +78,7 @@
     display: flex;
     flex-wrap: nowrap;
     gap: 16px;
-    padding: 15px;
+    padding-top: 15px;
     height: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -108,8 +109,7 @@
 /* 卡片样式 */
 .card-pool {
     flex: 0 0 300px; /* 固定宽度 */
-    height: calc(100% - 10px); /* 自适应高度 */
-    margin-bottom: 20px; /* 底部间距 */
+    margin-bottom: 12px;
     overflow: hidden;
     background: rgba(62, 62, 62, 0.42);
     padding: 10px;
@@ -625,17 +625,64 @@
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.uid-select option {
-    background-color: rgba(51, 51, 51, 0.71);
-    color: #fff;
-    font-size: 14px;
-    padding: 8px;
-    border: none;
-    transition: background-color 0.3s, padding-left 0.3s;
+
+.custom-dropdown {
+    position: relative;
+    width: 200px;
+    font-family: Arial, sans-serif;
+    user-select: none;
+    cursor: pointer;
 }
 
-/* 鼠标悬停在 option 上时改变背景色 */
-.uid-select option:hover {
-    background-color: rgba(82, 177, 255, 0.3);
-    padding-left: 12px; /* 提示鼠标悬浮的效果 */
+.selected-display {
+    padding: 8px;
+    border: 1px solid rgba(76, 76, 76, 0.42);
+    background-color: rgba(76, 76, 76, 0.3);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.selected-display:hover {
+    background-color: rgba(106, 106, 106, 0.45);
+    border: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.options-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 5px 0 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid rgba(106, 106, 106, 0.4);
+    background-color: rgba(159, 159, 159, 0.5);
+    border-radius: 5px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.options-list.show {
+    max-height: 150px;
+    opacity: 1;
+    overflow-y: auto;
+}
+
+.dropdown-option {
+    padding: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.dropdown-option:hover {
+    background-color: rgba(92, 92, 92, 0.4);
+    transform: scale(1.01);
+}
+
+.dropdown-option.active {
+    font-weight: bold;
+    background-color: rgba(74, 74, 74, 0.5);
 }

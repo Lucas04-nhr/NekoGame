@@ -1,13 +1,12 @@
 const { ipcMain, clipboard } = require('electron');
-const {fetchGachaData} = require("./gachaAnalysisGenshin");
+const {fetchGenshinGachaData} = require("./gachaAnalysisGenshin");
 require("./getGenshinUrl");
 const {db2} = require("../../../app/database");
 const db = db2;
 
-
 ipcMain.handle('fetchGenshinGachaData', async (event) => {
     event.sender.send('gacha-records-status', '正在获取抽卡记录...');
-    return await fetchGachaData(event);
+    return await fetchGenshinGachaData(event);
 });
 
 ipcMain.handle('get-last-genshin-uid', async () => {

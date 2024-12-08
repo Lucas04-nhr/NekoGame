@@ -1,18 +1,31 @@
 // 加载玩家 UID 下拉列表
 async function loadPlayerUIDs(defaultUid) {
     const players = await window.electronAPI.getPlayerUIDs(); // 从数据库获取所有 UID
-    const uidSelect = document.getElementById('uid-select');
-    uidSelect.innerHTML = ''; // 清空选项
+    const uidDropdown = document.getElementById('uid-dropdown');
+    const selectedDisplay = document.querySelector('.selected-display');
+    const optionsList = document.querySelector('.options-list');
 
-    // 添加玩家 UID 到下拉列表
+    selectedDisplay.textContent = defaultUid || '请先刷新数据';
+    optionsList.innerHTML = ''; // 清空选项
     players.forEach(uid => {
-        const option = document.createElement('option');
-        option.value = uid;
+        const option = document.createElement('li');
+        option.classList.add('dropdown-option');
         option.textContent = uid;
+        option.dataset.value = uid;
         if (uid === defaultUid) {
-            option.selected = true;
+            selectedDisplay.textContent = uid;
+            option.classList.add('active');
         }
-        uidSelect.appendChild(option);
+        option.addEventListener('click', () => {
+            selectedDisplay.textContent = uid;
+            selectedDisplay.dataset.value = uid;
+            document.querySelectorAll('.dropdown-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            option.classList.add('active');
+            optionsList.classList.remove('show');
+        });
+        optionsList.appendChild(option);
     });
 }
 
@@ -255,9 +268,25 @@ async function gachaWuwaInit() {
     initScrollLogic(); // 初始化滚动逻辑
 
     // 监听 UID 切换
-    document.getElementById('uid-select').addEventListener('change', async (event) => {
-        const selectedUid = event.target.value;
-        await loadGachaRecords(selectedUid);
+    document.querySelector('.selected-display').addEventListener('click', async () => {
+        const optionsList = document.querySelector('.options-list');
+        optionsList.classList.toggle('show');
+    });
+
+    document.querySelector('.options-list').addEventListener('click', async (event) => {
+        if (event.target && event.target.classList.contains('dropdown-option')) {
+            const selectedUid = event.target.dataset.value;
+
+            // 更新下拉显示
+            document.querySelector('.selected-display').textContent = selectedUid;
+            document.querySelector('.selected-display').dataset.value = selectedUid;
+
+            // 收起下拉列表
+            document.querySelector('.options-list').classList.remove('show');
+
+            // 加载对应的抽卡记录
+            await loadGachaRecords(selectedUid);
+        }
     });
 
     // 刷新数据
@@ -267,12 +296,10 @@ async function gachaWuwaInit() {
         refreshButton.disabled = true;
         refreshButton.innerText = '请等待...';
         try {
-            await loadPlayerUIDs(lastUid); // 加载玩家 UID 下拉框
-            const uid = document.getElementById('uid-select').value;
             const result = await window.electronAPI.refreshGachaRecords();
-
             if (result.success) {
-                await loadGachaRecords(uid); // 刷新后重新加载
+                const lastUid = await window.electronAPI.getLastQueryUid();
+                await loadGachaRecords(lastUid); // 刷新后重新加载
             } else {
                 console.error(result.error);
             }

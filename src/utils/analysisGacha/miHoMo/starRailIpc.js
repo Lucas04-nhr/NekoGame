@@ -1,5 +1,5 @@
 const { ipcMain, clipboard } = require('electron');
-const {fetchGachaData} = require("./gachaAnalysisStarRail");
+const {fetchStarRailGachaData} = require("./gachaAnalysisStarRail");
 require("./getStarRailUrl");
 const {db2} = require("../../../app/database");
 const db = db2;
@@ -7,7 +7,7 @@ const db = db2;
 
 ipcMain.handle('fetchStarRailGachaData', async (event) => {
     event.sender.send('gacha-records-status', '正在获取抽卡记录...');
-    return await fetchGachaData(event);
+    return await fetchStarRailGachaData(event);
 });
 
 ipcMain.handle('get-last-starRail-uid', async () => {

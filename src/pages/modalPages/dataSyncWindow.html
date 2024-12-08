@@ -113,7 +113,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s ease;
-            width: 100%;  /* 使按钮宽度与输入框一致 */
+            width: 100%;
         }
 
         button:hover {
@@ -121,7 +121,6 @@
             transform: scale(1.05);
         }
 
-        /* 错误、成功、失败消息 */
         .error-message{
             font-size: 14px;
             margin-top: 15px;
@@ -138,7 +137,6 @@
             display: none;
         }
 
-        /* 关闭按钮 */
         .close-btn {
             width: auto;
             background: none;
@@ -155,12 +153,11 @@
                 color: #f44336;
             }
 
-        /* 分页控制 */
         .swiper-container {
             width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column; /* 保证分页内容竖向排列 */
+            flex-direction: column;
             justify-content: center;
         }
 
@@ -190,7 +187,6 @@
             background-color: #4CAF50;
         }
 
-        /* 提示文字 */
         p {
             margin: 5px 0 0;
             color: #9ca3af;
@@ -199,10 +195,9 @@
             text-align: center;
         }
 
-        /* 浮窗样式 */
         .notification {
             position: fixed;
-            top: -80px;  /* 初始位置在屏幕上方外面 */
+            top: -80px;
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(0, 0, 0, 0.8);
@@ -213,17 +208,15 @@
             width: 80%;
             max-width: 300px;
             text-align: center;
-            z-index: 1000;  /* 确保浮窗在其他元素之上 */
-            transition: top 0.5s ease-in-out;  /* 使浮窗滑入的动画 */
+            z-index: 1000;
+            transition: top 0.5s ease-in-out;
         }
 
-        /* 成功通知的样式 */
         .notification.success {
             background-color: rgba(82, 255, 82, 0.63);
             backdrop-filter: blur(2px);
         }
 
-        /* 失败通知的样式 */
         .notification.fail {
             background-color: rgba(255, 72, 72, 0.78);
             backdrop-filter: blur(2px);
@@ -232,14 +225,12 @@
 </head>
 <body>
     <div class="window">
-    <!-- 窗口标题栏，常驻在上方 -->
     <div class="window-header">
         <h3 id="pageTitle">开始前须知</h3>
         <button id="closeWindow" class="close-btn">×</button>
     </div>
     <div class="swiper-container">
         <div class="swiper-wrapper">
-            <!-- 第一个分页: 风险提示 -->
             <div class="swiper-slide">
                 <div class="input-group">
                     <p>
@@ -247,9 +238,8 @@
                         如果本地数据较新，就会上传更新云端数据。<br>
                         如果云端数据较新，就会下载覆盖本地数据。<br>
                         不支持云端和本地数据的整合，若需多端同步，请清楚这一点。<br>
-                        并在最后选择上传或者下载<br>
-                        多端同步后，游戏时长功能将不再受到支持<br>
-                        因为游戏时长是根据进程名判断的，但是启动游戏不再支持<br>
+                        并在完成配置URL和TOKEN后选择上传或者下载<br>
+                        多端同步后，启动游戏不再支持，需要重新配置路径<br>
                         应用不会悄咪咪将您的数据上传到其他地方<br>
                         本人对任何后果均不负责
                     </p>
@@ -257,7 +247,6 @@
                 </div>
             </div>
 
-            <!-- 第二个分页: 同步设置 -->
             <div class="swiper-slide">
                 <div class="input-group">
                     <label for="giteeRepoUrl">Gitee/Github 同步数据</label>
@@ -270,7 +259,6 @@
                 <button id="saveSyncSettings">更新设置</button>
             </div>
 
-            <!-- 第三个分页: 手动上传/下载 -->
             <div class="swiper-slide">
                 <div class="input-group">
                     <p>请选择上传或下载数据。后续会自动同步</p>
@@ -279,27 +267,24 @@
                     <button id="downloadData">下载数据</button>
                 </div>
                 <p>提示：如果是第一次使用，可以现在手动上传数据。<br>
-                    数据同步不支持多端同时使用，因为新数据会直接覆盖旧数据<br>
                     如果不是，请先下载数据，否则本地数据可能会覆盖云端数据<br>
-                    如果你发现你的数据出现了问题，可以前往数据库文件下的backup<br>
+                    如果你发现数据出现了问题，可以前往数据文件夹下的backup<br>
                     backup会保管近10次的同步数据，方便你恢复<br>
                     在数据上传后，你可以下载手机应用同步数据，随时随地查看
                 </p>
             </div>
         </div>
-
         <div class="swiper-pagination"></div>
     </div>
 </div>
 
 <script src="../../js/import/swiper-bundle.min.js"></script>
 <script>
-    // 初始化 Swiper，竖向分页
     const swiper = new Swiper('.swiper-container', {
-        direction: 'vertical',  // 设置为竖向滑动
+        direction: 'vertical',
         loop: false,
         pagination: {
-            el: '.swiper-pagination', // 分页控制
+            el: '.swiper-pagination',
             clickable: false,
         },
     });
@@ -312,7 +297,6 @@
         swiper.allowTouchMove = true;
     });
 
-    // 保存同步设置
     document.getElementById('saveSyncSettings').addEventListener('click', () => {
         const repoUrl = document.getElementById('giteeRepoUrl').value;
         const token = document.getElementById('apiToken').value;

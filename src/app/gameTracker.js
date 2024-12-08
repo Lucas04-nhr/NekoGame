@@ -41,7 +41,7 @@ function detectRunningGames() {
             fullOutput += data.toString(); // 累积输出数据
         });
 
-        tasklist.stdout.on('end', () => {
+        tasklist.stdout.on('close', () => {
             try {
                 // 在所有输出完成后处理
                 Object.keys(trackedGames).forEach(processName => {

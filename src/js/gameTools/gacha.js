@@ -4,12 +4,15 @@ const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
 "拂晓之前", "于夜色中", "时节不居", "但战斗还未结束", "制胜的瞬间", "如泥酣眠",
 "银河铁道之夜", "无可取代的东西", "以世界之名",
 "七七", "莫娜", "刻晴", "迪卢克", "琴", "天空之脊", "和璞鸢", "四风原典", "天空之卷", "天空之翼", "阿莫斯之弓",
-"狼的末路", "天空之傲", "天空之刃", "风鹰剑"]; //这里是常驻
+"狼的末路", "天空之傲", "天空之刃", "风鹰剑",
+"11号","猫又", "格莉丝", "珂蕾妲", "莱卡恩", "丽娜",
+    "钢铁肉垫", "硫磺石", "拘缚者", "燃狱齿轮", "啜泣摇篮", "嵌合编译器"]; //这里是常驻
 const upItems = commonItems;
 // 判断是否为歪
 function isOffBanners(record, upItems) {
     return (record.card_pool_type === "角色活动跃迁" || record.card_pool_type === "光锥活动跃迁" ||
-        record.card_pool_type === "角色活动唤取" || record.card_pool_type === "武器活动祈愿" || record.card_pool_type === "角色活动祈愿")
+        record.card_pool_type === "角色活动唤取" || record.card_pool_type === "武器活动祈愿" || record.card_pool_type === "角色活动祈愿"
+        || record.card_pool_type === "独家频段"|| record.card_pool_type === "音擎频段")
         && upItems.includes(record.name);
 }
 

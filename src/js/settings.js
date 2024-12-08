@@ -20,18 +20,18 @@
     function loadBackgroundSettings() {
         window.electronAPI.invoke('loadBackgroundSettings').then(settings => {
             // 检查背景图片路径是否存在
-            if (settings.backgroundImage) {
+            if (settings.backgroundImage === null) {
+                document.getElementById('background-path').value = '没有设置背景图片';
+            }else{
                 // 如果有背景图片
                 document.getElementById('background-path').value = settings.backgroundImage || '';
-            }else{
-                document.getElementById('background-path').value = '没有设置背景图片';
             }
             // 检查透明度设置是否存在
             if (settings.backgroundOpacity) {
                 // 默认透明度值为0.5
                 document.getElementById('backgroundOpacityInput').value = settings.backgroundOpacity || '0.5';
             }
-            document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${backgroundOpacityInput.value}), rgba(33, 33, 33, ${settings.backgroundImage})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
+            document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${backgroundOpacityInput.value}), rgba(33, 33, 33, ${backgroundOpacityInput.value})), url('${window.electronAPI.filePathToURL(backgroundImageInput.value)}')`;
             document.body.style.backgroundSize = "cover";
             document.body.style.backgroundRepeat = "no-repeat";
             document.body.style.backgroundPosition = "center";

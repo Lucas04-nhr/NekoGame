@@ -62,7 +62,16 @@ function gameToolsInit() {
         }
     });
     document.getElementById('exportGenshin').addEventListener('click', async () => {
+        document.getElementById('exportGenshin').disabled = true;
+        document.getElementById('exportGenshin').innerText = '请等待...';
+        try {
         await window.electronAPI.invoke('export-genshin-data');
+        } catch (error) {
+             animationMessage(false, `导出失败\n${error}`);
+        } finally {
+            document.getElementById('exportGenshin').disabled = false;
+            document.getElementById('exportGenshin').innerText = '导出数据';
+        }
     });
     document.getElementById('importGenshin').addEventListener('click', async () => {
         document.getElementById('importGenshin').disabled = true;
@@ -78,22 +87,40 @@ function gameToolsInit() {
             document.getElementById('importGenshin').innerText = '导入数据';
         }
     });
-
-
-    document.getElementById('getStarRailRecords').addEventListener('click', async () => {
-        document.getElementById('getStarRailRecords').disabled = true;
-        document.getElementById('getStarRailRecords').innerText = '请等待...';
+     document.getElementById('exportZzz').addEventListener('click', async () => {
+        await window.electronAPI.invoke('export-zzz-data');
+    });
+     document.getElementById('importZzz').addEventListener('click', async () => {
+        const refreshButton = document.getElementById('importZzz');
+        refreshButton.disabled = true;
+        refreshButton.innerText = '请等待...';
         try {
-            result = await window.electronAPI.invoke('fetchGenshinGachaData');
+            const result = await window.electronAPI.invoke('import-zzz-data');
             animationMessage(result.success, result.message);
         } catch (error) {
-            animationMessage(false, error);
-            console.error('发生错误:', error);
+            console.error('导入数据时发生错误:', error);
+            animationMessage(result.success, `导入失败\n${result.message}`);
         } finally {
-            document.getElementById('getStarRailRecords').disabled = false;
-            document.getElementById('getStarRailRecords').innerText = '获取崩铁记录';
+            refreshButton.disabled = false;
+            refreshButton.innerText = '导入数据';
         }
     });
+
+
+    // document.getElementById('getStarRailRecords').addEventListener('click', async () => {
+    //     document.getElementById('getStarRailRecords').disabled = true;
+    //     document.getElementById('getStarRailRecords').innerText = '请等待...';
+    //     try {
+    //         result = await window.electronAPI.invoke('getZZZLink');
+    //         animationMessage(result.success, result.message);
+    //     } catch (error) {
+    //         animationMessage(false, error);
+    //         console.error('发生错误:', error);
+    //     } finally {
+    //         document.getElementById('getStarRailRecords').disabled = false;
+    //         document.getElementById('getStarRailRecords').innerText = '获取崩铁记录';
+    //     }
+    // });
 }
 
 // 动态加载工具子页面内容

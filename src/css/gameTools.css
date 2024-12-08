@@ -26,8 +26,8 @@ body {
 
 
 .tool-card {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(78, 78, 78, 0.35);
+    border: 1px solid rgba(78, 78, 78, 0.25);
     border-radius: 15px;
     height: 150px;
     padding: 20px;
@@ -44,7 +44,7 @@ body {
 .tool-card:hover {
     transform: scale(1.05);
     backdrop-filter: blur(2px);
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(103, 103, 103, 0.6);
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -80,7 +80,7 @@ body {
 
 /* 按钮样式 */
 .action-button {
-    background: rgba(255, 255, 255, 0.1); /* 按钮背景 */
+    background: rgba(239, 239, 239, 0.3); /* 按钮背景 */
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 5px;
     color: #fff;
@@ -92,13 +92,46 @@ body {
 }
 
 .action-button:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(246, 246, 246, 0.5);
     transform: scale(1.05);
 }
 
-.action-button:active {
+.action-button:active, .action-button-export:active, .action-button-import:active {
     transform: scale(0.95);
 }
+.action-button-export {
+    background: rgba(149, 251, 162, 0.4); /* 按钮背景 */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    pointer-events: auto;
+}
+
+.action-button-export:hover {
+    background: rgba(126, 255, 142, 0.6);
+    transform: scale(1.05);
+}
+.action-button-import {
+    background: rgba(93, 206, 255, 0.4); /* 按钮背景 */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    pointer-events: auto;
+}
+
+.action-button-import:hover {
+    background: rgba(64, 206, 255, 0.6);
+    transform: scale(1.05);
+}
+
 
 
 #subpage-content {

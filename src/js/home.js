@@ -85,6 +85,9 @@ function requestRunningStatus() {
 
 // 渲染游戏列表
 function renderGameList(gameData) {
+    if(!gameData){
+        document.getElementById("game-list-container").innerHTML = "<p>请添加游戏</p>";
+    }
     const container = document.getElementById('game-list-container');
     if (!container) return;
 
@@ -140,10 +143,12 @@ function renderGameList(gameData) {
                 }, 1000); // 提示显示1秒
 
             } else {
-                clearTimeout(hintTimeout); // 立即启动游戏，清除淡出计时
                 launchGame(game, launchHint);
-                launchHint.classList.add('hidden');
-                launchHint.classList.remove('fade-out');
+                setTimeout(() => {
+                        launchHint.classList.add('hidden');
+                        launchHint.classList.remove('fade-out');
+                        hasClickedOnce = false; // 重置点击状态
+                }, 1000);
             }
         });
         container.appendChild(gameItem);
@@ -173,8 +178,6 @@ function launchGame(game, launchHint) {
     // 检查游戏是否已经在运行
     if (game.isRunning) {
         animationMessage(false, `正在运行 ${game.name}，请勿重复点击`)
-        launchHint.classList.add('hidden');
-        launchHint.classList.remove('fade-out');
         return;
     }
     // 调用主进程中的 launch-game
@@ -185,7 +188,7 @@ function launchGame(game, launchHint) {
         })
         .catch((error) => {
             console.error(`无法启动 ${game.name}:`, error);
-            animationMessage(false ,`无法启动 ${game.name}，请检查路径是否正确。`)
+            animationMessage(false ,`无法启动 ${game.name}\n请检查路径是否正确。`)
         });
 }
 

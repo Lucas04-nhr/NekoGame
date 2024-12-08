@@ -5,7 +5,7 @@ async function loadGames() {
 
         const gamesList = document.getElementById("games-list");
         if (games.length === 0) {
-            document.getElementById("game-details-container").innerHTML = "<p>请先添加游戏</p>";
+            document.getElementById("games-list").innerHTML = "<p>请添加游戏</p>";
         } else {
             gamesList.innerHTML = games.map(game => `
                 <div class="list-item game-item" data-game-id="${game.id}"

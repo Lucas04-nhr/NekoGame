@@ -6,32 +6,37 @@
     <style>
         body {
             display: flex;
+            font-family: Arial, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             justify-content: center;
+            background-color: #2c2c2c;
             align-items: center;
-            background-color: #1e1e1e;
-            height: 100vh;
+            height: 102vh;
             margin: 0;
             color: #e0e0e0;
-            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        * {
+            -webkit-user-select: none; /* Chrome/Safari */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE10+ */
+            user-select: none;         /* Standard */
         }
 
         /* 主容器样式 */
         .guide-container {
-            width: 90%;
+            width: 100%;
             max-width: 600px;
             padding: 20px;
             background-color: #2c2c2c;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
-            max-height: 80vh;
+            max-height: 100vh;
             text-align: center;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
         }
 
-        /* 添加自定义边框 */
         .guide-container::before {
             content: "";
             position: absolute;
@@ -47,23 +52,70 @@
         /* 标题样式 */
         .guide-header {
             font-size: 1.8em;
-            color: #10b981;
+            color: rgba(16, 185, 129, 0.85);
             margin-bottom: 10px;
             border-bottom: 2px solid #3a3a3a;
             padding-bottom: 10px;
         }
 
-        /* 内容样式 */
         .guide-content {
-            margin-top: 20px;
-            flex: 1; /* 使内容区域扩展 */
+            border-radius: 12px;
         }
 
         .guide-content p {
             font-size: 1.1em;
             margin: 10px 0;
         }
+        .guide-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
 
+        .highlight {
+            padding:3px;
+            border-radius: 2px;
+            background-color: #505050;
+            color: #fade71;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .highlight2 {
+            padding:3px;
+            border-radius: 2px;
+            background-color: #505050;
+            color: #71fab6;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .supported-tools {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        .tool-box {
+            background-color: #3aba73;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            max-width: calc(33% - 10px);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .tool-box:hover {
+            background-color: #59d18c;
+            transform: scale(1.03);
+        }
         a[target="_blank"] {
             color: #007bff;
             text-decoration: none;
@@ -76,10 +128,9 @@
             text-decoration: underline;
         }
 
-        /* 更新日志样式 */
         .update-log {
             margin-top: 20px;
-            background-color: #1e1e1e;
+            background-color: rgb(34, 33, 33);
             padding: 15px;
             border-radius: 8px;
         }
@@ -95,6 +146,11 @@
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .log-entry:hover {
+            background-color: #5a5a5a;
+            transform: scale(1.03);
         }
 
         .log-entry h3 {
@@ -109,21 +165,21 @@
             font-size: 0.9em;
         }
 
-        /* 关闭按钮固定在底部 */
         .close-btn {
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.75);
             color: #ffffff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
             font-size: 1em;
         }
 
         .close-btn:hover {
-            background-color: #059669;
+            background-color: rgba(5, 150, 105, 0.78);
+            transform: scale(1.01);
         }
         ::-webkit-scrollbar {
             width: 6px;
@@ -146,31 +202,51 @@
 </head>
 <body>
     <div class="guide-container">
-        <h1 class="guide-header">欢迎使用 Neko Game V2.2.4</h1>
-
+        <h1 class="guide-header">欢迎使用 Neko Game V2.3.0</h1>
         <div class="guide-content">
-            <p>感谢您使用 Neko Game！这是一个专为获得更好游戏体验而设计的应用。</p>
-            <p>本页面只会在第一次启动或者更新版本后出现。</p>
-            <p>本应用完全免费，本人对可能造成的一切后果概不负责</p>
-            <p>您需要给应用网络权限才能正常使用上传功能</p>
-            <p>如需了解更多详细信息或者使用方式，请访问 GitHub 页面：</p>
-            <p><a href="https://github.com/Summer-Neko/NekoGame" target="_blank" class="guide-link">GitHub 项目地址,欢迎点星星支持</a></p>
+            <p class="guide-text">这是一个专为获得更好游戏体验而设计的应用。</p>
+            <p class="guide-text">本应用完全免费，本人对可能造成的一切后果概不负责。</p>
+            <p class="guide-text">请确保应用有联网权限，否则部分功能将无法使用。</p>
+            <p class="guide-text">本应用支持抽卡数据导入导出，并遵守 <span class="highlight">UIGF 标准</span>。</p>
+            <p class="guide-text">支持以下导出格式：</p>
+            <p>原神崩铁 UIGF4.0 导出 | 鸣潮 Excel 导出</p>
+            <p class="guide-text">由于缺少相关对照表，部分工具导出的 UIGF 数据缺少必要字段而无法导入。以下是经过验证<span class="highlight2">支持导入的工具</span></p>
+            <div class="supported-tools">
+                <span class="tool-box">流萤工具箱<br>UIGF4.0</span>
+                <span class="tool-box">小黑盒<br>UIGF2.2/3.0</span>
+                <span class="tool-box">《崩坏星穹铁道》工具<br>UIGF4.0</span>
+                <span class="tool-box">绝区零调频记录导出<br>UIGF4.0</span>
+                 <span class="tool-box">ShufflePlay<br>UIGF4.0</span>
+            </div>
+            <p class="guide-text">
+                <a href="https://uigf.org/" target="_blank" class="guide-link">前往 UIGF.org 了解更多</a>
+            </p>
+            <p class="guide-text">如需了解更多详细信息或者使用方式，请访问 GitHub：</p>
+            <p>
+                <a href="https://github.com/Summer-Neko/NekoGame" target="_blank" class="guide-link">NekoGame 项目地址，欢迎点星星支持</a>
+            </p>
         </div>
-
         <div class="update-log">
             <h2>更新日志</h2>
             <div class="log-entry">
-                <h3>长期版本 2.2.5</h3>
-                <p class="log-time">2024-12-05</p>
+                <h3>长期版本2.3.0</h3>
+                <p class="log-time">2024-12-08</p>
+                <p>· 支持原神崩铁绝区零抽卡记录分析</p>
+                <p>· 支持原神崩铁绝区零抽卡记录导出</p>
+                <p>· 其他大量改进</p>
+            </div>
+            <div class="log-entry">
+                <h3>2.2.5</h3>
+                <p class="log-time">2024-12-03</p>
                 <p>· 新增数据同步功能，并可通过手机查看数据</p>
                 <p>· 优化UI，添加自定义背景图</p>
-                <p>· 支持导出抽卡数据</p>
+                <p>· 支持导出鸣潮抽卡数据</p>
                 <p>· 其他大量改进</p>
                 <p>· 未来会将鸣潮祈愿分析及其他新增功能移入游戏工具、下次大更新预期更新崩铁（遥遥无期）</p>
             </div>
             <div class="log-entry">
                 <h3>长期版本 2.2.4</h3>
-                <p class="log-time">2024-11-30</p>
+                <p class="log-time">2024-11-29</p>
                 <p>· 处理了目前有些情况下会导致权限报错的问题。</p>
                 <p>· 调整了整理数据的逻辑，现在整理时会将一年前的游戏的时间记录按天合并为一条。</p>
                 <p>· 新增日志文件，日志文件会按天保存，并只保存近8天的应用日志</p>

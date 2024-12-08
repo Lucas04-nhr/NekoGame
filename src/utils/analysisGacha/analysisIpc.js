@@ -4,6 +4,12 @@ const { parseGachaUrl, fetchAllGachaLogs } = require('./gachaUtils'); // 工具�
 const { getGamePath, extractGachaUrl } = require("./getWutheringWavesPath"); // 获取游戏路径和祈愿链接
 const db = db2; // 数据库实例
 
+// 导入其他抽卡分析IPC
+require('./miHoMo/genShinIpc');
+require('./miHoMo/starRailIpc');
+require('./miHoMo/zzzIpc');
+
+
 /**
  * 获取上次查询的玩家 UID
  */

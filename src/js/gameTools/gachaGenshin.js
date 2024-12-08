@@ -1,18 +1,31 @@
 // 加载玩家 UID 下拉列表
 async function loadPlayerUIDs(defaultUid) {
-    const players = await window.electronAPI.invoke('get-genshin-player-uids'); // 从数据库获取所有 UID
-    const uidSelect = document.getElementById('uid-select');
-    uidSelect.innerHTML = ''; // 清空选项
+    const players = await window.electronAPI.invoke('get-genshin-player-uids');// 从数据库获取所有 UID
+    const uidDropdown = document.getElementById('uid-dropdown');
+    const selectedDisplay = document.querySelector('.selected-display');
+    const optionsList = document.querySelector('.options-list');
 
-    // 添加玩家 UID 到下拉列表
+    selectedDisplay.textContent = defaultUid || '请先刷新数据';
+    optionsList.innerHTML = ''; // 清空选项
     players.forEach(uid => {
-        const option = document.createElement('option');
-        option.value = uid;
+        const option = document.createElement('li');
+        option.classList.add('dropdown-option');
         option.textContent = uid;
+        option.dataset.value = uid;
         if (uid === defaultUid) {
-            option.selected = true;
+            selectedDisplay.textContent = uid;
+            option.classList.add('active');
         }
-        uidSelect.appendChild(option);
+        option.addEventListener('click', () => {
+            selectedDisplay.textContent = uid;
+            selectedDisplay.dataset.value = uid;
+            document.querySelectorAll('.dropdown-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            option.classList.add('active');
+            optionsList.classList.remove('show');
+        });
+        optionsList.appendChild(option);
     });
 }
 
@@ -24,6 +37,7 @@ async function loadGachaRecords(uid) {
         console.error('Error: Element with ID "record-display" not found.');
         return;
     }
+    // 清空内容
     container.innerHTML = '';
     console.log('Container cleared:', container.innerHTML);
     console.log(records);
@@ -255,9 +269,22 @@ async function gachaGenshinInit() {
     initScrollLogic(); // 初始化滚动逻辑
 
     // 监听 UID 切换
-    document.getElementById('uid-select').addEventListener('change', async (event) => {
-        const selectedUid = event.target.value;
-        await loadGachaRecords(selectedUid);
+    document.querySelector('.selected-display').addEventListener('click', async () => {
+        const optionsList = document.querySelector('.options-list');
+        optionsList.classList.toggle('show');
+    });
+
+    document.querySelector('.options-list').addEventListener('click', async (event) => {
+        if (event.target && event.target.classList.contains('dropdown-option')) {
+            const selectedUid = event.target.dataset.value;
+
+            document.querySelector('.selected-display').textContent = selectedUid;
+            document.querySelector('.selected-display').dataset.value = selectedUid;
+
+            document.querySelector('.options-list').classList.remove('show');
+
+            await loadGachaRecords(selectedUid);
+        }
     });
 
     // 刷新数据
@@ -267,12 +294,11 @@ async function gachaGenshinInit() {
         refreshButton.innerText = '请等待...';
         try {
             // 禁用按钮，防止重复点击
-            await loadPlayerUIDs(lastUid); // 加载玩家 UID 下拉框
-            const uid = document.getElementById('uid-select').value;
             const result = await window.electronAPI.invoke('fetchGenshinGachaData');
             animationMessage(result.success, result.message);
             if (result.success) {
-                loadGachaRecords(uid); // 刷新后重新加载
+                 const lastUid = await window.electronAPI.invoke('get-last-genshin-uid');
+                await loadGachaRecords(lastUid); // 刷新后重新加载
             }
         }catch (error) {
             console.error('发生错误:', error); // 捕获并输出异常
