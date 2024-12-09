@@ -1,4 +1,4 @@
-const { BrowserWindow, ipcMain} = require('electron');
+const { BrowserWindow, ipcMain, shell} = require('electron');
 const { saveSyncConfigToFile, loadSyncConfigFromFile } = require('./syncSettings');
 const path = require("path");
 const {get, put} = require("axios");  // 引入获取设置的函数
@@ -31,6 +31,18 @@ function createDataSyncWindow() {
     // 窗口加载完毕后显示
     dataSyncWindow.once('ready-to-show', () => {
         dataSyncWindow.show();
+    });
+    dataSyncWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: 'deny' };
+    });
+
+    // 拦截导航事件，阻止内部导航并改为默认浏览器打开
+    dataSyncWindow.webContents.on('will-navigate', (event, url) => {
+        if (url !== guideWindow.webContents.getURL()) {
+            event.preventDefault(); // 阻止导航
+            shell.openExternal(url); // 在默认浏览器中打开链接
+        }
     });
     // 关闭窗口时清理引用
     dataSyncWindow.on('closed', () => {
@@ -278,7 +290,7 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
             global.Notify(false, `${fileName}上传失败\n平台:${platformMessage}\n${error.response.data.message}`);
             console.error(fileName, '上传失败:', JSON.stringify(error.response.data), '平台', platformMessage);
         } else {
-            global.Notify(false, `${fileName}上传失败\n可通过日志查看具体原因\n平台:${platformMessage}`);
+            global.Notify(false, `${fileName}上传失败\n${JSON.stringify(error.response.data)}\n平台:${platformMessage}`);
         }
     }
 }

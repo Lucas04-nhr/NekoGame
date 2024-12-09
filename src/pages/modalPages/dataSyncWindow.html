@@ -221,6 +221,18 @@
             background-color: rgba(255, 72, 72, 0.78);
             backdrop-filter: blur(2px);
         }
+
+        a[target="_blank"] {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        a[target="_blank"]:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -241,7 +253,7 @@
                         并在完成配置URL和TOKEN后选择上传或者下载<br>
                         多端同步后，启动游戏不再支持，需要重新配置路径<br>
                         应用不会悄咪咪将您的数据上传到其他地方<br>
-                        本人对任何后果均不负责
+                        本人对任何可能的后果均不负责、开始前建议<a href="https://gitee.com/sunmmerneko/utils/blob/master/info/infoTips.md" target="_blank" class="guide-link">查阅指南</a>
                     </p>
                     <button id="acknowledgeBtn">我已知晓</button>
                 </div>

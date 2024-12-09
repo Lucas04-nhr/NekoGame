@@ -1,4 +1,3 @@
-
 function checkUIGF(id, uid, gacha_type, time, rank_type, record){
     const missingFields = [];
     if (!id) missingFields.push("id");

@@ -87,9 +87,9 @@ async function initializeUpdater() {
 }
 // 创建引导窗口
 function createGuideWindow(mainWindow) {
-    if (!mainWindow) {
-        createWindow(); // 如果主窗口未创建，则创建窗口
-    }
+    // if (!mainWindow) {
+    //     createWindow(); // 如果主窗口未创建，则创建窗口
+    // }
     guideWindow = new BrowserWindow({
         width: 570,
         height: 600,

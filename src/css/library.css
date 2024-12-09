@@ -182,11 +182,11 @@
     border-radius: 8px;
     margin-bottom: 20px;
     background-color: rgba(51, 51, 51, 0.4);
-    backdrop-filter: blur(3px);
-    transition: transform 0.3s;
+    transition: transform 0.3s, backdrop-filter 0.3s ease ;
 }
 
 .game-trend:hover, .contribution-chart-container:hover {
+    backdrop-filter: blur(5px);
     transform: translateY(-3px);
 }
 
@@ -268,13 +268,11 @@ input[type="text"]:focus {
     flex-direction: column;
     align-items: center;
     padding: 20px;
-
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     background-color: rgba(51, 51, 51, 0.4);
-    backdrop-filter: blur(3px);
     margin-bottom: 20px;
-    transition: transform 0.3s;
+    transition: transform 0.3s, backdrop-filter 0.3s ease;
 }
 
 .chart-title {

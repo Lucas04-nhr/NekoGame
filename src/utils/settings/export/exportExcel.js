@@ -5,7 +5,7 @@ const fs = require('fs');
 const { ipcMain, BrowserWindow } = require('electron');
 const db = db2;
 
-//在这里导入其他export和import功能
+// 导入其他export和import功能
 require('./exportUIGF');
 require('./importUIGF')
 

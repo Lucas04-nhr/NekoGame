@@ -36,14 +36,14 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     cursor: pointer;
-    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 
 .tool-card:hover {
     transform: scale(1.05);
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
     background: rgba(103, 103, 103, 0.6);
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 }

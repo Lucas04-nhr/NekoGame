@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { db2 } = require('../../../app/database'); // 确保正确导入你的 SQLite 数据库连接
+const { db2 } = require('../../../app/database');
 const { ipcMain} = require('electron');
 const {post} = require("axios");
 const {fetchItemId, itemCache} = require("./UIGFapi");
@@ -25,7 +25,7 @@ async function exportHKrpgUIGFData(tableName) {
             info: {
                 export_timestamp: Math.floor(Date.now() / 1000), // 当前时间戳（秒）
                 export_app: "NekoGame",
-                export_app_version: "2.5.0",
+                export_app_version: "2.3.0",
                 version: "v4.0"
             },
             hkrpg: []
@@ -88,7 +88,7 @@ async function exportHK4eUIGFData(tableName) {
             info: {
                 export_timestamp: Math.floor(Date.now() / 1000),
                 export_app: "NekoGame",
-                export_app_version: "2.5.0",
+                export_app_version: "2.3.0",
                 version: "v4.0"
             },
             hk4e: []
@@ -169,7 +169,7 @@ async function exportNapUIGFData(tableName) {
             info: {
                 export_timestamp: Math.floor(Date.now() / 1000), // 当前时间戳（秒）
                 export_app: "NekoGame",
-                export_app_version: "2.5.0",
+                export_app_version: "2.3.0",
                 version: "v4.0"
             },
             nap: []

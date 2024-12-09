@@ -184,7 +184,7 @@ function launchGame(game, launchHint) {
     window.electronAPI.launchGame(game.path)
         .then(() => {
             console.log(`成功启动 ${game.name}`);
-            refreshGameList(); // 刷新游戏列表以更新UI显示状态
+            animationMessage(true, "游戏正在启动，请等待")
         })
         .catch((error) => {
             console.error(`无法启动 ${game.name}:`, error);

@@ -2,7 +2,7 @@ const fs = require('fs');
 const { db2 } = require('../../../app/database');
 const { ipcMain, dialog } = require("electron");
 const {fetchItemId, itemCache, fetchItemName} = require("./UIGFapi");
-const {checkUIGF} = require("./checkUIGF"); // 数据库连接
+const {checkUIGF} = require("./checkUIGF");
 
 async function importUIGFData(filePath, tableName) {
     try {

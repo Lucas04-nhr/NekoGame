@@ -57,7 +57,7 @@ async function fetchItemId(name, lang = "chs", game = "genshin") {
                 const itemId = response.data.item_id;
                 itemCache[name] = itemId; // 缓存结果
                 saveCache();
-                global.Notify(true, `item_id未命中，已经通过UIGFapi获取\n已经成功保存在导出表中\n请求:${name} 回应:${itemId}`);
+                global.Notify(true, `item_id未命中，已经通过UIGFapi获取\n已经成功保存在缓存表中\n请求:${name} 回应:${itemId}`);
                 return itemId;
             } else {
                 throw new Error(
