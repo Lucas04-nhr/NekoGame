@@ -10,28 +10,23 @@ const fieldSchemas = {
     hkrpg: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id"],
     nap: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id"]
 };
-async function validateAndFormatRecord(record, schema, fetchItemIdFn, cache) {
+async function validateAndFormatRecord(record, schema, gameType) {
     const formattedRecord = {};
     for (const field of schema) {
         if (record[field] !== undefined && record[field] !== null) {
             formattedRecord[field] = record[field].toString();
         } else {
-            // 如果有缺失字段
-            formattedRecord[field] = ""; // 默认空字符串
+            // 如果确实字段内容
+            formattedRecord[field] = "";
         }
     }
-    // 通过UIGFapi检查和补充 item_id
-    if (!formattedRecord.item_id && formattedRecord.name) {
-        if (cache[formattedRecord.name]) {
-            console.log(`缓存命中: ${formattedRecord.name} -> ${cache[formattedRecord.name]}`);
-            formattedRecord.item_id = cache[formattedRecord.name].toString();
-        } else {
-            try {
-                const itemId = await fetchItemIdFn(formattedRecord.name);
-                formattedRecord.item_id = itemId.toString();
-            } catch (error) {
-                console.error(`无法获取 item_id for name: ${formattedRecord.name}`, error.message);
-            }
+    // 如果 item_id 缺失，通过 UIGFapi 获取
+    if (!formattedRecord.item_id && record.name) {
+        try {
+            const itemId = await fetchItemId(record.name, "chs", gameType);
+            formattedRecord.item_id = itemId.toString();
+        } catch (error) {
+            console.warn(`无法获取 item_id，name: ${record.name}`, error.message);
         }
     }
     // 补充 uigf_gacha_type
@@ -40,8 +35,11 @@ async function validateAndFormatRecord(record, schema, fetchItemIdFn, cache) {
     }
     return formattedRecord;
 }
+
+
+
 // 导出方法
-async function exportUIGFData({ tableName, type, outputFileName, formatRecord, schema }) {
+async function exportUIGFData({ tableName, type, outputFileName, schema, gameType }) {
     const query = `SELECT * FROM ${tableName} ORDER BY id ASC`;
     const outputPath = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'export');
     if (!fs.existsSync(outputPath)) {
@@ -76,8 +74,7 @@ async function exportUIGFData({ tableName, type, outputFileName, formatRecord, s
                     list: []
                 };
             }
-
-            const formattedRecord = validateAndFormatRecord(record, schema);
+            const formattedRecord = await validateAndFormatRecord(record, schema, gameType);
             groupedByUID[record.uid].list.push(formattedRecord);
         }
 
@@ -93,13 +90,15 @@ async function exportUIGFData({ tableName, type, outputFileName, formatRecord, s
     }
 }
 
+
 // IPC 处理
 ipcMain.handle('export-genshin-data', async () => {
     await exportUIGFData({
         tableName: 'genshin_gacha',
         type: 'hk4e',
         outputFileName: 'UIGF4_genshin_gacha_NekoGame.json',
-        schema: fieldSchemas.hk4e
+        schema: fieldSchemas.hk4e,
+        gameType: 'genshin'
     });
 });
 
@@ -108,7 +107,8 @@ ipcMain.handle('export-starRail-data', async () => {
         tableName: 'starRail_gacha',
         type: 'hkrpg',
         outputFileName: 'UIGF4_starRail_gacha_NekoGame.json',
-        schema: fieldSchemas.hkrpg
+        schema: fieldSchemas.hkrpg,
+        gameType: 'starRail'
     });
 });
 
@@ -117,6 +117,7 @@ ipcMain.handle('export-zzz-data', async () => {
         tableName: 'zzz_gacha',
         type: 'nap',
         outputFileName: 'UIGF4_zzz_gacha_NekoGame.json',
-        schema: fieldSchemas.nap
+        schema: fieldSchemas.nap,
+        gameType: 'zzz'
     });
 });
