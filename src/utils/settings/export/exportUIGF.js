@@ -4,8 +4,26 @@ const { db2 } = require('../../../app/database');
 const { ipcMain } = require('electron');
 const { fetchItemId, itemCache } = require("./UIGFapi");
 
-// 通用导出方法
-async function exportUIGFData({ tableName, type, outputFileName, formatRecord }) {
+
+const fieldSchemas = {
+    hk4e: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id", "uigf_gacha_type"],
+    hkrpg: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id"],
+    nap: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id"]
+};
+function validateAndFormatRecord(record, schema) {
+    const formattedRecord = {};
+    for (const field of schema) {
+        if (record[field] !== undefined && record[field] !== null) {
+            formattedRecord[field] = record[field].toString();
+        } else {
+            // 对于缺失的字段，填充默认值
+            formattedRecord[field] = "";
+        }
+    }
+    return formattedRecord;
+}
+// 导出方法
+async function exportUIGFData({ tableName, type, outputFileName, formatRecord, schema }) {
     const query = `SELECT * FROM ${tableName} ORDER BY id ASC`;
     const outputPath = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'export');
     if (!fs.existsSync(outputPath)) {
@@ -22,7 +40,7 @@ async function exportUIGFData({ tableName, type, outputFileName, formatRecord })
 
         const formattedData = {
             info: {
-                export_timestamp: Math.floor(Date.now() / 1000), // 当前时间戳（秒）
+                export_timestamp: Math.floor(Date.now() / 1000),
                 export_app: "NekoGame",
                 export_app_version: "2.3.0",
                 version: "v4.0"
@@ -35,12 +53,13 @@ async function exportUIGFData({ tableName, type, outputFileName, formatRecord })
             if (!groupedByUID[record.uid]) {
                 groupedByUID[record.uid] = {
                     uid: record.uid,
-                    timezone: 8, // 默认 UTC+8
+                    timezone: 8,
                     lang: record.lang || "zh-cn",
                     list: []
                 };
             }
-            const formattedRecord = formatRecord ? formatRecord(record) : record;
+
+            const formattedRecord = validateAndFormatRecord(record, schema);
             groupedByUID[record.uid].list.push(formattedRecord);
         }
 
@@ -56,37 +75,13 @@ async function exportUIGFData({ tableName, type, outputFileName, formatRecord })
     }
 }
 
-// 格式化方法（可选）
-function formatHK4eRecord(record) {
-    let itemId = record.item_id;
-    if (!itemId) {
-        if (itemCache[record.name]) {
-            itemId = itemCache[record.name];
-        } else {
-            itemId = await fetchItemId(record.name);
-        }
-    }
-    return {
-        gacha_id: record.gacha_id,
-        gacha_type: record.gacha_type === "400" ? "301" : record.gacha_type.toString(),
-        item_id: itemId ? itemId.toString() : null,
-        count: record.count.toString(),
-        time: record.time.toString(),
-        name: record.name.toString(),
-        item_type: record.item_type.toString(),
-        rank_type: record.rank_type.toString(),
-        id: record.id.toString(),
-        uigf_gacha_type: record.gacha_type === "400" ? "301" : record.gacha_type.toString()
-    };
-}
-
 // IPC 处理
 ipcMain.handle('export-genshin-data', async () => {
     await exportUIGFData({
         tableName: 'genshin_gacha',
         type: 'hk4e',
         outputFileName: 'UIGF4_genshin_gacha_NekoGame.json',
-        formatRecord: formatHK4eRecord
+        schema: fieldSchemas.hk4e
     });
 });
 
@@ -95,7 +90,7 @@ ipcMain.handle('export-starRail-data', async () => {
         tableName: 'starRail_gacha',
         type: 'hkrpg',
         outputFileName: 'UIGF4_starRail_gacha_NekoGame.json',
-        formatRecord: null // 使用默认格式
+        schema: fieldSchemas.hkrpg
     });
 });
 
@@ -104,6 +99,6 @@ ipcMain.handle('export-zzz-data', async () => {
         tableName: 'zzz_gacha',
         type: 'nap',
         outputFileName: 'UIGF4_zzz_gacha_NekoGame.json',
-        formatRecord: null // 使用默认格式
+        schema: fieldSchemas.nap
     });
 });
