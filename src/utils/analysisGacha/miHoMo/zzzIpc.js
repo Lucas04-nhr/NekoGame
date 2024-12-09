@@ -80,7 +80,7 @@ ipcMain.handle('get-zzz-gacha-records', async () => {
             quality_level: record.rank_type,  // 替换rank_type为quality_level
         }));
     } catch (err) {
-        console.error('从数据库获取原神抽卡记录失败:', err);
+        console.error('从数据库获取绝区零抽卡记录失败:', err);
         return [];
     }
 });

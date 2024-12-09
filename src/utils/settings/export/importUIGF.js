@@ -10,7 +10,7 @@ const UIGF_FIELDS = [
 ];
 
 
-async function importUIGFData(filePath, tableName, dataKey, fetchItemIdFn) {
+async function importUIGFData(filePath, tableName, dataKey, fetchItemIdFn, gameType=null) {
     try {
         const rawData = fs.readFileSync(filePath, 'utf-8');
         const parsedData = JSON.parse(rawData);
@@ -21,6 +21,10 @@ async function importUIGFData(filePath, tableName, dataKey, fetchItemIdFn) {
 
         if (!isUIGF3 && !isUIGF4) {
             throw new Error(`无效的 UIGF 格式: 缺少 '${dataKey}' 或 'list' 数据`);
+        }
+
+        if (isUIGF3 && gameType !== "genshin") {
+            throw new Error(`UIGF 3.0 数据仅支持导入到原神`);
         }
 
         const query = `INSERT OR IGNORE INTO ${tableName} (${UIGF_FIELDS.join(', ')}) VALUES (${UIGF_FIELDS.map(() => '?').join(', ')})`;
@@ -114,7 +118,7 @@ ipcMain.handle('import-genshin-data', async () => {
     }
 
     const filePath = filePaths[0];
-    return await importUIGFData(filePath, 'genshin_gacha', 'hk4e', fetchItemId);
+    return await importUIGFData(filePath, 'genshin_gacha', 'hk4e', fetchItemId, "genshin");
 });
 
 ipcMain.handle('import-starRail-data', async () => {

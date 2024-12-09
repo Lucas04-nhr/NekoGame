@@ -233,6 +233,20 @@
             color: #0056b3;
             text-decoration: underline;
         }
+        .highlight {
+            padding:3px;
+            border-radius: 2px;
+            color: rgba(86, 246, 218, 0.8);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .highlight1 {
+            padding:3px;
+            border-radius: 2px;
+            color: rgba(246, 86, 105, 0.8);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -247,8 +261,8 @@
                 <div class="input-group">
                     <p>
                         配置完成后，应用在每次启动的时候都会自动同步数据，有时上传可能会发生错误, 如果急需上传，可以回到本页手动上传或者重启应用<br>
-                        如果本地数据较新，就会上传更新云端数据。<br>
-                        如果云端数据较新，就会下载覆盖本地数据。<br>
+                        如果本地数据较新，就会<span class="highlight">上传更新</span>云端数据。<br>
+                        如果云端数据较新，就会<span class="highlight1">下载覆盖</span>本地数据。<br>
                         不支持云端和本地数据的整合，若需多端同步，请清楚这一点。<br>
                         并在完成配置URL和TOKEN后选择上传或者下载<br>
                         多端同步后，启动游戏不再支持，需要重新配置路径<br>

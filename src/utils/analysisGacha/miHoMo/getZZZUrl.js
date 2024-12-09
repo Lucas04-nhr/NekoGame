@@ -8,26 +8,32 @@ const {db} = require("../../../app/database");
 // 改成从数据库中获取路径
 function queryGamePathFromDb() {
     return new Promise((resolve, reject) => {
-        const query = "SELECT path FROM games WHERE path LIKE '%ZenlessZoneZero.exe%'";
-        db.get(query, (err, row) => {
-            if (err) {
-                global.Notify(false, `数据库查询失败: ${err.message}`)
-                return reject(`数据库查询失败: ${err.message}`);
-            }
-            if (row && row.path) {
-                const extractedPath = row.path.split('ZenlessZoneZero.exe')[0].trim();
-                // 验证路径是否存在
-                fs.access(extractedPath, fs.constants.F_OK, (accessErr) => {
-                    if (accessErr) {
-                        return reject(`游戏路径无效，请检查（路径: ${extractedPath}）`);
-                    }
-                    resolve(extractedPath);
-                });
-            } else {
-                global.Notify(false, 'ZZZ需要手动录入游戏库，\n请检查确保添加的是ZenlessZoneZero.exe')
-                reject('绝区零需要手动录入游戏库，请检查确保添加的是ZenlessZoneZero.exe');
-            }
-        });
+        try {
+            const query = "SELECT path FROM games WHERE path LIKE '%ZenlessZoneZero.exe%'";
+            db.get(query, (err, row) => {
+                if (err) {
+                    global.Notify(false, `数据库查询失败: ${err.message}`)
+                    return reject(`数据库查询失败: ${err.message}`);
+                }
+                if (row && row.path) {
+                    const extractedPath = row.path.split('ZenlessZoneZero.exe')[0].trim();
+                    // 验证路径是否存在
+                    fs.access(extractedPath, fs.constants.F_OK, (accessErr) => {
+                        if (accessErr) {
+                            return reject(`游戏路径无效，请检查（路径: ${extractedPath}）`);
+                        }
+                        resolve(extractedPath);
+                    });
+                } else {
+                    global.Notify(false, 'ZZZ需要手动录入游戏库，\n请检查确保添加的是ZenlessZoneZero.exe');
+                    reject('绝区零需要手动录入游戏库，请检查确保添加的是ZenlessZoneZero.exe');
+                }
+            });
+        }catch (e){
+            global.Notify(false, '出现了问题\nZZZ需要手动录入游戏库\n请检查确保添加的是ZenlessZoneZero.exe');
+            console.error(`绝区零数据查询出现问题: ${e.message}`)
+            reject('绝区零需要手动录入游戏库，请检查确保添加的是ZenlessZoneZero.exe');
+        }
     });
 }
 
@@ -123,8 +129,8 @@ async function getZZZUrl(){
         clipboard.writeText(wishLink);
         return { success: true, message: `祈愿记录链接已复制到剪贴板！\n${wishLink}` };
     } catch (error) {
-        console.error('获取祈愿纪录失败:', error.message);
-        return { success: false, message: `操作失败: ${error.message}` };
+        console.error(`绝区零获取祈愿纪录失败:, ${error.message}`);
+        return { success: false, message: `绝区零需要先导入游戏库\n错误信息: ${error.message}` };
     }
 }
 

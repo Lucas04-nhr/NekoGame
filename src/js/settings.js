@@ -88,6 +88,7 @@
     // 检查更新按钮
     if (checkUpdateButton) {
         checkUpdateButton.addEventListener("click", () => {
+            animationMessage(true, "正在检查更新")
             // 发送检查更新事件到主进程
             window.electronAPI.send('check-for-updates');
         });

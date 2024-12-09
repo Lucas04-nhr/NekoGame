@@ -1,23 +1,23 @@
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-
+const {gachaIDCacheChs} = require('./item_id')
 // 缓存文件路径
 const CACHE_PATH = path.join(process.env.NEKO_GAME_FOLDER_PATH, "export", "itemCache.json");
 
-let itemCache = {};
+// 缓存id-name值
+let itemCache = gachaIDCacheChs;
 
-// 加载缓存
 if (fs.existsSync(CACHE_PATH)) {
     try {
-        itemCache = JSON.parse(fs.readFileSync(CACHE_PATH, "utf-8"));
+        const loadedCache = JSON.parse(fs.readFileSync(CACHE_PATH, "utf-8"));
+        itemCache = { ...itemCache, ...loadedCache }; // 合并默认值和本地缓存
     } catch (error) {
         console.error("加载缓存失败:", error.message);
-        itemCache = {};
     }
 }
 
-// 保存缓存到文件
+// 保存缓存到本地文件
 function saveCache() {
     try {
         const outputDir = path.dirname(CACHE_PATH);
@@ -56,8 +56,8 @@ async function fetchItemId(name, lang = "chs", game = "genshin") {
             if (response.data && response.data.item_id) {
                 const itemId = response.data.item_id;
                 itemCache[name] = itemId; // 缓存结果
-                saveCache();
-                global.Notify(true, `item_id未命中，已经通过UIGFapi获取\n已经成功保存在缓存表中\n请求:${name} 回应:${itemId}`);
+                saveCache(); // 保存到本地
+                global.Notify(true, `item_id未命中，已经通过UIGFapi获取\n成功缓存到本地\n请求:${name} 回应:${itemId}`);
                 return itemId;
             } else {
                 throw new Error(
@@ -78,10 +78,10 @@ async function fetchItemName(itemId, lang = "chs", game = "genshin") {
     const url = "https://api.uigf.org/translate/";
     let retries = 0;
 
-    // 检查缓存
+    // 反向查找缓存
     const cachedName = Object.keys(itemCache).find(key => itemCache[key] === itemId);
     if (cachedName) {
-        console.log(`缓存命中: ${itemId} -> ${cachedName}`);
+        // console.log(`缓存命中: ${itemId} -> ${cachedName}`);
         return cachedName;
     }
 
@@ -94,31 +94,27 @@ async function fetchItemName(itemId, lang = "chs", game = "genshin") {
                 item_id: itemId
             };
 
-            console.log(`查询 name 中：${JSON.stringify(requestBody)}`);
-
             // 发送请求
-            const response = await axios.post(url, requestBody, {
-                headers: { "Content-Type": "application/json" }
-            });
+            const response = await axios.post(url, requestBody);
 
             if (response.data && response.data.item_name) {
                 const itemName = response.data.item_name;
                 itemCache[itemName] = itemId; // 缓存结果
-                saveCache(); // 保存到文件
-                global.Notify(true, `name未命中，已经通过UIGFapi获取\n已经成功保存在导出表中\n请求:${itemId} 回应:${itemName}`);
+                saveCache(); // 保存到本地
+                global.Notify(true, `item_name未命中，已经通过UIGFapi获取\n成功缓存到本地\n请求:${itemId} 回应:${itemName}`);
                 return itemName;
             } else {
                 throw new Error(
-                    `未找到 name for item_id: ${itemId}, 返回数据: ${JSON.stringify(response.data)}`
+                    `未找到 item_name for itemId: ${itemId}, 返回数据: ${JSON.stringify(response.data)}`
                 );
             }
         } catch (error) {
             retries++;
-            console.error(`获取 name 失败 (尝试 ${retries}/3):`, error.message);
+            console.error(`获取 item_name 失败 (尝试 ${retries}/3):`, error.message);
             await new Promise((resolve) => setTimeout(resolve, 300)); // 重试间隔
         }
     }
-    throw new Error(`无法获取 name for item_id: ${itemId}`);
+    throw new Error(`无法获取 item_name for itemId: ${itemId}`);
 }
 
-module.exports = { fetchItemId, fetchItemName, itemCache };
+module.exports = { fetchItemId, fetchItemName, saveCache, itemCache };
