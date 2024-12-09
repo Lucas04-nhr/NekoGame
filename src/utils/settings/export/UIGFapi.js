@@ -37,7 +37,7 @@ async function fetchItemId(name, lang = "chs", game = "genshin") {
 
     // 检查缓存
     if (itemCache[name]) {
-        console.log(`缓存命中: ${name} -> ${itemCache[name]}`);
+        // console.log(`缓存命中: ${name} -> ${itemCache[name]}`);
         return itemCache[name];
     }
 
