@@ -713,7 +713,7 @@ function loadLeaderboard() {
                 const item = document.createElement('div');
                 item.classList.add('list-item');
                 const backgroundImage = game.poster_horizontal
-                    ? `url('${getFilePath(game.poster_horizontal)}')`
+                    ? `url('${window.electronAPI.filePathToURL(game.poster_horizontal)}')`
                     : `url('./assets/default-poster.jpg')`;
                 item.style.backgroundImage = backgroundImage;
 
@@ -735,13 +735,6 @@ function loadLeaderboard() {
 // 监听页面切换，显示排行榜
 document.querySelector('.tab-button[data-tab="leaderboard"]').addEventListener("click", loadLeaderboard);
 
-function getFilePath(path) {
-    // 如果路径以 C:\ 等形式开头，将其转换为 file:// 协议形式
-    if (path.startsWith('C:\\') || path.startsWith('C:/')) {
-        return `file:///${path.replace(/\\/g, '/')}`; // 替换反斜杠为正斜杠
-    }
-    return path; // 对于相对路径，保持不变
-}
 // 将 logPage 声明为全局变量，确保只声明一次
 if (typeof logPage === 'undefined') {
     var logPage = 0;
@@ -760,7 +753,7 @@ function loadLogData(reset = false) {
                 logItem.classList.add('list-item');
                 // 处理背景图片路径
                 const backgroundImage = log.poster_horizontal
-                    ? `url('${getFilePath(log.poster_horizontal)}')`
+                    ? `url('${window.electronAPI.filePathToURL(log.poster_horizontal)}')`
                     : `url('./assets/default-poster.jpg')`;
 
                 logItem.style.backgroundImage = backgroundImage;
