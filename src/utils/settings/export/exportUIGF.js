@@ -4,21 +4,39 @@ const { db2 } = require('../../../app/database');
 const { ipcMain } = require('electron');
 const { fetchItemId, itemCache } = require("./UIGFapi");
 
-
+// 游戏类型
 const fieldSchemas = {
     hk4e: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id", "uigf_gacha_type"],
     hkrpg: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id"],
     nap: ["gacha_id", "gacha_type", "item_id", "count", "time", "name", "item_type", "rank_type", "id"]
 };
-function validateAndFormatRecord(record, schema) {
+async function validateAndFormatRecord(record, schema, fetchItemIdFn, cache) {
     const formattedRecord = {};
     for (const field of schema) {
         if (record[field] !== undefined && record[field] !== null) {
             formattedRecord[field] = record[field].toString();
         } else {
-            // 对于缺失的字段，填充默认值
-            formattedRecord[field] = "";
+            // 如果有缺失字段
+            formattedRecord[field] = ""; // 默认空字符串
         }
+    }
+    // 通过UIGFapi检查和补充 item_id
+    if (!formattedRecord.item_id && formattedRecord.name) {
+        if (cache[formattedRecord.name]) {
+            console.log(`缓存命中: ${formattedRecord.name} -> ${cache[formattedRecord.name]}`);
+            formattedRecord.item_id = cache[formattedRecord.name].toString();
+        } else {
+            try {
+                const itemId = await fetchItemIdFn(formattedRecord.name);
+                formattedRecord.item_id = itemId.toString();
+            } catch (error) {
+                console.error(`无法获取 item_id for name: ${formattedRecord.name}`, error.message);
+            }
+        }
+    }
+    // 补充 uigf_gacha_type
+    if (record.gacha_type) {
+        formattedRecord.uigf_gacha_type = record.gacha_type.toString();
     }
     return formattedRecord;
 }
