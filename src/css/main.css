@@ -1,4 +1,3 @@
-/* 全局暗色背景和文本颜色 */
 html, body {
     overflow: hidden;
     height: 100%;
@@ -314,6 +313,7 @@ body {
     padding: 10px;
     overflow-y: auto;
     max-height: calc(80vh - 120px);
+    animation: fadeIn 0.3s ease;
 }
 
 .modal-footer {

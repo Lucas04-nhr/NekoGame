@@ -4,6 +4,7 @@ const { ipcMain } = require('electron');
 const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
 const utc = require('dayjs/plugin/utc');
+const ps = require('ps-node');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -34,20 +35,26 @@ function initializeTrackedGames() {
 // 检测后台运行的进程并实时更新时长
 function detectRunningGames() {
     try {
-        const tasklist = spawn('tasklist');
+        const tasklist = spawn('tasklist', ['/FO', 'CSV']); // 输出为 CSV 格式
         let fullOutput = ''; // 用于存储完整输出
-
         tasklist.stdout.on('data', (data) => {
             fullOutput += data.toString(); // 累积输出数据
         });
-
-        tasklist.stdout.on('close', () => {
+        tasklist.on('close', (code) => {
+            if (code !== 0) {
+                console.error(`Tasklist exited with code ${code}`);
+                return;
+            }
             try {
-                // 在所有输出完成后处理
+                // 将输出解析为数组（去掉 CSV 表头）
+                const processList = fullOutput
+                    .split('\n')
+                    .slice(1) // 去掉表头
+                    .map((line) => line.split('","')[0]?.replace(/"/g, '').trim()) // 提取进程名
                 Object.keys(trackedGames).forEach(processName => {
                     const game = trackedGames[processName];
                     const matchName = processName.length > 24 ? processName.slice(0, 24) : processName;
-                    const isRunning = fullOutput.includes(matchName);
+                    const isRunning = processList.some((proc) => proc.toLowerCase() === matchName.toLowerCase());
 
                     if (isRunning && !game.isRunning) {
                         game.isRunning = true;
@@ -76,17 +83,14 @@ function detectRunningGames() {
                         db.run(`UPDATE games SET total_time = ? WHERE id = ?`, [game.totalTime, game.id], (err) => {
                             if (err) console.error("Error updating total time:", err);
                         });
-
                         sendRunningStatus();
                     } else if (!isRunning && game.isRunning && game.sessionId) {
                         game.isRunning = false;
-
                         db.get(`SELECT start_time, end_time FROM game_sessions WHERE id = ?`, [game.sessionId], (err, session) => {
                             if (err) {
                                 console.error("Error fetching session:", err);
                                 return;
                             }
-
                             if (!session || session.end_time === null) {
                                 db.run(`DELETE FROM game_sessions WHERE id = ?`, [game.sessionId], (err) => {
                                     if (err) console.error("Error deleting invalid session:", err);
@@ -109,11 +113,9 @@ function detectRunningGames() {
                 console.error("Error processing tasklist output:", err);
             }
         });
-
         tasklist.stderr.on('data', (data) => {
             console.error(`Error fetching process list: ${data.toString()}`);
         });
-
         tasklist.on('error', (err) => {
             console.error("Error spawning tasklist:", err);
         });

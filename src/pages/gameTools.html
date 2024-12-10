@@ -64,5 +64,22 @@
 </div>
 <!--返回按钮-->
 <span id="global-back-button" class="global-back-button hidden">↩</span>
+<!--UID选择窗口-->
+<div id="uidSelectionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>选择 UID</h2>
+            <button id="closeModal" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="uidListContainer" class="uid-list"></div>
+        </div>
+        <div class="modal-footer">
+            <button id="selectAllUIDs" class="modal-button">全选</button>
+            <button id="deselectAllUIDs" class="modal-button">取消全选</button>
+            <button id="confirmUIDSelection" class="modal-button primary">确认</button>
+        </div>
+    </div>
+</div>
 <!-- 引入样式 -->
 <link rel="stylesheet" href="./css/gameTools.css">

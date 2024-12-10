@@ -79,3 +79,8 @@
 - i18n (Internationalization) support
 - Additional functionalities
 - Optimized data visualization
+
+### Asset Usage Instructions
+
+- The background illustrations and project icons displayed on this page are sourced from the internet. We sincerely thank the artists for their contributions. If you are the author or believe that certain illustrations should not be used, or if you are willing to provide artist information, please contact me.
+- This application utilizes the [UIGF API](https://uigf.org/en/api.html) for mutual conversion between `item_id` and `name`.

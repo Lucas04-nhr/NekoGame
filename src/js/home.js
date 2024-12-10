@@ -177,14 +177,14 @@ function loadGameData(runningStatus) {
 function launchGame(game, launchHint) {
     // 检查游戏是否已经在运行
     if (game.isRunning) {
-        animationMessage(false, `正在运行 ${game.name}，请勿重复点击`)
+        animationMessage(false, `${game.name} 正在运行中\n请勿重复点击`)
         return;
     }
     // 调用主进程中的 launch-game
     window.electronAPI.launchGame(game.path)
         .then(() => {
             console.log(`成功启动 ${game.name}`);
-            animationMessage(true, "游戏正在启动，请等待")
+            animationMessage(true, `已启动 ${game.name}, 请等待`)
         })
         .catch((error) => {
             console.error(`无法启动 ${game.name}:`, error);
