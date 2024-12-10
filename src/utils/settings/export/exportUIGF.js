@@ -41,8 +41,8 @@ async function validateAndFormatRecord(record, schema, gameType) {
 
 
 // 导出方法
-async function exportUIGFData({ tableName, type, outputFileName, schema, gameType }) {
-    const query = `SELECT * FROM ${tableName} ORDER BY id ASC`;
+async function exportUIGFData({ tableName, type, outputFileName, schema, gameType, selectedUIDs }) {
+    const query = `SELECT * FROM ${tableName} WHERE uid IN (${selectedUIDs.map(() => '?').join(',')}) ORDER BY id ASC`;
     const outputPath = path.join(process.env.NEKO_GAME_FOLDER_PATH, 'export');
     if (!fs.existsSync(outputPath)) {
         fs.mkdirSync(outputPath);
@@ -50,11 +50,15 @@ async function exportUIGFData({ tableName, type, outputFileName, schema, gameTyp
 
     try {
         const records = await new Promise((resolve, reject) => {
-            db2.all(query, (err, rows) => {
+            db2.all(query, selectedUIDs, (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows);
             });
         });
+
+        if (records.length === 0) {
+            throw new Error(`没有找到 UID: ${selectedUIDs.join(', ')} 的记录`);
+        }
 
         const formattedData = {
             info: {
@@ -85,41 +89,45 @@ async function exportUIGFData({ tableName, type, outputFileName, schema, gameTyp
         const outputFile = path.resolve(outputPath, outputFileName);
         fs.writeFileSync(outputFile, JSON.stringify(formattedData, null, 4), 'utf-8');
         console.log(`抽卡数据已成功导出: ${outputFile}`);
-        global.Notify(true, `已成功导出\n${outputFile}\nUIGF V4.0`);
+        global.Notify(true, `已成功导出 UID: ${selectedUIDs.join(', ')}\n文件路径: ${outputFile}`);
     } catch (error) {
         console.error("导出 UIGF 数据时发生错误:", error.message);
         global.Notify(false, `导出 UIGF 数据时发生错误: ${error.message}`);
+        return; //错误后终止
     }
 }
 
-
 // IPC 处理
-ipcMain.handle('export-genshin-data', async () => {
+ipcMain.handle('export-genshin-data', async (event, selectedUIDs) => {
     await exportUIGFData({
         tableName: 'genshin_gacha',
         type: 'hk4e',
-        outputFileName: 'UIGF4_genshin_gacha_NekoGame.json',
+        outputFileName: `UIGF4_genshin_gacha_${selectedUIDs.join('_')}_NekoGame.json`,
         schema: fieldSchemas.hk4e,
-        gameType: 'genshin'
+        gameType: 'genshin',
+        selectedUIDs
     });
 });
 
-ipcMain.handle('export-starRail-data', async () => {
+
+ipcMain.handle('export-starRail-data', async (event, selectedUIDs) => {
     await exportUIGFData({
         tableName: 'starRail_gacha',
         type: 'hkrpg',
-        outputFileName: 'UIGF4_starRail_gacha_NekoGame.json',
+        outputFileName: `UIGF4_starRail_gacha_${selectedUIDs.join('_')}_NekoGame.json`,
         schema: fieldSchemas.hkrpg,
-        gameType: 'starRail'
+        gameType: 'starRail',
+        selectedUIDs
     });
 });
 
-ipcMain.handle('export-zzz-data', async () => {
+ipcMain.handle('export-zzz-data', async (event, selectedUIDs) => {
     await exportUIGFData({
         tableName: 'zzz_gacha',
         type: 'nap',
-        outputFileName: 'UIGF4_zzz_gacha_NekoGame.json',
+        outputFileName: `UIGF4_zzz_gacha_${selectedUIDs.join('_')}_NekoGame.json`,
         schema: fieldSchemas.nap,
-        gameType: 'zzz'
+        gameType: 'zzz',
+        selectedUIDs
     });
 });
