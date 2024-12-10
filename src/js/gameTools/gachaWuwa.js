@@ -42,7 +42,7 @@ async function loadGachaRecords(uid) {
 
     const filteredRecords = records.filter(r => r.player_id === uid);
     if (!filteredRecords.length) {
-        container.innerHTML = '<p>没有祈愿记录。请先打开游戏祈愿界面，然后点击刷新数据</p>';
+        container.innerHTML = '<p>没有唤取记录。请先打开游戏祈愿界面，然后点击刷新数据</p>';
         return;
     }
 

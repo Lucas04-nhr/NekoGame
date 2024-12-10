@@ -31,7 +31,9 @@ async function validateAndFormatRecord(record, schema, gameType) {
     }
     // 补充 uigf_gacha_type
     if (record.gacha_type) {
-        formattedRecord.uigf_gacha_type = record.gacha_type.toString();
+        // 如果 gacha_type 为 301 或 400，统一映射为 301 角色活动祈愿
+        const normalizedGachaType = record.gacha_type === '400' ? '301' : record.gacha_type.toString();
+        formattedRecord.uigf_gacha_type = normalizedGachaType;
     }
     return formattedRecord;
 }
