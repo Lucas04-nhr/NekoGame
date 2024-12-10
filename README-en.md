@@ -1,6 +1,6 @@
 # Neko Game
 
-**中文** | **[English](README-en.md)**
+**[中文](README.md)** | **English**
 
 ## 📝 Overview
 

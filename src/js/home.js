@@ -760,7 +760,9 @@ function loadLogData(reset = false) {
                 //格式化时间
                 const hours = Math.floor(log.duration / 3600);
                 const minutes = Math.floor((log.duration % 3600) / 60);
-                const formattedTime = `${hours}小时${minutes}分`;
+                const formattedTime = hours > 0
+                  ? `${hours}小时${minutes}分钟`
+                  : `${minutes}分钟`;
                 logItem.innerHTML = `
                     <img src="${log.icon || './assets/default-icon.jpg'}" alt="${log.game_name}" class="game-icon">
                     <div class="game-info">
