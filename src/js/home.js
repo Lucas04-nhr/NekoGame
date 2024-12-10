@@ -757,8 +757,10 @@ function loadLogData(reset = false) {
                     : `url('./assets/default-poster.jpg')`;
 
                 logItem.style.backgroundImage = backgroundImage;
-
-
+                //格式化时间
+                const hours = Math.floor(log.duration / 3600);
+                const minutes = Math.floor((log.duration % 3600) / 60);
+                const formattedTime = `${hours}小时${minutes}分`;
                 logItem.innerHTML = `
                     <img src="${log.icon || './assets/default-icon.jpg'}" alt="${log.game_name}" class="game-icon">
                     <div class="game-info">
@@ -766,7 +768,7 @@ function loadLogData(reset = false) {
                         <p class="log-date">日期：${new Date(log.start_time).toLocaleDateString()}</p>
                         <p class="log-date">开始时间：${new Date(log.start_time).toLocaleTimeString()}</p>
                         <p class="log-date">结束时间：${new Date(log.end_time).toLocaleTimeString()}</p>
-                        <p class="total-time">时长：${(log.duration / 3600).toFixed(1)} 小时</p>
+                        <p class="total-time">时长：${formattedTime}</p>
                     </div>
                 `;
                 logContainer.appendChild(logItem);

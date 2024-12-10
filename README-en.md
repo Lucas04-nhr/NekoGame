@@ -1,25 +1,35 @@
 # Neko Game
 
-**[中文](README.md)** | **English**
+**中文** | **[English](README-en.md)**
 
----
+## 📝 Overview
 
-## Overview
-Neko Game is a game management application designed to monitor and analyze your gaming activities with a modern, dark-themed user interface. Built with Electron, it integrates multiple key features, including gameplay time tracking, data visualization, and comprehensive game management tools.
+**Neko Game** is a tailored gacha analysis and game management application designed to enhance your gaming experience. It features a modern, customizable user interface to help you record, analyze, and optimize your gaming activities. Built on **Electron**, the app integrates various useful functionalities such as gacha analysis for **Wuthering Waves, Genshin Impact, Honkai Star Rail, and Zenless Zone Zero**, game time tracking, time trend visualization, and more.
+
+> **Recommended Reading**: Spend 5 minutes reading this document to quickly get started with Neko Game.
+
+<img width="974" alt="preview" src="https://github.com/user-attachments/assets/02593354-a4c5-4a41-89fe-e0f51591fc13">
 
 ## Features
-- **Game Tracking**: Automatically track and record gameplay time with detailed statistics.
-- **Game Library Management**: Easily add, edit, and delete games in your library.
-- **Data Analysis**: Gain insights into your gaming habits through trend graphs and rich data analytics.
-- **Seamless Experience**: Minimize to the system tray and support background running with auto-start.
-- **Local Data Storage**: Store game data securely with SQLite, ensuring updates won’t lead to data loss.
-- **High Performance, Low Resource Usage**: Enjoy low power consumption and high performance, without worrying about affecting your daily use.
-- **Automatic Updates**: Receive notifications when a new version is released and update promptly.
+- **Game Tracking**: Automatically tracks and records game playtime with detailed statistics.
+- **Gacha Analysis**: One-click analysis for gacha data from Wuthering Waves, Honkai Star Rail, Genshin Impact, and Zenless Zone Zero. Links are automatically copied.
+- **Gacha Data Import/Export**: Supports UIGF 4.0 export/import for Genshin, Honkai Star Rail, and Zenless Zone Zero. Wuthering Waves data can be exported to Excel.
+- **Game Library Management**: Easily add, edit, and delete games from your library for tracking.
+- **Data Analysis**: Visualize trends and gain insights into your gaming habits through rich analytics.
+- **Seamless Usage**: Minimize to system tray, run in the background, and enable auto-start at login.
+- **Data Storage**: Safely store game data locally or configure automatic cloud upload. [Configuration Guide](https://gitee.com/sunmmerneko/utils/blob/master/info/infoTips.md)
+- **Automatic Data Sync**: Sync data across devices via GitHub or Gitee. (Mobile support requires the corresponding app version, downloadable from Baidu Cloud.)
+- **High Performance, Low Resource Use**: Optimized for low power consumption and high efficiency without impacting your daily usage.
+- **Stay Up-to-Date**: Receive notifications for new versions and enjoy automatic updates.
 
-## Installation Steps
+## Installation
+- **From Releases** (Recommended): Download the latest `.exe` file from the [Releases page](https://github.com/Summer-Neko/NekoGame/releases) and install.
+- **From Baidu Cloud**: Download the archive from [Baidu Cloud](https://pan.baidu.com/s/13IdCeOVPxHfxVpq2vO_8kw?pwd=4l1a), extract it, and install.
+
+## Developer Installation
 1. Clone this repository:
    ```bash
-   https://github.com/Summer-Neko/NekoGame.git
+   git clone https://github.com/Summer-Neko/NekoGame.git
    ```
 2. Navigate to the project directory:
    ```bash
@@ -33,39 +43,39 @@ Neko Game is a game management application designed to monitor and analyze your 
    ```bash
    npm start
    ```
-5. Alternatively, download the latest `.exe` file from the release page:
-   Visit the [release page](https://github.com/Summer-Neko/NekoGame/releases) to download the latest version and install it.
 
-## Packaging the Application
-To package the application for distribution, run:
-```bash
-npm run build
-```
-Ensure `electron-builder` is configured in the project to manage the packaging process.
+## Usage Guide
+- **Gacha Analysis**: Open the gacha page in the game within the last 30 minutes, then click refresh.
+- **Add a Game**: Click "Add Game," fill in the required details (name, icon, poster, and game path—ensure the path points to the game's main executable, not the launcher), and save.
+- **Edit a Game**: Select a game from the library, click "Edit," update its details, and save changes.
+- **Delete a Game**: Use the "Delete" option in the game's details menu to remove it and its related data.
+- **Settings**: Enable all three general options for seamless usage. Configure data sync and custom window options here.
+- **Game Images**: Obtain images from [SteamGridDB](https://www.steamgriddb.com/) (recommended, search with the English name of the game). Animated images are supported.
+- **Time Tracking**: Games in the library will automatically track usage time without manual intervention.
 
-## User Guide
-- **Add a Game**: Click the “Add Game” button, fill in the required information, including name, icon, poster, and game path, and then submit.
-- **Edit a Game**: Select a game from the library, click the “Edit” option, update the information, and save changes.
-- **Delete a Game**: Use the “Delete” option in the game details menu to remove a game and its associated data.
-- **Settings**: It is recommended to check all three options for optimal use.
-- **Game Images**: You can visit [steamgriddb](https://www.steamgriddb.com/) to obtain images. Animated images are also supported.
+## Project Screenshots
+![image](https://github.com/user-attachments/assets/f6dc59a2-a53b-48a4-8c42-cf5c92ca65f2)
+![image](https://github.com/user-attachments/assets/8377ee8d-a7e2-4afa-b2ca-d4672d4d268e)
+![image](https://github.com/user-attachments/assets/b38468b8-1dee-44ea-8948-8fb78e989989)
+![image](https://github.com/user-attachments/assets/19805a17-c749-4c96-973c-49cd2c185a33)
 
-## Sample Screenshots
-![image](https://github.com/user-attachments/assets/0778ddec-fd26-49a6-924b-97462f92a490)
-![image](https://github.com/user-attachments/assets/22ed4f17-d7c2-46b3-b8d2-f65610fc90eb)
-
-## Troubleshooting & Future Updates
+## Troubleshooting & Roadmap
 ### Common Issues
-- **Tray Icon Missing**: Ensure the icon path is correct during packaging and included in the configuration.
-- **Gameplay Time Not Recorded**: Reload the app or use the refresh function to restart time tracking.
-- **Path or Image Errors**: Check for special characters in file paths and ensure image files are referenced correctly and have the appropriate file extensions.
+- **Missing Tray Icon**: Ensure the icon path is correct in the packaging configuration.
+- **Gacha Records Not Found**: Confirm the game is installed correctly and has not been manually moved.
+- **Unrecorded Playtime**: Reload the app or use the refresh function to restart tracking. Verify that the selected path points to the game's main executable, not the launcher.
+- **Invalid Path or Images**: Check for special characters in file paths and ensure images are correctly referenced. Verify the file extensions are valid.
+- **Permission Errors**: If the error message includes `gameTracker.js`, it can be ignored. Restart the app if it persists.
+- **Unknown Publisher Warning**: This can be safely ignored.
+- **Slow Gacha Link Retrieval**: For Genshin Impact and Zenless Zone Zero, log files change with each version. To avoid frequent updates, version configurations are hosted on [GitHub](https://github.com/Summer-Neko/utils/blob/main/GetUrl/version-Genshin.json), which might cause delays.
 
 ### Known Limitations
-- Editing game details with complex configurations may require further optimization.
-- The update logic needs refinement.
-- Some styling issues exist.
-- Handling of very old data (e.g., 10 years ago) needs improvement.
+- Playtime tracking in complex environments may require further optimization.
+- Gacha analysis and import/export are only tested for the Chinese servers; international servers are not yet supported.
+- Handling of very old playtime data (e.g., from 10 years ago) needs improvement.
+- Current analytics display only up to six months of playtime data (older data is not deleted but not actively displayed).
 
 ### Future Updates
-- Add game tools, including wish analysis for games like Genshin Impact, Honkai: Star Rail, and Wuthering Waves. The basic logic is mostly understood, and updates may be released in the future.
-- Optimize data visualization.
+- i18n (Internationalization) support
+- Additional functionalities
+- Optimized data visualization
