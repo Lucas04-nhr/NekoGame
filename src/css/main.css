@@ -299,7 +299,6 @@ body {
 
 .modal-header {
     padding: 10px 20px;
-    background-color: rgba(44, 44, 44, 0.3);
     backdrop-filter: blur(4px);
     text-align: center;
     font-weight: bold;
@@ -318,7 +317,6 @@ body {
 
 .modal-footer {
     padding: 10px 20px;
-    background-color: rgba(44, 44, 44, 0.3);
     backdrop-filter: blur(4px);
     border-top: 1px solid #444;
     display: flex;
@@ -484,7 +482,6 @@ body {
     top: -120px;  /* 初始位置在屏幕上方外面 */
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 15px;
     border-radius: 8px;

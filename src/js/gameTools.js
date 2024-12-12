@@ -18,7 +18,6 @@ function gameToolsInit() {
             confirmButton.replaceWith(confirmButton.cloneNode(true));
             closeButton.replaceWith(closeButton.cloneNode(true));
             selectAllButton.replaceWith(selectAllButton.cloneNode(true));
-            deselectAllButton.replaceWith(deselectAllButton.cloneNode(true));
         };
 
         try {
@@ -37,22 +36,45 @@ function gameToolsInit() {
                 uidListContainer.appendChild(uidItem);
                 uidItem.addEventListener('click', () => {
                     uidItem.classList.toggle('selected');
+                    updateToggleButtonState();
                 });
             });
             // 打开模态窗口
             openModal(modal);
             // 全选功能
-            document.getElementById('selectAllUIDs').addEventListener('click', () => {
-                document.querySelectorAll('.uid-item').forEach(item => {
-                    item.classList.add('selected');
-                });
+            // 替换全选按钮并绑定事件
+            const toggleSelectAllButton = document.getElementById('selectAllUIDs');
+            toggleSelectAllButton.replaceWith(toggleSelectAllButton.cloneNode(true));
+            const newSelectAllButton = document.getElementById('selectAllUIDs');
+            // 全选/取消全选功能
+            newSelectAllButton.addEventListener('click', () => {
+                const uidItems = document.querySelectorAll('.uid-item');
+                const isAllSelected = Array.from(uidItems).every(item => item.classList.contains('selected'));
+                if (isAllSelected) {
+                    // 如果已全选，执行取消全选
+                    uidItems.forEach(item => item.classList.remove('selected'));
+                    newSelectAllButton.classList.remove('primary');
+                    newSelectAllButton.innerText = '全选';
+                } else {
+                    // 如果未全选，执行全选
+                    uidItems.forEach(item => item.classList.add('selected'));
+                    newSelectAllButton.classList.add('primary');
+                    newSelectAllButton.innerText = '取消全选';
+                }
             });
-            // 取消全选功能
-            document.getElementById('deselectAllUIDs').addEventListener('click', () => {
-                document.querySelectorAll('.uid-item').forEach(item => {
-                    item.classList.remove('selected');
-                });
-            });
+
+            // 更新全选按钮文字
+            const updateToggleButtonState = () => {
+                const uidItems = document.querySelectorAll('.uid-item');
+                const allSelected = Array.from(uidItems).every(item => item.classList.contains('selected'));
+                if (allSelected) {
+                    newSelectAllButton.classList.add('primary');
+                    newSelectAllButton.innerText = '取消全选';
+                }else{
+                    newSelectAllButton.classList.remove('primary');
+                    newSelectAllButton.innerText = '全选';
+                }
+            };
             // 确认选择
             document.getElementById('confirmUIDSelection').addEventListener('click', async () => {
                 const selectedUIDs = Array.from(document.querySelectorAll('.uid-item.selected')).map(
@@ -62,7 +84,7 @@ function gameToolsInit() {
                     animationMessage(false, `未选择任何 ${gameType} UID`);
                     return;
                 }
-                modal.style.display = 'none';
+                closeModal(modal);
                 document.getElementById(`export${gameType}`).disabled = true;
                 document.getElementById(`export${gameType}`).innerText = '请等待...';
                 try {
@@ -71,6 +93,8 @@ function gameToolsInit() {
                     animationMessage(false, `导出 ${gameType} 数据失败\n${error.message}`);
                 } finally {
                     document.getElementById(`export${gameType}`).disabled = false;
+                    newSelectAllButton.classList.remove('primary');
+                    newSelectAllButton.innerText = '全选';
                     document.getElementById(`export${gameType}`).innerText = '导出数据';
                 }
             });
@@ -106,6 +130,7 @@ function gameToolsInit() {
 
     // 返回按钮事件
     globalBackButton.addEventListener('click', () => {
+        const loadedScripts = document.querySelectorAll('script[data-tool]');
         // 隐藏子页面，显示工具列表
         subpageContent.classList.remove('visible');
         subpageContent.classList.add('hidden');
@@ -117,6 +142,7 @@ function gameToolsInit() {
         globalBackButton.classList.add('hidden');
         // 清空子页面内容
         subpageContent.innerHTML = '';
+        loadedScripts.forEach(script => script.remove());
     });
 
     //导入导出方法
@@ -124,15 +150,17 @@ function gameToolsInit() {
         let result = await window.electronAPI.invoke('exportGachaData');
         animationMessage(result.success, result.message);
     });
-    document.getElementById('exportStarRail').addEventListener('click', async () => {
-        await handleExport('StarRail', 'get-starRail-player-uids', 'export-starRail-data');
-    });
+
     document.getElementById('exportGenshin').addEventListener('click', async () => {
         await handleExport('Genshin', 'get-genshin-player-uids', 'export-genshin-data');
     });
     document.getElementById('exportZzz').addEventListener('click', async () => {
         await handleExport('Zzz', 'get-zzz-player-uids', 'export-zzz-data');
     });
+    document.getElementById('exportStarRail').addEventListener('click', async () => {
+        await handleExport('StarRail', 'get-starRail-player-uids', 'export-starRail-data');
+    });
+
     document.getElementById('importStarRail').addEventListener('click', async () => {
         const refreshButton = document.getElementById('importStarRail');
         refreshButton.disabled = true;
@@ -148,6 +176,7 @@ function gameToolsInit() {
             refreshButton.innerText = '导入数据';
         }
     });
+
     document.getElementById('importGenshin').addEventListener('click', async () => {
         document.getElementById('importGenshin').disabled = true;
         document.getElementById('importGenshin').innerText = '请等待...';
@@ -199,7 +228,7 @@ function gameToolsInit() {
 function loadToolSubpage(toolPage) {
     const subpageContent = document.getElementById('subpage-content');
 
-    console.log('Loading tool page:', toolPage); // Debug log
+    console.log('Loading tool page:', toolPage);
     subpageContent.classList.add('fade-out');
 
     setTimeout(() => {
@@ -230,6 +259,7 @@ function loadToolSubpage(toolPage) {
 function loadToolScript(toolPage) {
     const script = document.createElement("script");
     script.src = `js/gameTools/${toolPage}.js`;
+    script.dataset.tool = toolPage;
     script.onload = () => {
         if (typeof window[`${toolPage}Init`] === 'function') {
             window[`${toolPage}Init`]();
@@ -237,22 +267,6 @@ function loadToolScript(toolPage) {
     };
     document.body.appendChild(script);
 }
-
-function openModal(modal) {
-    modal.style.display = 'flex'; // 显示模态窗口
-    modal.classList.add('fade-in');
-    modal.classList.remove('fade-out');
-}
-
-function closeModal(modal) {
-    modal.classList.remove('fade-in');
-    modal.classList.add('fade-out');
-    setTimeout(() => {
-        modal.style.display = 'none'; // 延迟隐藏，等待动画完成
-    }, 300); // 时间与动画持续时间一致
-}
-
-
 
 // 注册初始化函数
 window.gameToolsInit = gameToolsInit;

@@ -14,19 +14,7 @@ async function ensureBackupFolderExists(filePath) {
 }
 
 function getBackupFilePath(filePath, fileName) {
-    const date = new Date();
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    };
-    const timestamp = date.toLocaleString('en-GB', { timeZone: 'Asia/Shanghai', ...options }).replace(/[/, :]/g, '_');
-
-    // 返回备份路径
+    const timestamp = new Date().toISOString().replace(/[:T]/g, '_').split('.')[0];
     return path.join(filePath, 'backup', `${fileName}-${timestamp}`);
 }
 
@@ -34,23 +22,20 @@ function getBackupFilePath(filePath, fileName) {
 async function cleanOldBackups(filePath, fileName) {
     const backupFolderPath = path.join(filePath, 'backup');
     try {
-        // 读取目录并筛选文件
         const files = await fs.readdir(backupFolderPath);
-
-        // 过滤出符合文件名要求的备份文件
-        const filteredFiles = files.filter(file => file.startsWith(fileName));
-
-        // 按照文件修改时间排序
-        const sortedFiles = filteredFiles.sort((a, b) => {
-            const aStat = fs.statSync(path.join(backupFolderPath, a));
-            const bStat = fs.statSync(path.join(backupFolderPath, b));
-            return aStat.mtime - bStat.mtime;  // 从最旧的开始排序
-        });
-
-        // 保留最新的10个备份，删除其余的
+        // 筛选符合备份格式的文件
+        const filteredFiles = files.filter(file => file.startsWith(fileName) && file.includes('-'));
+        const sortedFiles = await Promise.all(
+            filteredFiles.map(async (file) => ({
+                file,
+                mtime: (await fs.stat(path.join(backupFolderPath, file))).mtime,
+            }))
+        );
+        sortedFiles.sort((a, b) => a.mtime - b.mtime);
         while (sortedFiles.length > 10) {
-            const fileToDelete = sortedFiles.shift();
-            await fs.unlink(path.join(backupFolderPath, fileToDelete));
+            const { file } = sortedFiles.shift();
+            await fs.unlink(path.join(backupFolderPath, file));
+            console.log(`已删除旧备份: ${file}`);
         }
     } catch (err) {
         console.error('清理旧备份失败:', err);

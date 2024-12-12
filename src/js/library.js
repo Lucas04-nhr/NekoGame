@@ -42,12 +42,12 @@ function libraryInit() {
     // 录入窗口按钮
     document.getElementById("add-game").addEventListener("click", () => {
         closeEditGameModal(); // 确保关闭编辑窗口
-        document.getElementById("add-game-modal").style.display = "flex";
+        openModal(document.getElementById("add-game-modal"));
         resetForm();
     });
 
     // 打开编辑游戏模态窗口
-    document.getElementById("edit-game").addEventListener("click", () => {
+   document.getElementById("edit-game")?.addEventListener("click", () => {
         // 关闭录入框，确保没有冲突
         closeAddGameModal();
         editGame(); // 调用编辑游戏函数
@@ -66,12 +66,12 @@ function libraryInit() {
 
     // 关闭录入窗口
     document.getElementById("close-modal").addEventListener("click", () => {
-        document.getElementById("add-game-modal").style.display = "none";
+        closeModal(document.getElementById("add-game-modal"));
     });
 
     // 关闭编辑窗口
     document.getElementById("close-edit-modal").addEventListener("click", () => {
-        document.getElementById("edit-game-modal").style.display = "none";
+        closeModal(document.getElementById("edit-game-modal"));
     });
 
     // 录入模态窗口的图片选择
@@ -142,29 +142,29 @@ function libraryInit() {
 }
 
 // 录入新游戏
-async function addGame() {
-    const gameData = {
-        name: document.getElementById("game-name-input").value,
-        icon: document.getElementById("game-icon").dataset.filePath || './assets/icon.png',
-        poster_vertical: document.getElementById("game-poster-vertical").dataset.filePath || './assets/poster_vertical.webp',
-        poster_horizontal: document.getElementById("game-poster-horizontal").dataset.filePath || './assets/poster_horizontal.webp',
-        path: document.getElementById("game-path").value,
-    };
-
-    try {
-        await window.electronAPI.addGame(gameData);
-        document.getElementById("add-game-modal").style.display = "none";
-        loadGames(); // 重新加载游戏列表
-        showSuccessMessage();
-        resetForm();
-    } catch (err) {
-        if (err.message.includes("UNIQUE constraint failed: games.path")) {
-            animationMessage(false, "路径重复，请检查并重新输入");
-        } else {
-            animationMessage(false, "无法录入游戏，请检查");
-        }
-    }
-}
+// async function addGame() {
+//     const gameData = {
+//         name: document.getElementById("game-name-input").value,
+//         icon: document.getElementById("game-icon").dataset.filePath || './assets/icon.png',
+//         poster_vertical: document.getElementById("game-poster-vertical").dataset.filePath || './assets/poster_vertical.webp',
+//         poster_horizontal: document.getElementById("game-poster-horizontal").dataset.filePath || './assets/poster_horizontal.webp',
+//         path: document.getElementById("game-path").value,
+//     };
+//
+//     try {
+//         await window.electronAPI.addGame(gameData);
+//         closeModal(document.getElementById("add-game-modal"));
+//         loadGames(); // 重新加载游戏列表
+//         showSuccessMessage();
+//         resetForm();
+//     } catch (err) {
+//         if (err.message.includes("UNIQUE constraint failed: games.path")) {
+//             animationMessage(false, "路径重复，请检查并重新输入");
+//         } else {
+//             animationMessage(false, "无法录入游戏，请检查");
+//         }
+//     }
+// }
 
 // 重置表单
 function resetForm() {
@@ -369,8 +369,8 @@ function renderGameDailyChart(gameId) {
 function getBackgroundColor(hours) {
     if (hours === 0) return 'rgba(224,224,224,0.5)';
     if (hours < 1) return 'rgba(198,228,139,0.5)';
-    if (hours < 3) return 'rgba(123,201,111,0.5)';
-    if (hours < 5) return 'rgba(35,154,59,0.5)';
+    if (hours < 2) return 'rgba(123,201,111,0.5)';
+    if (hours < 4) return 'rgba(35,154,59,0.5)';
     return 'rgba(25,97,39,0.5)';
 }
 
@@ -378,15 +378,15 @@ function getBackgroundColor(hours) {
 
 // 关闭函数
 function closeAddGameModal() {
-    document.getElementById("add-game-modal").style.display = "none";
+    closeModal(document.getElementById("add-game-modal"));
 }
 
 function closeEditGameModal() {
-    document.getElementById("edit-game-modal").style.display = "none";
+    closeModal(document.getElementById("edit-game-modal"));
 }
 
 
-document.getElementById("edit-game")?.addEventListener("click", editGame);
+
 document.getElementById("delete-game")?.addEventListener("click", deleteGame);
 
 
@@ -519,7 +519,7 @@ function editGame() {
         document.getElementById("edit-game-path").value = game.path;
 
         // 显示编辑模态窗口
-        document.getElementById("edit-game-modal").style.display = "flex";
+        openModal(document.getElementById("edit-game-modal"));
     }).catch(error => {
         console.error("Error fetching game details:", error);
     });

@@ -40,7 +40,7 @@ async function loadGachaRecords(uid) {
     // 清空内容
     container.innerHTML = '';
     console.log('Container cleared:', container.innerHTML);
-    console.log(records);
+    // console.log(records);
     const filteredRecords = records.filter(r => r.uid === uid);
     if (!filteredRecords.length) {
         container.innerHTML = '<p>没有祈愿记录。请先打开游戏祈愿界面，然后点击刷新数据</p>';

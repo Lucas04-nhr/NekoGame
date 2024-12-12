@@ -287,10 +287,10 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
         }
     } catch (error) {
         if (error.response) {
-            global.Notify(false, `${fileName}上传失败\n平台:${platformMessage}\n${error.response.data.message}`);
-            console.error(fileName, '上传失败:', JSON.stringify(error.response.data), '平台', platformMessage);
+            global.Notify(false, `${fileName}上传失败\n平台:${platformMessage}\n${error.response}`);
+            console.error(fileName, '上传失败:', JSON.stringify(error.response), '平台', platformMessage);
         } else {
-            global.Notify(false, `${fileName}上传失败\n${JSON.stringify(error.response.data)}\n平台:${platformMessage}`);
+            global.Notify(false, `${fileName}上传失败\n${JSON.stringify(error.response)}\n平台:${platformMessage}`);
         }
     }
 }
