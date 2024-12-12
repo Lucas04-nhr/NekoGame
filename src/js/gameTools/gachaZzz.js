@@ -185,7 +185,7 @@ async function loadGachaRecords(uid) {
             container.appendChild(poolSection);
             // 初始化标签和记录切换逻辑
             initTabs();
-            initRecordListTabs(pools[poolType], poolSection);
+            initRecordListTabsZzz(pools[poolType], poolSection);
             renderPieChartZzz(pools[poolType], poolType);
             charts[poolType].update({
                 duration: 0,
@@ -195,8 +195,7 @@ async function loadGachaRecords(uid) {
     initScrollLogic(); // 初始化滚动逻辑
 }
 
-
-function initRecordListTabs(records, poolSection) {
+function initRecordListTabsZzz(records, poolSection) {
     const tabs = poolSection.querySelectorAll('.record-list-tabs .record-tab');
     const recordList = poolSection.querySelector('.record-list');
     tabs.forEach(tab => {
@@ -213,17 +212,6 @@ function initRecordListTabs(records, poolSection) {
     });
 }
 
-
-function applySlideInAnimation(recordList, newContent) {
-    const tempContainer = document.createElement('div');
-    tempContainer.innerHTML = newContent;
-    tempContainer.classList.add('slide-in'); // 添加动画类
-    recordList.innerHTML = '';
-    recordList.appendChild(tempContainer);
-    tempContainer.addEventListener('animationend', () => {
-        tempContainer.classList.remove('slide-in');
-    });
-}
 
 
 // 添加滚动逻辑
