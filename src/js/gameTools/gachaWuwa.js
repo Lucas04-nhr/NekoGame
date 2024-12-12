@@ -195,45 +195,6 @@ async function loadGachaRecords(uid) {
 }
 
 
-function initRecordListTabs(records, poolSection) {
-    const tabs = poolSection.querySelectorAll('.record-list-tabs .record-tab');
-    const recordList = poolSection.querySelector('.record-list');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-
-            // 切换记录显示内容
-            if (tab.dataset.tab === 'overview') {
-                recordList.innerHTML = generateOverview(records);
-            } else if (tab.dataset.tab === 'details') {
-                recordList.innerHTML = generateDetails(records);
-            }
-        });
-    });
-}
-
-
-function initTabs() {
-    document.querySelectorAll('.record-tabs').forEach(tabContainer => {
-        const tabs = tabContainer.querySelectorAll('.record-tab');
-        const tabPanels = tabContainer.closest('.card-pool').querySelectorAll('.tab-panel');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tabPanels.forEach(panel => panel.classList.remove('active'));
-
-                tab.classList.add('active');
-                const targetPanel = tab.dataset.tab;
-                tabContainer.closest('.card-pool').querySelector(`#${targetPanel}`).classList.add('active');
-            });
-        });
-    });
-}
-
-
 // 添加滚动逻辑
 function initScrollLogic() {
     const recordDisplay = document.getElementById('record-display');

@@ -224,7 +224,7 @@ body {
 
 
 .modal-content-game {
-    background: rgba(43, 43, 43, 0.3);
+    background: rgba(18, 18, 18, 0.3);
     border-radius: 15px;
     padding: 20px;
     width: 400px;
@@ -346,14 +346,6 @@ body {
     }
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
 @keyframes fadeOut {
     from {
         opacity: 1;
@@ -384,4 +376,17 @@ body {
         transform: translateY(-20px);
         opacity: 0;
     }
+}
+
+.loader {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    font-size: 16px;
+    color: #888;
+}
+
+.loader.active {
+    display: flex;
 }

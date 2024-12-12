@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => activeTab.classList.remove("clicked-effect"), 200);
             return;
         }
-        
+
         content.classList.add("fade-out");
         setTimeout(() => {
             fetch(`pages/${page}.html`)
@@ -69,11 +69,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.electronAPI.onDownloadProgress((event, progress) => {
         const progressBarContainer = document.getElementById('progress-bar-container');
         const progressBar = document.getElementById('progress-bar');
-        
+
         if (progressBarContainer && progressBar) {
             // 确保进度条容器可见
             progressBarContainer.style.display = 'block';
-            
+
             // 更新进度条宽度
             progressBar.style.width = `${progress}%`;
 

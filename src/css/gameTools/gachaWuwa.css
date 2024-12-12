@@ -355,11 +355,17 @@
     background-color: rgba(58,58,58,0.5);
 }
 
+.record-list .slide-in {
+    animation: slideIn 0.5s ease;
+    overflow: hidden;
+}
+
 /* 抽卡记录内容 */
 .record-list {
     overflow-y: auto;
     height: 100%;
     padding: 5px;
+    animation: slideIn 0.3s ease;
     /*scrollbar-width: thin;*/
     /*scrollbar-color: #888 #2b2b2b;*/
 }
@@ -604,26 +610,39 @@
 
 /* “歪”标识 */
 .record-off-banner {
-    position: absolute; /* 绝对定位，不影响布局 */
-    right: -11%; /* 放置在抽数的左侧 */
+    position: absolute;
+    right: -11%;
     width: 54px;
     margin-left: 6px;
-    background: linear-gradient(90deg, rgba(255, 64, 64, 0.74), rgba(221, 221, 221, 0.16));
-    color: rgba(255, 255, 255, 0.9); /* 浅白色字体 */
+    color: rgba(255, 255, 255, 0.8);
     padding: 2px 6px;
-    border-radius: 4px; /* 圆角 */
+    border-radius: 4px;
     font-size: 12px;
     font-weight: bold;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
     white-space: nowrap;
     z-index: 1;
-    transition: all 0.3s ease;
+    background: linear-gradient(90deg, rgba(255, 64, 64, 0.7), rgba(62, 62, 62, 0.16));
+    overflow: hidden;
 }
-.record-off-banner:hover {
-    background: linear-gradient(90deg, rgba(255, 64, 64, 1), rgba(245, 245, 245, 0.4));
-    color: rgba(255, 255, 255, 1);
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+
+.record-off-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(255, 64, 64, 0.8), rgba(80, 80, 80, 0.3)); /* hover背景 */
+    opacity: 0;
+    transition: opacity 0.3s ease; /* 添加过渡效果 */
+    z-index: -1; /* 确保伪元素位于文字下方 */
 }
+
+.record-off-banner:hover::before {
+    opacity: 1;
+}
+
 
 
 .custom-dropdown {
@@ -685,4 +704,16 @@
 .dropdown-option.active {
     font-weight: bold;
     background-color: rgba(74, 74, 74, 0.5);
+}
+
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }

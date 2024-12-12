@@ -39,6 +39,7 @@
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
+    animation: slideIn 0.3s ease;
 }
 
 
@@ -48,6 +49,7 @@
     background-color:rgba(44, 44, 44, 0.4); /* 暗色半透明背景 */
     border-radius: 5px;
     min-height: 100%;
+    animation: slideIn 0.3s ease;
 }
 
 .tab-content.active {
@@ -326,34 +328,11 @@ canvas {
 }
 
 
-
-/* 淡入淡出效果 */
 /* 隐藏元素 */
 .hidden {
     display: none;
 }
 
-/* 淡入和淡出效果 */
-.fade-in {
-    opacity: 0;
-    display: block;
-    animation: fadeIn 0.25s forwards;
-}
-
-.fade-out {
-    opacity: 1;
-    animation: fadeOut 0.2s forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
 
 /* 启动提示的样式 */
 .launch-hint {
@@ -375,3 +354,11 @@ canvas {
 }
 
 
+@keyframes fadeIn {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
+    }
+}

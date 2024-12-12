@@ -365,3 +365,53 @@ function renderPieChart(records, poolType) {
         });
     });
 }
+
+
+function initRecordListTabs(records, poolSection) {
+    const tabs = poolSection.querySelectorAll('.record-list-tabs .record-tab');
+    const recordList = poolSection.querySelector('.record-list');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            // 切换记录显示内容
+            if (tab.dataset.tab === 'overview') {
+                applySlideInAnimation(recordList, generateOverview(records));
+            } else if (tab.dataset.tab === 'details') {
+                applySlideInAnimation(recordList, generateDetails(records));
+            }
+        });
+    });
+}
+
+
+function applySlideInAnimation(recordList, newContent) {
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = newContent;
+    tempContainer.classList.add('slide-in'); // 添加动画类
+    recordList.innerHTML = '';
+    recordList.appendChild(tempContainer);
+    tempContainer.addEventListener('animationend', () => {
+        tempContainer.classList.remove('slide-in');
+    });
+}
+
+
+
+function initTabs() {
+    document.querySelectorAll('.record-tabs').forEach(tabContainer => {
+        const tabs = tabContainer.querySelectorAll('.record-tab');
+        const tabPanels = tabContainer.closest('.card-pool').querySelectorAll('.tab-panel');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+
+                tab.classList.add('active');
+                const targetPanel = tab.dataset.tab;
+                tabContainer.closest('.card-pool').querySelector(`#${targetPanel}`).classList.add('active');
+            });
+        });
+    });
+}

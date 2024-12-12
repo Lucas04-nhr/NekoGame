@@ -381,6 +381,17 @@ body {
     user-select: none;         /* Standard */
 }
 
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 
 .fade-out {
     animation: fadeOut 0.2s forwards;
