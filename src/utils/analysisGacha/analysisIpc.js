@@ -94,7 +94,12 @@ ipcMain.handle('refresh-gacha-records', async (event) => {
         const { totalRecords, newRecords } = await fetchAllGachaLogs(params, event);
 
         event.sender.send('gacha-records-status', `本次共查询到 ${totalRecords} 条记录，新增 ${newRecords} 条记录。抽卡链接已复制到剪贴板`);
-        return { success: true, totalRecords, newRecords };
+        if (totalRecords === 0){
+            global.Notify(false, `链接可能已经过期，请尝试重新打开抽卡界面`);
+            return { success: false, totalRecords, newRecords };
+        }else {
+            return { success: true, totalRecords, newRecords };
+        }
     } catch (err) {
         const errorMessage = (err instanceof Error) ? err.message : String(err);
         console.error("获取记录失败:", errorMessage);

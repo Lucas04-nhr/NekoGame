@@ -127,7 +127,7 @@ async function getZZZUrl(){
             return { success: false, message: '未找到调频记录链接，请确保您已打开调频记录页面。' };
         }
         clipboard.writeText(wishLink);
-        return { success: true, message: `祈愿记录链接已复制到剪贴板！\n${wishLink}` };
+        return { success: true, message: `抽卡链接已复制到剪贴板！\n${wishLink}` };
     } catch (error) {
         console.error(`绝区零获取祈愿纪录失败:, ${error.message}`);
         return { success: false, message: `绝区零需要先导入游戏库\n错误信息: ${error.message}` };
