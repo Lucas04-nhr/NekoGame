@@ -106,7 +106,7 @@ function extractGachaUrl(logFilePath) {
                     return reject(`读取日志文件失败（路径: ${tempLogFilePath}）: ${readErr.message}`);
                 }
                 // 使用正则提取符合模式的 URL
-                const urlRegex = /https:\/\/aki-gm-resources\.aki-game\.com\/aki\/gacha\/index\.html#\/record\?[^ ]+/g;
+                const urlRegex = /https:\/\/aki-gm-resources\.(?:aki-game\.com|oversea\.aki-game\.net)\/aki\/gacha\/index\.html#\/record\?[^ ]+/g;
                 const matches = data.match(urlRegex);
 
                 if (matches && matches.length > 0) {
