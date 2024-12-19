@@ -39,7 +39,7 @@ function queryGamePathFromDb() {
 
 // 动态获取缓存文件夹版本
 async function getCacheVersion() {
-    const defaultVersion = '2.31.1.0'; // 默认版本号
+    const defaultVersion = '2.31.11.0'; // 默认版本号
     const remoteUrl = `https://gitee.com/sunmmerneko/utils/raw/master/getUrl/version-ZZZ.json?_=${Date.now()}`;
     const options = {
         headers: {
