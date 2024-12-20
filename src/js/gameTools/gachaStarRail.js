@@ -1,10 +1,9 @@
 // 加载玩家 UID 下拉列表
 async function loadPlayerUIDs(defaultUid) {
-    const players = await window.electronAPI.invoke('get-starRail-player-uids');// 从数据库获取所有 UID
+    const players = await window.electronAPI.invoke('get-starRail-player-uids'); // 从数据库获取所有 UID
     const uidDropdown = document.getElementById('uid-dropdown');
     const selectedDisplay = document.querySelector('.selected-display');
     const optionsList = document.querySelector('.options-list');
-
     selectedDisplay.textContent = defaultUid || '请先刷新数据';
     optionsList.innerHTML = ''; // 清空选项
     players.forEach(uid => {
@@ -12,6 +11,27 @@ async function loadPlayerUIDs(defaultUid) {
         option.classList.add('dropdown-option');
         option.textContent = uid;
         option.dataset.value = uid;
+        // 删除按钮
+        const deleteBtn = document.createElement('button');
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.textContent = '删除';
+        deleteBtn.addEventListener('click', async (event) => {
+            event.stopPropagation(); // 阻止事件冒泡到 option 上
+            const confirmed = confirm(`确定要删除 UID: ${uid} 的所有记录吗？`);
+            if (confirmed) {
+                try {
+                    await window.electronAPI.invoke('delete-gacha-records', uid, 'starRail_gacha');
+                    const lastUid = await window.electronAPI.invoke('get-last-starRail-uid');
+                    await loadPlayerUIDs(lastUid); // 加载玩家 UID 下拉框
+                    await loadGachaRecords(lastUid); // 加载对应记录
+                    animationMessage(true, `成功删除 UID: ${uid} 的记录`);
+                } catch (error) {
+                    animationMessage(false, `删除失败: ${error.message}`);
+                }
+            }
+        });
+        // 将删除按钮添加到选项中
+        option.appendChild(deleteBtn);
         if (uid === defaultUid) {
             selectedDisplay.textContent = uid;
             option.classList.add('active');
@@ -258,8 +278,8 @@ async function loadGachaRecords(uid) {
             const result = await window.electronAPI.invoke('fetchStarRailGachaData');
             animationMessage(result.success, result.message);
             if (result.success) {
-                const lastUid = await window.electronAPI.invoke('get-last-starRail-uid');
-                await loadGachaRecords(lastUid); // 刷新后重新加载
+                const uid = document.querySelector('.selected-display').textContent;
+                await loadGachaRecords(uid); // 刷新后重新加载
             }
         }catch (error) {
             console.error('发生错误:', error); // 捕获并输出异常
