@@ -16,6 +16,11 @@
     const backgroundImageInput = document.getElementById("background-path");
     const backgroundOpacityInput = document.getElementById("backgroundOpacityInput");
 
+    // 数据路径设置
+    const dataFilePathInput = document.getElementById('dataFile-path');
+    const browseButton = document.getElementById('browse-dataFile');
+    const resetButton = document.getElementById('reset-dataFile');
+
     // 加载背景信息
     function loadBackgroundSettings() {
         window.electronAPI.invoke('loadBackgroundSettings').then(settings => {
@@ -189,4 +194,57 @@
             window.electronAPI.openExternal(url);
         });
     });
+
+    // 加载当前路径
+    async function loadDataPath() {
+        const result = await window.electronAPI.invoke('get-dataFile-path');
+        if (result.path) {
+            dataFilePathInput.value = result.path;
+        }
+    }
+
+    // 选择自定义数据路径
+    browseButton.addEventListener('click', async () => {
+        browseButton.disabled = true;
+        browseButton.innerText = '请等待...';
+        try {
+            const result = await window.electronAPI.invoke('browse-dataFile');
+            if (result.success) {
+                animationMessage(true, `路径相同: ${result.path}`);
+                dataFilePathInput.value = result.path;
+            } else {
+                animationMessage(false, result.message);
+            }
+        } catch (error) {
+            console.error('切换路径时发生错误:', error);
+            animationMessage(false, `路径更新失败\n${error}`);
+        }finally {
+            browseButton.disabled = false;
+            browseButton.innerText = '更新数据路径';
+        }
+    });
+
+    // 恢复默认数据路径
+    resetButton.addEventListener('click', async () => {
+        resetButton.disabled = true;
+        resetButton.innerText = '请等待...';
+        try {
+            const result = await window.electronAPI.invoke('reset-dataFile');
+            if (result.success) {
+                animationMessage(true, '目前已是默认路径');
+                dataFilePathInput.value = result.path;
+            } else {
+                animationMessage(false, result.message);
+            }
+        } catch (error) {
+            console.error('恢复路径时发生错误:', error);
+            animationMessage(false, `重置路径失败\n${error}`);
+        }finally {
+            resetButton.disabled = false;
+            resetButton.innerText = '恢复默认路径';
+        }
+    });
+    // 初始化加载路径
+    loadDataPath();
+
 })();

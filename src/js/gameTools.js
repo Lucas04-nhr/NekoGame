@@ -232,6 +232,7 @@ function loadToolSubpage(toolPage) {
     subpageContent.classList.add('fade-out');
 
     setTimeout(() => {
+        subpageContent.innerHTML = '';
         fetch(`pages/gameTools/${toolPage}.html`)
             .then(response => {
                 if (!response.ok) {

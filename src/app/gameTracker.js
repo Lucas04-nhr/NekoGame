@@ -53,8 +53,7 @@ function detectRunningGames() {
                     .map((line) => line.split('","')[0]?.replace(/"/g, '').trim()) // 提取进程名
                 Object.keys(trackedGames).forEach(processName => {
                     const game = trackedGames[processName];
-                    const matchName = processName.length > 24 ? processName.slice(0, 24) : processName;
-                    const isRunning = processList.some((proc) => proc.toLowerCase() === matchName.toLowerCase());
+                    const isRunning = processList.some((proc) => proc.toLowerCase() === processName.toLowerCase());
 
                     if (isRunning && !game.isRunning) {
                         game.isRunning = true;

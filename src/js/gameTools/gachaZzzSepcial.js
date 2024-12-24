@@ -1,6 +1,6 @@
 // 判断是否为歪
 function isOffBannersZzz(record, upItems) {
-    return (record.card_pool_type === "独家频段" || record.card_pool_type === "音频频段" )
+    return (record.card_pool_type === "独家频段" || record.card_pool_type === "音擎频段" )
         && upItems.includes(record.name);
 }
 
@@ -42,7 +42,7 @@ function calculateUpAverageZzz(records) {
     const upRecords = records.filter(
         r => r.quality_level === 4
         && !commonItems.includes(r.name)
-        && (r.card_pool_type === "独家频段" || r.card_pool_type === "音频频段")
+        && (r.card_pool_type === "独家频段" || r.card_pool_type === "音擎频段")
     );
     if (upRecords.length === 0) return "还没抽出UP";
     // 遍历UP角色，累加抽数

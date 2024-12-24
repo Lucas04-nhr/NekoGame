@@ -112,7 +112,7 @@ async function loadGachaRecords(uid) {
     };
     const generateRatingCards = (records, poolType) => {
         const fiveStarAvg = calculateDrawsBetweenZzz(records, 4);
-        const isCharacterOrConeEvent = poolType === "独家频段" || poolType === "音频频段";
+        const isCharacterOrConeEvent = poolType === "独家频段" || poolType === "音擎频段";
         const noDeviationRate = isCharacterOrConeEvent ? calculateNoDeviationRateZzz(records) : null;
         const avgUp = isCharacterOrConeEvent ? calculateUpAverageZzz(pools[poolType]) : null;
         const avgUpText = typeof avgUp === "number" ? `${avgUp.toFixed(2)}` : avgUp;
@@ -157,7 +157,7 @@ async function loadGachaRecords(uid) {
 
             const totalDraws = pools[poolType].length;
             const avgFiveStar = calculateDrawsBetweenZzz(pools[poolType], 4);
-            const avgUp = (poolType === "独家频段" || poolType ==="音频频段") ? calculateUpAverageZzz(pools[poolType]) : null;
+            const avgUp = (poolType === "独家频段" || poolType ==="音擎频段") ? calculateUpAverageZzz(pools[poolType]) : null;
 
             const avgFiveStarText = typeof avgFiveStar === "number" ? `${avgFiveStar.toFixed(2)}` : avgFiveStar;
             const avgUpText = typeof avgUp === "number" ? `${avgUp.toFixed(2)}` : avgUp;
@@ -171,7 +171,7 @@ async function loadGachaRecords(uid) {
             const leastDrawsText = safeValue(leastDraws, "暂未抽出S");
 
             const progressBars = `
-                ${generateProgressBar(lastFiveStarDraws, 80, 'rgba(243, 213, 138,0.7)', '距离上个S')}
+                ${generateProgressBar(lastFiveStarDraws, 90, 'rgba(243, 213, 138,0.7)', '距离上个S')}
                 ${generateProgressBar(lastFourStarDraws, 10, 'rgba(214, 199, 255,0.7)', '距离上个A')}
             `;
             const ratingContent = generateRatingCards(pools[poolType], poolType)

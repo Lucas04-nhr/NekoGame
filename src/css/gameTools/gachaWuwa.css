@@ -85,27 +85,6 @@
     scroll-behavior: smooth; /* 平滑滚动 */
 }
 
-/*.record-display::-webkit-scrollbar {*/
-/*    height: 8px; !* 滚动条高度 *!*/
-/*    background: #2b2b2b; !* 滚动条背景色 *!*/
-/*}*/
-
-/*.record-display::-webkit-scrollbar-thumb {*/
-/*    background: #888; !* 滚动条滑块颜色 *!*/
-/*    border-radius: 4px; !* 滚动条滑块圆角 *!*/
-/*}*/
-
-/*.record-display::-webkit-scrollbar-thumb:hover {*/
-/*    background: #555; !* 滑块悬停颜色 *!*/
-/*}*/
-
-/*!* Firefox 支持 *!*/
-/*.record-display {*/
-/*    scrollbar-width: thin; !* 滚动条宽度 *!*/
-/*    scrollbar-color: #888 #2b2b2b; !* 滑块和背景颜色 *!*/
-/*}*/
-
-
 /* 卡片样式 */
 .card-pool {
     flex: 0 0 300px; /* 固定宽度 */
@@ -137,19 +116,6 @@
     /*scrollbar-color: #888 #2b2b2b;*/
 }
 
-/*.card-content::-webkit-scrollbar {*/
-/*    width: 8px;*/
-/*    background: #2b2b2b;*/
-/*}*/
-
-/*.card-content::-webkit-scrollbar-thumb {*/
-/*    background: #888;*/
-/*    border-radius: 4px;*/
-/*}*/
-
-/*.card-content::-webkit-scrollbar-thumb:hover {*/
-/*    background: #555;*/
-/*}*/
 
 .card-header {
     font-size: 18px;
@@ -369,20 +335,6 @@
     /*scrollbar-width: thin;*/
     /*scrollbar-color: #888 #2b2b2b;*/
 }
-
-/*.record-list::-webkit-scrollbar {*/
-/*    width: 8px;*/
-/*    background: #2b2b2b;*/
-/*}*/
-
-/*.record-list::-webkit-scrollbar-thumb {*/
-/*    background: #888;*/
-/*    border-radius: 4px;*/
-/*}*/
-
-/*.record-list::-webkit-scrollbar-thumb:hover {*/
-/*    background: #555;*/
-/*}*/
 
 .record-guaranteed {
     color: #ff9900;
@@ -735,14 +687,3 @@
     background-color: rgba(255, 69, 58, 0.8);
 }
 
-
-@keyframes slideIn {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}

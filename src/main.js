@@ -1,16 +1,7 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 //在调用database前设置
-const fs = require('fs');
-// 获取用户数据文件夹路径
-const userDataPath = app.getPath('userData');
-// 设置 NekoGame 文件夹路径
-const nekoGameFolderPath = path.join(userDataPath, 'NekoGame');
-// 如果文件夹不存在则创建它
-if (!fs.existsSync(nekoGameFolderPath)) {
-    fs.mkdirSync(nekoGameFolderPath, { recursive: true });
-  }
-process.env.NEKO_GAME_FOLDER_PATH = nekoGameFolderPath;  // 定义全局数据路径
+require('./utils/settings/dataFile');
 require("./app/console");  // 导入日志管理
 require('./utils/syncMessage'); //导入消息通知
 
@@ -23,7 +14,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 let tray = null;
 let mainWindow;
 global.mainWindow = mainWindow; // 将 mainWindow 保存在全局对象中
-let isWindowVisible = true;
+// let isWindowVisible = true;
 let minimizeToTraySetting = false;
 
 
@@ -45,10 +36,11 @@ function createTray() {
             sendRunningStatus(); // 立即发送最新的运行状态
         } else {
             if (mainWindow.isVisible()) {
-                mainWindow.hide();
-                // mainWindow.destroy();  // 销毁窗口并释放资源
-                // mainWindow = null; // 清除引用
-                // global.mainWindow = null;  // 清除全局引用
+                // mainWindow.hide();
+                mainWindow.destroy();  // 销毁窗口并释放资源
+                mainWindow = null; // 清除引用
+                global.mainWindow = null;  // 清除全局引用
+                // isWindowVisible = false;
             } else {
                 mainWindow.show();
                 // 每次窗口显示时发送刷新事件
@@ -89,28 +81,21 @@ function createWindow() {
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('set-app-path', app.getAppPath());
     });
-    mainWindow.on('minimize', () => {
-        if (minimizeToTraySetting) {
-            // 隐藏窗口
-            mainWindow.hide();
-            isWindowVisible = false;
-        } else {
-            isWindowVisible = false;
-        }
-    });
-
-    mainWindow.on('restore', () => {
-        isWindowVisible = true;
-    });
+    // mainWindow.on('minimize', () => {
+    //     isWindowVisible = false;
+    // });
+    // mainWindow.on('restore', () => {
+    //     isWindowVisible = true;
+    // });
     mainWindow.on('close', (event) => {
         if (minimizeToTraySetting) {
             event.preventDefault();
             // 隐藏窗口
-            mainWindow.hide();
+            // mainWindow.hide();
             mainWindow.destroy();  // 销毁窗口并释放资源
             mainWindow = null; //清除引用
             global.mainWindow = null;  // 清除全局引用
-            isWindowVisible = false;
+            // isWindowVisible = false;
         } else {
             mainWindow = null;  // 清除引用
             global.mainWindow = null;  // 清除全局引用

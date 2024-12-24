@@ -8,7 +8,7 @@
         <div class="card-body">
             <div class="settings-option">
                 <span>最小化到托盘</span>
-                <p>点击×销毁主窗口释放内存，点击-则只隐藏窗口</p>
+                <p>点击×最小化到托盘</p>
                 <div class="switch-container">
                     <input type="checkbox" id="minimizeToTray" />
                     <label for="minimizeToTray" class="switch-label"><span class="switch-button"></span></label>
@@ -66,31 +66,20 @@
                 <button id="openDataPath">打开数据文件夹</button>
             </div>
             <div class="settings-option">
+                <label for="background-path">数据文件夹路径</label>
+                <input type="text" id="dataFile-path" readonly required>
+                <button type="button" id="browse-dataFile">更新数据路径</button>
+                <p>配置后会自动重新启动</p>
+                <button type="button" id="reset-dataFile">恢复默认路径</button>
+            </div>
+            <div class="settings-option">
                 <button id="openDataSyncWindow">数据同步设置</button>
                 <p>通过Gitee或Github自动同步您的数据。</p>
                 <p><a href="https://gitee.com/sunmmerneko/utils/blob/master/info/infoTips.md" target="_blank" class="guide-link">查看相关教程</a></p>
             </div>
-            <div class="settings-option">
-                <button id="exportWuWa">导出鸣潮抽卡数据为Excel</button>
-            </div>
 <!--            <div class="settings-option">-->
 <!--                <button id="exportPageButton">导出当前页面</button>-->
 <!--            </div>-->
-        </div>
-    </div>
-
-        <!-- 祈愿工具卡片 -->
-    <div class="setting-card">
-        <div class="card-header">
-            <h3>祈愿工具</h3>
-        </div>
-        <div class="card-body">
-            <div class="settings-option">
-                <button id="getStarRailUrl">获取崩铁抽卡链接并复制到剪贴板</button>
-            </div>
-            <div class="settings-option">
-                <button id="getGenshinWishLink">获取原神祈愿链接并复制到剪贴板</button>
-            </div>
         </div>
     </div>
 
@@ -121,6 +110,23 @@
             </div>
             <div class="settings-option">
                 <a href="https://pan.baidu.com/s/13IdCeOVPxHfxVpq2vO_8kw?pwd=4l1a" target="_blank">或者前往网盘查看是否有更新</a>
+            </div>
+        </div>
+    </div>
+    <!-- 祈愿工具卡片 -->
+    <div class="setting-card">
+        <div class="card-header">
+            <h3>祈愿工具</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-option">
+                <button id="getStarRailUrl">获取崩铁抽卡链接并复制到剪贴板</button>
+            </div>
+            <div class="settings-option">
+                <button id="getGenshinWishLink">获取原神祈愿链接并复制到剪贴板</button>
+            </div>
+            <div class="settings-option">
+                <button id="exportWuWa">导出鸣潮抽卡数据为Excel</button>
             </div>
         </div>
     </div>
