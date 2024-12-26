@@ -5,6 +5,8 @@
     const autoLaunch = document.getElementById("autoLaunch");
     const checkErrorsButton = document.getElementById("checkErrors");
     const openDataPathButton = document.getElementById("openDataPath");
+    //硬件加速
+    const hardwareAcceleration = document.getElementById("hardwareAcceleration");
 
     const getStarRailUrlButton = document.getElementById("getStarRailUrl");
     const getGenshinWishLinkButton = document.getElementById('getGenshinWishLink');
@@ -141,27 +143,35 @@
         });
     }
 
-    // 加载设置
-    if (minimizeToTray && silentMode && autoLaunch) {
-        window.electronAPI.loadSettings().then(settings => {
+    if (minimizeToTray && silentMode && autoLaunch && hardwareAcceleration) {
+        window.electronAPI.invoke("load-settings").then(settings => {
             minimizeToTray.checked = settings.minimizeToTray === "true";
             silentMode.checked = settings.silentMode === "true";
             autoLaunch.checked = settings.autoLaunch === "true";
+            hardwareAcceleration.checked = settings.hardwareAcceleration === "true"; // 加入硬件加速的状态加载
         });
     }
 
-    // 保存设置变化
-    // 监听点击事件
-    [minimizeToTray, silentMode, autoLaunch].forEach(setting => {
+    // 监听设置变化并保存
+    [minimizeToTray, silentMode, autoLaunch, hardwareAcceleration].forEach(setting => {
         if (setting) {
             setting.addEventListener("click", () => {
-                window.electronAPI.saveSetting(setting.id, setting.checked.toString());
-                if (setting.id === "autoLaunch") {
-                    window.electronAPI.setAutoLaunch(setting.checked);
-                }
+                // 调用 save-setting IPC 方法保存设置
+                window.electronAPI.invoke("save-setting", setting.id, setting.checked.toString()).then(() => {
+                    if (setting.id === "autoLaunch") {
+                        window.electronAPI.setAutoLaunch(setting.checked);
+                    }
+                    if (setting.id === "hardwareAcceleration") {
+                        animationMessage(true, "硬件加速设置已更改，需要重启应用生效。");
+                    }
+                }).catch(err => {
+                    animationMessage(false, `保存设置错误 ${setting.id}:`);
+                    console.error(`保存设置错误 ${setting.id}:`, err);
+                });
             });
         }
     });
+
 
     // 检查错误数据并显示反馈
     if (checkErrorsButton) {
@@ -244,6 +254,39 @@
             resetButton.innerText = '恢复默认路径';
         }
     });
+
+    const customPathInput = document.getElementById("custom-path");
+    const savePathButton = document.getElementById("save-path");
+    const resetPathButton = document.getElementById("reset-path");
+
+    // 初始化加载自定义路径
+    const loadCustomPath = async () => {
+        const customPath = await window.electronAPI.invoke("get-custom-path");
+        customPathInput.value = customPath || ""; // 如果没有配置，则显示为空
+    };
+
+    // 保存自定义路径
+    savePathButton.addEventListener("click", async () => {
+        const customPath = customPathInput.value.trim();
+
+        if (!customPath) {
+            animationMessage(false, "自定义路径不能为空！");
+            return;
+        }
+
+        await window.electronAPI.invoke("set-custom-path", customPath);
+        animationMessage(true, "自定义路径已保存！");
+    });
+
+    // 恢复默认路径
+    resetPathButton.addEventListener("click", async () => {
+        await window.electronAPI.invoke("reset-custom-path");
+        animationMessage(true, "已恢复默认源！");
+        loadCustomPath();
+    });
+
+    // 初始化
+    loadCustomPath();
     // 初始化加载路径
     loadDataPath();
 

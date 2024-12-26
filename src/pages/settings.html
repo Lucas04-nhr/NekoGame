@@ -30,6 +30,14 @@
                     <label for="autoLaunch" class="switch-label"><span class="switch-button"></span></label>
                 </div>
             </div>
+            <div class="settings-option">
+                <span>禁用硬件加速</span>
+                <p>需要重启应用生效，如果出现渲染问题可以禁用硬件加速</p>
+                <div class="switch-container">
+                    <input type="checkbox" id="hardwareAcceleration" />
+                    <label for="hardwareAcceleration" class="switch-label"><span class="switch-button"></span></label>
+                </div>
+            </div>
         </div>
     </div>
     <!-- 背景设置卡片 -->
@@ -76,6 +84,13 @@
                 <button id="openDataSyncWindow">数据同步设置</button>
                 <p>通过Gitee或Github自动同步您的数据。</p>
                 <p><a href="https://gitee.com/sunmmerneko/utils/blob/master/info/infoTips.md" target="_blank" class="guide-link">查看相关教程</a></p>
+            </div>
+            <div class="settings-option">
+                <label for="custom-path">自定义抽卡规划数据源</label>
+                <input type="text" id="custom-path" placeholder="请输入自定义路径,如：https://gitee.com/sunmmerneko/utils/raw/master/info/gacha/">
+                <button type="button" id="save-path">保存路径</button>
+                <p><a href="https://gitee.com/sunmmerneko/utils/blob/master/info/gacheInfo.md" target="_blank">如果你发现抽卡规划页面的数据已经过时，可以尝试自己配置数据，或使用其他源</a></p>
+                <button type="button" id="reset-path">恢复默认源</button>
             </div>
 <!--            <div class="settings-option">-->
 <!--                <button id="exportPageButton">导出当前页面</button>-->

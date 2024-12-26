@@ -80,7 +80,7 @@ function calculateUpAverage(records) {
         r => r.quality_level === 5
         && !commonItems.includes(r.name)
         && (r.card_pool_type === "角色活动跃迁" || r.card_pool_type === "光锥活动跃迁" || r.card_pool_type === "角色活动唤取"
-            || r.card_pool_type === "武器活动祈愿" || r.card_pool_type === "角色活动祈愿")
+            || r.card_pool_type === "武器活动祈愿" || r.card_pool_type === "角色活动祈愿" || r.card_pool_type === "武器活动唤取")
     );
     if (upRecords.length === 0) return "还没抽出UP";
     // 遍历UP角色，累加抽数

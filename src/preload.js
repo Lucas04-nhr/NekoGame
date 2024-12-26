@@ -40,10 +40,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteGame: (gameId) => ipcRenderer.invoke("delete-game", gameId),
     updateGame: (gameData) => ipcRenderer.invoke("update-game", gameData),
     filePathToURL,
-    saveSetting: (key, value) => ipcRenderer.invoke("save-setting", key, value),
-    loadSettings: () => ipcRenderer.invoke("load-settings"),
+
     setAutoLaunch: (enabled) => ipcRenderer.invoke("set-auto-launch", enabled),
-    checkErrors: () => ipcRenderer.invoke("check-errors"), 
+    checkErrors: () => ipcRenderer.invoke("check-errors"),
     on: (channel, listener) => {ipcRenderer.on(channel, listener);},
     send: (channel, data) => {ipcRenderer.send(channel, data);},
     onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
@@ -53,7 +52,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     launchGame: (gamePath) => ipcRenderer.invoke('launch-game', gamePath),
     invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args), // 通用的 invoke 方法
     refreshGachaRecords: () => ipcRenderer.invoke('refresh-gacha-records'),
-    // 获取已保存的记录（可选，视具体需求而定）
+    // 获取已保存的记录
     getGachaRecords: () => ipcRenderer.invoke('get-gacha-records'),
     getLastQueryUid: () => ipcRenderer.invoke('get-last-query-uid'),
     getPlayerUIDs: () => ipcRenderer.invoke('get-player-uids'),

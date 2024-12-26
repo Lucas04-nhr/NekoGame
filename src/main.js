@@ -107,7 +107,7 @@ function createWindow() {
 
 ipcMain.handle("load-settings", async () => {
     const settings = {};
-    const keys = ["minimizeToTray", "silentMode", "autoLaunch"];
+    const keys = ["minimizeToTray", "silentMode", "autoLaunch", "hardwareAcceleration"];
 
     for (const key of keys) {
         settings[key] = await new Promise((resolve) => {
@@ -147,8 +147,6 @@ ipcMain.on('window-maximize', () => {
     }
 });
 ipcMain.on('window-close', () => mainWindow.close());
-
-
 async function initializeSettings() {
     minimizeToTraySetting = await new Promise((resolve) => {
         getSetting("minimizeToTray", (err, value) => {
@@ -180,11 +178,7 @@ require('./utils/settings/checkError');
 require('./utils/settings/export/exportExcel');
 const { loadBackground } = require('./utils/settings/background');
 // 页面功能
-require('./app/pagesIpc/gameManager');
-require('./app/pagesIpc/libraryIPC');
-require('./app/pagesIpc/homeIPC');
-require('./app/pagesIpc/launchGame');
-// 在应用启动时初始化数据库和进程检测
+require('./app/appIPC');
 app.whenReady().then(() => {
     initializeDatabase();
     initializeSettings();

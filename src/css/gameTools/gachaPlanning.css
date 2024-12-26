@@ -1,0 +1,142 @@
+#game-card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 15px;
+  padding: 10px;
+  max-height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+p {
+    margin: 5px;
+}
+
+/* 游戏卡片样式 */
+.game-card {
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgba(55, 55, 55, 0.6);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* 布局样式 */
+.game-card-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.details-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.game-title {
+  font-size: 20px;
+  color: #fff;
+    margin-left: 5px;
+  margin-bottom: 8px;
+}
+
+.game-version,
+.game-time,
+.game-currency,
+.game-currency-s,
+.game-currency-l,
+.game-draws-s,
+.game-draws-l,
+.game-draws {
+  font-size: 13px;
+  color: #aaa;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+label {
+    font-size: 16px;
+    color: #aaa;
+    margin: 5px;
+}
+
+.custom-select {
+  padding: 6px;
+  border-radius: 5px;
+  background-color: #2c2c2c;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.custom-select:focus {
+  border-color: #66afe9;
+  outline: none;
+}
+
+/* 图表区域样式 */
+.details-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+canvas {
+  max-width: 100%;
+  max-height: 160px;
+}
+
+.game-avg-character-up,
+.game-avg-weapon-up {
+  font-size: 12px;
+  color: #aaa;
+}
+.game-data-source {
+  font-size: 8px;
+  color: #aaa;
+}
+.game-data-source a {
+  color: #66afe9;
+  text-decoration: none;
+}
+
+.game-data-source a:hover {
+  text-decoration: underline;
+}
+
+.highlight {
+    padding:3px;
+    border-radius: 2px;
+    background-color: rgba(30, 79, 95, 0.7);
+    color: #fade71;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.highlight:hover {
+    background-color: rgb(1, 112, 143);
+}
+
+.highlight1 {
+    padding:3px;
+    border-radius: 2px;
+    background-color: #505050;
+    color: #fade71;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.highlight1:hover {
+    background-color: #878787;
+}
