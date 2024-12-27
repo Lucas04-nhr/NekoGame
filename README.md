@@ -8,7 +8,7 @@
 
 > **推荐阅读**：建议先浏览本文（预计用时：5分钟），帮助您快速了解并开始使用 Neko Game。
 
-<img width="974" alt="preview" src="https://github.com/user-attachments/assets/02593354-a4c5-4a41-89fe-e0f51591fc13">
+<img width="974" alt="preview" src="https://github.com/user-attachments/assets/a19f8966-1dc5-45f3-9fae-34699019d4f2">
 
 ## 功能特点
 - **游戏记录**：自动跟踪并记录游戏时长，提供详细的统计数据。
@@ -58,6 +58,7 @@
 ![image](https://github.com/user-attachments/assets/8377ee8d-a7e2-4afa-b2ca-d4672d4d268e)
 ![image](https://github.com/user-attachments/assets/b38468b8-1dee-44ea-8948-8fb78e989989)
 ![image](https://github.com/user-attachments/assets/19805a17-c749-4c96-973c-49cd2c185a33)
+![image](https://github.com/user-attachments/assets/829e9dcf-0890-41f4-83d1-859564fb3c8d)
 
 ## 故障排除&更新方向
 ### 常见问题
