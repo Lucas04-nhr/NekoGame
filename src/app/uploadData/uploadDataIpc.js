@@ -252,7 +252,7 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
                         : {},
                     params: platform === 'gitee' ? { access_token: token } : {}
                 });
-                // console.log(fileName, '更新成功', JSON.stringify(response.data));
+                console.log(fileName, '更新成功', response.data.message);
             } else {
                 throw new Error('文件不存在，准备进行 POST 上传');
             }
@@ -273,7 +273,7 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
                             : {},
                         params: platform === 'gitee' ? { access_token: token } : {}
                     });
-                    // console.log(fileName, '上传成功 (POST)', response.data.message);
+                    console.log(fileName, '上传成功 (POST)', response.data.message);
                     return; // POST 成功后直接返回
                 } catch (error) {
                     retries++;
