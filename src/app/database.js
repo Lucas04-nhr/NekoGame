@@ -278,9 +278,13 @@ function getGameTrendData(gameId, callback) {
         FROM game_sessions
         WHERE game_id = ?
         GROUP BY DATE(start_time)
-        ORDER BY date ASC
+        ORDER BY date DESC
         LIMIT 30
-    `, [gameId], callback);
+    `, [gameId], (err, rows) => {
+        if (err) return callback(err);
+        const sortedRows = rows.sort((a, b) => new Date(a.date) - new Date(b.date));
+        callback(null, sortedRows);
+    });
 }
 
 

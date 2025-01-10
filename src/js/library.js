@@ -243,7 +243,7 @@ function showGameDetails(gameId) {
                     <div id="daily-time-chart" class="chart-container">
                     </div>
                     <div class="game-trend">
-                        <div class="chart-header"><h3>时间趋势图</h3></div>
+                        <div class="chart-header"><h3>出勤日时间趋势图</h3></div>
                         <canvas id="game-trend-chart"></canvas>
                     </div>
                     </div>

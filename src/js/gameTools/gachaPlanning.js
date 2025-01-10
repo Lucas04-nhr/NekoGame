@@ -58,12 +58,11 @@ async function renderGameCards() {
             <p class="game-avg-weapon-up"><strong>平均武器 UP:</strong> 加载中...</p>
             <label for="version-select-${game.repo}"><strong>当前版本:</strong></label>
             <select id="version-select-${game.repo}" class="custom-select"></select>
-            <p class="game-data-source">数据来源: <a href="#" target="_blank">加载中...</a> 仅供参考，以来源与官方实际情况为准</p>
           </div>
+          <p class="game-data-source">数据来源: <a href="#" target="_blank">加载中...</a> 仅供参考，以来源与官方实际情况为准</p>
         </div>
         <div class="details-chart">
-          <canvas id="chart-${game.repo}"></canvas>
-          <div class="controls">
+           <div class="controls">
             <span class="highlight"><p class="game-currency"><strong>预计 ${game.currencyName}:</strong> 加载中...</p></span>
             <span class="highlight1"><p class="game-draws"><strong>抽数:</strong> 加载中...</p></span>
             <span class="highlight"><p class="game-currency-s"><strong>预计 ${game.currencyName}:</strong> 加载中...</p></span>
@@ -71,6 +70,7 @@ async function renderGameCards() {
             <span class="highlight"><p class="game-currency-l"><strong>预计 ${game.currencyName}:</strong> 加载中...</p></span>
             <span class="highlight1"><p class="game-draws-l"><strong>抽数:</strong> 加载中...</p></span>
           </div>
+          <canvas id="chart-${game.repo}"></canvas>
         </div>
       </div>
     `;
@@ -229,9 +229,9 @@ function renderChart(container, sources) {
       labels: Object.keys(sources),
       datasets: [{
         data: Object.values(sources),
-        backgroundColor: ['rgba(255,99,132,0.7)', 'rgba(54,162,235,0.7)', 'rgba(255,206,86,0.7)', 'rgba(113,211,211,0.7)',
-          'rgba(78,118,209,0.7)', 'rgba(75,216,86,0.7)', 'rgba(160,75,216,0.7)', 'rgba(243,132,197,0.7)',
-        'rgba(230,138,72,0.7)', 'rgba(62,248,176,0.7)', 'rgba(165,202,33,0.7)', 'rgba(202,33,154,0.7)'],
+        backgroundColor: ['rgba(255,99,132,0.6)', 'rgba(54,162,235,0.6)', 'rgba(255,206,86,0.6)', 'rgba(113,211,211,0.6)',
+          'rgba(78,118,209,0.6)', 'rgba(75,216,86,0.6)', 'rgba(160,75,216,0.6)', 'rgba(243,132,197,0.6)',
+        'rgba(230,138,72,0.6)', 'rgba(62,248,176,0.6)', 'rgba(165,202,33,0.6)', 'rgba(202,33,154,0.6)'],
       }],
     },
     options: {
@@ -243,14 +243,14 @@ function renderChart(container, sources) {
           labels: {
             boxWidth: 10,
             font: {
-              size: 12, // 设置图例字体大小
+              size: 12,
             },
           },
         },
       },
       layout: {
         padding: {
-          right: 20, // 增加右侧的间距
+          right: 20,
         },
       },
     },

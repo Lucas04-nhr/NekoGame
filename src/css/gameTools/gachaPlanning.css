@@ -19,11 +19,12 @@ p {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s ease;
 }
 
 .game-card:hover {
     transform: translateY(-5px);
+    background-color: rgba(55, 55, 55, 0.7);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
@@ -118,7 +119,7 @@ canvas {
 .highlight {
     padding:3px;
     border-radius: 2px;
-    background-color: rgba(30, 79, 95, 0.7);
+    background-color: rgba(30, 79, 95, 0.5);
     color: #fade71;
     font-weight: bold;
     transition: background-color 0.3s ease;
@@ -131,12 +132,11 @@ canvas {
 .highlight1 {
     padding:3px;
     border-radius: 2px;
-    background-color: #505050;
-    color: #fade71;
+    background-color: rgba(53, 97, 25, 0.5);
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
 
 .highlight1:hover {
-    background-color: #878787;
+    background-color: rgb(59, 136, 4);
 }

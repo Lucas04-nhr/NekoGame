@@ -109,7 +109,7 @@ function getFileTimestamp(filePath) {
 // 获取文件的时间戳
 async function getFileTimestampFromRepo(repoUrl, token, fileName) {
     const { owner, repo, platform } = parseRepoUrl(repoUrl);
-    console.log('owner,repo,platform', owner, repo, platform);
+    // console.log('owner,repo,platform', owner, repo, platform);
 
     let apiUrl, commitResponse;
     if (platform === 'gitee') {
@@ -252,7 +252,7 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
                         : {},
                     params: platform === 'gitee' ? { access_token: token } : {}
                 });
-                console.log(fileName, '更新成功', response.data);
+                // console.log(fileName, '更新成功', JSON.stringify(response.data));
             } else {
                 throw new Error('文件不存在，准备进行 POST 上传');
             }
@@ -273,7 +273,7 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
                             : {},
                         params: platform === 'gitee' ? { access_token: token } : {}
                     });
-                    console.log(fileName, '上传成功 (POST)', response.data);
+                    // console.log(fileName, '上传成功 (POST)', response.data.message);
                     return; // POST 成功后直接返回
                 } catch (error) {
                     retries++;
@@ -286,11 +286,25 @@ async function uploadFileToRepo(repoUrl, token, filePath, fileName) {
             }
         }
     } catch (error) {
+        let errorMessage = `${fileName}上传失败\n平台:${platformMessage}\n`;
         if (error.response) {
-            global.Notify(false, `${fileName}上传失败\n平台:${platformMessage}\n${error.response}`);
-            console.error(fileName, '上传失败:', JSON.stringify(error.response), '平台', platformMessage);
+            const status = error.response.status;
+            if (status === 401) {
+                errorMessage += 'Token 无效或已过期，请更新 Token 后重试。';
+                console.warn(`${fileName} 上传失败: Token 无效或已过期`);
+            } else if (status === 403) {
+                errorMessage += '权限不足，无法完成操作，请检查 Token 权限。';
+                console.warn(`${fileName} 上传失败: 权限不足`);
+            } else {
+                errorMessage += `错误状态: ${status}\n错误详情: ${error.response.data.message || '无详细信息'}`;
+                console.error(`${fileName} 上传失败:`, error.response.data);
+            }
+            global.Notify(false, errorMessage);
         } else {
-            global.Notify(false, `${fileName}上传失败\n${JSON.stringify(error.response)}\n平台:${platformMessage}`);
+            // 未知错误
+            errorMessage += `未知错误: ${error.message}`;
+            console.error(`${fileName} 上传失败:`, error.message);
+            global.Notify(false, errorMessage);
         }
     }
 }

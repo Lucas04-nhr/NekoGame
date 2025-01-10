@@ -102,7 +102,7 @@ async function insertUIGF(query, insertedCount, uid, lang, fetchItemIdFn, list){
 
 ipcMain.handle('import-genshin-data', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-        title: '选择 UIGF 数据文件',
+        title: '选择 原神 UIGF 数据文件 - 如果不需要导入其他工具的抽卡记录，进入对应界面点击刷新数据即可',
         filters: [{ name: 'JSON 文件', extensions: ['json'] }],
         properties: ['openFile']
     });
@@ -116,7 +116,7 @@ ipcMain.handle('import-genshin-data', async () => {
 
 ipcMain.handle('import-starRail-data', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-        title: '选择 StarRail_UIGF 数据文件',
+        title: '选择 崩铁 UIGF 数据文件 - 如果不需要导入其他工具的抽卡记录，进入对应界面点击刷新数据即可',
         filters: [{ name: 'JSON 文件', extensions: ['json'] }],
         properties: ['openFile']
     });
@@ -130,7 +130,7 @@ ipcMain.handle('import-starRail-data', async () => {
 
 ipcMain.handle('import-zzz-data', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-        title: '选择 ZZZ_UIGF 数据文件',
+        title: '选择 绝区零 UIGF 数据文件 - 如果不需要导入其他工具的抽卡记录，进入对应界面点击刷新数据即可',
         filters: [{ name: 'JSON 文件', extensions: ['json'] }],
         properties: ['openFile']
     });
