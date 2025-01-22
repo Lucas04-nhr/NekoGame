@@ -365,7 +365,7 @@ async function autoUploadOrDownload(repoUrl, token, localFilePath, fileName) {
     } else {
         console.log('localFileTimestamp,giteeFileTimestamp', localFileTimestamp,giteeFileTimestamp);
         // 定义时间范围
-        const TIME_TOLERANCE = 60000; // 1分钟
+        const TIME_TOLERANCE = 300000; // 30分钟
         const timeDiff = Math.abs(localFileTimestamp - giteeFileTimestamp);
         if (timeDiff <= TIME_TOLERANCE) {
             console.log('本地文件和仓库中文件时间差异较小，无需同步');

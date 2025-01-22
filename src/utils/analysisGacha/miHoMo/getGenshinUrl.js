@@ -1,7 +1,6 @@
 const { ipcMain, clipboard } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 const url = require('url');
 
 // 动态获取日志路径
@@ -25,40 +24,28 @@ function extractGameDir(logContent) {
     return null;
 }
 
-// 动态获取缓存文件夹版本
-async function getCacheVersion() {
-    const defaultVersion = '2.31.0.0'; // 默认版本号
-    const remoteUrl = `https://gitee.com/sunmmerneko/utils/raw/master/getUrl/version-Genshin.json?_=${Date.now()}`;
-    const options = {
-        headers: {
-            'Cache-Control': 'no-cache'
-        }
-    };
-    return new Promise((resolve) => {
-        https.get(remoteUrl, options, (res) => {
-            let data = '';
+// 动态获取最新缓存文件夹
+function getLatestCacheVersion(gameDir) {
+    const webCachesPath = path.join(gameDir, 'webCaches');
+    if (!fs.existsSync(webCachesPath)) {
+        throw new Error('未找到 webCaches 目录，请确认游戏是否启动过。');
+    }
 
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
+    const subdirs = fs
+        .readdirSync(webCachesPath, { withFileTypes: true })
+        .filter((dir) => dir.isDirectory())
+        .map((dir) => ({
+            name: dir.name,
+            time: fs.statSync(path.join(webCachesPath, dir.name)).mtimeMs
+        }))
+        .sort((a, b) => b.time - a.time); // 按修改时间从新到旧排序
 
-            res.on('end', () => {
-                try {
-                    const json = JSON.parse(data);
-                    resolve(json.genshin_cache_version || defaultVersion);
-                } catch (e) {
-                    console.error('远程版本配置信息解析失败，使用默认版本:', defaultVersion);
-                    resolve(defaultVersion);
-                }
-            });
-        }).on('error', (err) => {
-            global.Notify(false, `无法获取远程配置信息，使用默认版本\n${defaultVersion}\n${err.message}`);
-            console.error('无法获取远程配置信息，使用默认版本:', defaultVersion, err.message);
-            resolve(defaultVersion);
-        });
-    });
+    if (subdirs.length === 0) {
+        throw new Error('webCaches 目录中未找到任何版本文件夹。');
+    }
+
+    return subdirs[0].name; // 返回最新文件夹的名称
 }
-
 
 // 从缓存文件中提取祈愿记录链接
 function extractGachaLogUrl(cachePath) {
@@ -98,7 +85,7 @@ ipcMain.handle('getGenshinWishLink', async () => {
     return await getGenshinWishUrl();
 });
 
-async function getGenshinWishUrl(){
+async function getGenshinWishUrl() {
     const logPath = getLogPath();
     if (!logPath) {
         return { success: false, message: '未找到原神日志文件，请确认游戏是否启动过。' };
@@ -111,10 +98,10 @@ async function getGenshinWishUrl(){
             return { success: false, message: '无法解析游戏路径，请确保日志文件完整。或前往项目地址反馈信息' };
         }
 
-        const cacheVersion = await getCacheVersion(); // 获取缓存文件夹版本
+        const cacheVersion = getLatestCacheVersion(gameDir); // 获取最新的缓存文件夹
         const cacheFilePath = path.join(gameDir, 'webCaches', cacheVersion, 'Cache', 'Cache_Data', 'data_2');
         if (!fs.existsSync(cacheFilePath)) {
-            return { success: false, message: `未找到缓存文件夹，请确保游戏已启动并生成缓存 :${cacheFilePath}。` };
+            return { success: false, message: `未找到缓存文件，请确保游戏已启动并生成缓存 :${cacheFilePath}。` };
         }
 
         const wishLink = extractGachaLogUrl(cacheFilePath);
@@ -130,4 +117,4 @@ async function getGenshinWishUrl(){
     }
 }
 
-module.exports = {getGenshinWishUrl};
+module.exports = { getGenshinWishUrl };

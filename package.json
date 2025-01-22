@@ -1,6 +1,6 @@
 {
   "name": "nekogame",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "main": "src/main.js",
   "description": "summerneko",
   "author": "",
@@ -42,7 +42,7 @@
       "releaseNotesFile": "release-notes.md"
     },
     "extraMetadata": {
-      "version": "2.3.8"
+      "version": "2.3.9"
     },
     "files": [
       "assets/**/*",

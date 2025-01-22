@@ -38,37 +38,25 @@ function queryGamePathFromDb() {
 }
 
 // 动态获取缓存文件夹版本
-async function getCacheVersion() {
-    const defaultVersion = '2.31.11.0'; // 默认版本号
-    const remoteUrl = `https://gitee.com/sunmmerneko/utils/raw/master/getUrl/version-ZZZ.json?_=${Date.now()}`;
-    const options = {
-        headers: {
-            'Cache-Control': 'no-cache'
-        }
-    };
-    return new Promise((resolve) => {
-        https.get(remoteUrl, options, (res) => {
-            let data = '';
+function getLatestCacheVersion(gameDir) {
+    const webCachesPath = path.join(gameDir,'ZenlessZoneZero_Data', 'webCaches');
+    if (!fs.existsSync(webCachesPath)) {
+        throw new Error('未找到 webCaches 目录，请确认游戏是否启动过。');
+    }
+    const subdirs = fs
+        .readdirSync(webCachesPath, { withFileTypes: true })
+        .filter((dir) => dir.isDirectory())
+        .map((dir) => ({
+            name: dir.name,
+            time: fs.statSync(path.join(webCachesPath, dir.name)).mtimeMs
+        }))
+        .sort((a, b) => b.time - a.time); // 按修改时间从新到旧排序
 
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
+    if (subdirs.length === 0) {
+        throw new Error('webCaches 目录中未找到任何版本文件夹。');
+    }
 
-            res.on('end', () => {
-                try {
-                    const json = JSON.parse(data);
-                    resolve(json.zzz_cache_version || defaultVersion);
-                } catch (e) {
-                    console.error('远程版本配置信息解析失败，使用默认版本:', defaultVersion);
-                    resolve(defaultVersion);
-                }
-            });
-        }).on('error', (err) => {
-            global.Notify(false, `无法获取远程配置信息，使用默认版本\n${defaultVersion}\n${err.message}`);
-            console.error('无法获取远程配置信息，使用默认版本:', defaultVersion, err.message);
-            resolve(defaultVersion);
-        });
-    });
+    return subdirs[0].name; // 返回最新文件夹的名称
 }
 
 
@@ -116,8 +104,7 @@ async function getZZZUrl(){
         if (!gameDir) {
             return { success: false, message: '无法获取游戏路径，绝区零暂时不支持动态获取，需要先导入游戏\n游戏名: ZenlessZoneZero.exe' };
         }
-
-        const cacheVersion = await getCacheVersion(); // 获取缓存文件夹版本
+        const cacheVersion = getLatestCacheVersion(gameDir);  // 获取缓存文件夹版本
         const cacheFilePath = path.join(gameDir, 'ZenlessZoneZero_Data','webCaches', cacheVersion, 'Cache', 'Cache_Data', 'data_2');
         if (!fs.existsSync(cacheFilePath)) {
             return { success: false, message: `未找到缓存文件夹，请确保游戏已启动并生成缓存 :${cacheFilePath}。` };
@@ -130,7 +117,7 @@ async function getZZZUrl(){
         return { success: true, message: `抽卡链接已复制到剪贴板！\n${wishLink}` };
     } catch (error) {
         console.error(`绝区零获取祈愿纪录失败:, ${error.message}`);
-        return { success: false, message: `绝区零需要先导入游戏库\n错误信息: ${error.message}` };
+        return { success: false, message: `绝区零获取祈愿纪录失败\n错误信息: ${error.message}` };
     }
 }
 
