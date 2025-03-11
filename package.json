@@ -1,13 +1,13 @@
 {
   "name": "nekogame",
-  "version": "2.3.9",
+  "version": "2.3.10",
   "main": "src/main.js",
   "description": "summerneko",
   "author": "",
   "license": "ISC",
   "scripts": {
     "start": "chcp 65001 && electron .",
-    "build": "electron-builder"
+    "build": "set NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder"
   },
   "keywords": [],
   "devDependencies": {
@@ -42,7 +42,7 @@
       "releaseNotesFile": "release-notes.md"
     },
     "extraMetadata": {
-      "version": "2.3.9"
+      "version": "2.3.10"
     },
     "files": [
       "assets/**/*",

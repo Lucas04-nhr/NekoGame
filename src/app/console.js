@@ -32,7 +32,6 @@ function checkLogFileSize() {
             fs.renameSync(logFilePath, archivedLogFilePath);
             logStream.close();
             logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
-            deleteOldLogs(); // 删除旧的日志文件
         }
     });
 }
@@ -57,6 +56,8 @@ function deleteOldLogs() {
         });
     });
 }
+
+deleteOldLogs(); // 删除旧的日志文件
 
 // 获取当前时间并格式化为 UTC+8 时间
 function getTimestamp() {
