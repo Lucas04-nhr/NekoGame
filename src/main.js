@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 //在调用database前设置
-require('./utils/settings/dataFile');
+require('./app/settings/dataFile');
 require("./app/console");  // 导入日志管理
 require('./utils/syncMessage'); //导入消息通知
 

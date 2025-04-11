@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { ipcMain } = require('electron');
 
-// 假设 dataPath 是已经设置好的数据目录路径（通过 process.env.NEKO_GAME_FOLDER_PATH 获取）
+// 获取数据路径
 const dataPath = process.env.NEKO_GAME_FOLDER_PATH;
 const commonItemsFile = path.join(dataPath, 'commonItems.json');
 
-// 定义初始数据，可以先写入简体和繁体两套（如果适用的话）
+// 定义初始数据
 const defaultCommonItems = {
     "zh-cn": ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈", "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛","漪澜浮录",
         "布洛妮娅", "瓦尔特", "克拉拉", "杰帕德", "姬子", "白露", "彦卿", "拂晓之前", "于夜色中", "时节不居", "但战斗还未结束", "制胜的瞬间", "如泥酣眠", "银河铁道之夜", "无可取代的东西", "以世界之名",
