@@ -124,6 +124,15 @@
         animationMessage(result.success, result.message);
     });
 
+    document.getElementById('openCommonItems').addEventListener('click', async () => {
+        try {
+            await window.electronAPI.invoke('open-common-items');
+        } catch (error) {
+            console.error('打开 commonItems.json 出错:', error);
+        }
+    });
+
+
     // 更新日志按钮
     if (openUpdateLogButton) {
         openUpdateLogButton.addEventListener("click", () => {

@@ -1,19 +1,11 @@
-const commonItems = ["安可", "卡卡罗", "凌阳", "鉴心", "维里奈",
-        "千古洑流", "浩境粼光", "停驻之烟", "擎渊怒涛","漪澜浮录",
-    "布洛妮娅", "瓦尔特", "克拉拉", "杰帕德", "姬子", "白露", "彦卿",
-"拂晓之前", "于夜色中", "时节不居", "但战斗还未结束", "制胜的瞬间", "如泥酣眠",
-"银河铁道之夜", "无可取代的东西", "以世界之名",
-"七七", "莫娜", "刻晴", "迪卢克", "琴","提纳里","迪希雅","天空之脊", "和璞鸢", "四风原典", "天空之卷", "天空之翼", "阿莫斯之弓",
-"狼的末路", "天空之傲", "天空之刃", "风鹰剑",
-"「11号」","猫又", "格莉丝", "珂蕾妲", "莱卡恩", "丽娜",
-    "钢铁肉垫", "硫磺石", "拘缚者", "燃狱齿轮", "啜泣摇篮", "嵌合编译器"]; //这里是常驻
-const upItems = commonItems;
+let commonItems = []; //这里是常驻
+
 // 判断是否为歪
-function isOffBanners(record, upItems) {
+function isOffBanners(record, commonItems) {
     return (record.card_pool_type === "角色活动跃迁" || record.card_pool_type === "光锥活动跃迁" ||
         record.card_pool_type === "角色活动唤取" || record.card_pool_type === "武器活动祈愿" || record.card_pool_type === "角色活动祈愿"
         || record.card_pool_type === "独家频段"|| record.card_pool_type === "音擎频段")
-        && upItems.includes(record.name);
+        && commonItems.includes(record.name);
 }
 
 // 按卡池分类记录
@@ -138,7 +130,7 @@ function generateOverview(records) {
         const draws = nextIndex - records.indexOf(record);
         const color = getDrawColor(draws, record.quality_level); // 获取颜色
         // 判断是否为“歪”
-        const isOffBanner = isOffBanners(record, upItems);
+        const isOffBanner = isOffBanners(record, commonItems);
         return `
             <div class="record">
                 <span class="record-star gold">${record.quality_level} 星</span>
@@ -182,7 +174,7 @@ function generateDetails(records) {
                         const color = getDrawColor(draws, record.quality_level); // 获取颜色
 
                         // 判断是否为“歪”
-                        const isOffBanner = isOffBanners(record, upItems);
+                        const isOffBanner = isOffBanners(record, commonItems);
 
                         return `
                             <div class="record">

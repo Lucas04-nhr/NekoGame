@@ -1,7 +1,7 @@
 // 判断是否为歪
-function isOffBannersZzz(record, upItems) {
+function isOffBannersZzz(record, commonItems) {
     return (record.card_pool_type === "独家频段" || record.card_pool_type === "音擎频段" )
-        && upItems.includes(record.name);
+        && commonItems.includes(record.name);
 }
 
 function calculateMostDrawsZzz(records, quality) {
@@ -112,7 +112,7 @@ function generateOverviewZzz(records) {
         const draws = nextIndex - records.indexOf(record);
         const color = getDrawColorZzz(draws, record.quality_level); // 获取颜色
         // 判断是否为“歪”
-        const isOffBanner = isOffBannersZzz(record, upItems);
+        const isOffBanner = isOffBannersZzz(record, commonItems);
         return `
             <div class="record">
                 <span class="record-star gold">${getQualityLetter(record.quality_level)} 级</span>
@@ -156,7 +156,7 @@ function generateDetailsZzz(records) {
                         const color = getDrawColorZzz(draws, record.quality_level); // 获取颜色
 
                         // 判断是否为“歪”
-                        const isOffBanner = isOffBannersZzz(record, upItems);
+                        const isOffBanner = isOffBannersZzz(record, commonItems);
 
                         return `
                             <div class="record">

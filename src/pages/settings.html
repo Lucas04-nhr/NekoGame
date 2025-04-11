@@ -74,9 +74,9 @@
                 <button id="openDataPath">打开数据文件夹</button>
             </div>
             <div class="settings-option">
-                <label for="background-path">数据文件夹路径</label>
+                <label for="background-path">当前数据文件夹路径</label>
                 <input type="text" id="dataFile-path" readonly required>
-                <button type="button" id="browse-dataFile">更新数据路径</button>
+                <button type="button" id="browse-dataFile">更换数据路径</button>
                 <p>配置后会自动重新启动</p>
                 <button type="button" id="reset-dataFile">恢复默认路径</button>
             </div>
@@ -134,6 +134,14 @@
             <h3>祈愿工具</h3>
         </div>
         <div class="card-body">
+            <div class="settings-option">
+                <button id="openCommonItems">打开 commonItems.json 进行编辑</button>
+                <p class="help-text">
+                    点击此按钮将在系统默认的文本编辑器中打开 commonItems.json 文件。<br>
+                    您可以根据需要修改常驻角色/武器数据，支持简体、繁体或其它语言设置。<br>
+                    修改后，将自动加载最新的设置。
+                </p>
+            </div>
             <div class="settings-option">
                 <button id="getStarRailUrl">获取崩铁抽卡链接并复制到剪贴板</button>
             </div>

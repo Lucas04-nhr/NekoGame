@@ -67,6 +67,11 @@ async function loadGachaRecords(uid) {
         return;
     }
 
+    // 取得第一条记录的 lang 属性，若不存在则默认使用 'zh-cn'
+    const lang = filteredRecords[0].lang || 'zh-cn';
+    // 根据 lang 从后端获取对应的 commonItems
+    commonItems = await window.electronAPI.invoke('get-common-items', lang);
+
     const pools = categorizeRecords(filteredRecords);
     const GACHA_TYPE_ORDER = [
         "独家频段", "音擎频段", "常驻频段",

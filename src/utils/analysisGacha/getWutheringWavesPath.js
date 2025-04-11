@@ -2,8 +2,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const iconv = require('iconv-lite');
-const {db} = require('../../app/database');
-
+const { db } = require('../../app/database');
 
 // 注册表路径列表
 const registryPaths = [
@@ -62,29 +61,35 @@ function queryGamePathFromDb() {
     });
 }
 
-// 获取游戏路径
+// 获取游戏路径（优先数据库，其次注册表）
 async function getGamePath() {
     const errors = []; // 存储错误信息
+
+    console.log("尝试从数据库中获取鸣潮路径...");
+    try {
+        // 先尝试从数据库中获取路径
+        return await queryGamePathFromDb();
+    } catch (dbErr) {
+        console.warn("数据库查询鸣潮路径失败，将尝试从注册表中获取路径:", dbErr);
+        errors.push(dbErr);
+    }
+
+    // 若数据库查询失败，则尝试从注册表中获取路径
     for (const basePath of registryPaths) {
         const fullPath = `${basePath}\\KRInstall Wuthering Waves`;
-        console.log(`查询路径: ${fullPath}`);
+        console.log(`注册表查询路径: ${fullPath}`);
         try {
             const installPath = await queryRegistryValue(fullPath, 'InstallPath');
             console.log(`找到路径: ${installPath}`);
             return path.join(installPath, 'Wuthering Waves Game', 'Client', 'Saved', 'Logs', 'Client.log');
-        } catch (err) {
-            console.warn(err);
-            errors.push(err);
+        } catch (regErr) {
+            console.warn(regErr);
+            errors.push(regErr);
         }
     }
 
-    console.log("尝试从数据库中获取路径...");
-    try {
-        return await queryGamePathFromDb();
-    } catch (err) {
-        errors.push(err);
-        throw new Error(`未找到有效的游戏路径，失败原因如下:\n- ${errors.join('\n- ')}`);
-    }
+    // 如果两种方式均失败，则抛出提示错误
+    throw new Error(`无法自动定位游戏路径，请在游戏库中手动导入或者更新鸣潮信息（Wuthering Waves.exe）\n失败原因如下:\n- ${errors.join('\n- ')}`);
 }
 
 // 读取日志文件并提取祈愿链接

@@ -9,6 +9,7 @@ require('./miHoMo/genShinIpc');
 require('./miHoMo/starRailIpc');
 require('./miHoMo/zzzIpc');
 require('./deleteUID');
+require('./commonitems');
 
 
 /**
