@@ -1,11 +1,11 @@
 const { URL, URLSearchParams } = require('url');
-const {get} = require('axios');
+const { get } = require('axios');
 
-async function fetchGachaRecords(allRecords,GACHA_TYPE_MAP,gachaUrl,event){
+async function fetchGachaRecords(allRecords, GACHA_TYPE_MAP, gachaUrl, event) {
     const size = 20; // 每页20条记录
     let totalFetched = 0; // 本次查询到的总数据量
     const parsedUrl = new URL(gachaUrl);
-    // 遍历不同的祈愿类型
+
     for (const [gachaType, gachaName] of Object.entries(GACHA_TYPE_MAP)) {
         console.log(`正在获取 ${gachaName} 的祈愿记录...`);
         let hasMoreData = true;
@@ -20,8 +20,15 @@ async function fetchGachaRecords(allRecords,GACHA_TYPE_MAP,gachaUrl,event){
                 queryParams.set("page", page.toString());
                 queryParams.set("size", size.toString());
                 queryParams.set("end_id", endId);
-                const urlWithParams = `${parsedUrl.origin}${parsedUrl.pathname}?${queryParams.toString()}`;
-                // 发送请求
+
+                // 动态选择接口路径
+                let endpointPath = parsedUrl.pathname;
+                if (['21', '22'].includes(gachaType)) {
+                    endpointPath = '/common/gacha_record/api/getLdGachaLog';
+                }
+
+                const urlWithParams = `${parsedUrl.origin}${endpointPath}?${queryParams.toString()}`;
+
                 const response = await get(urlWithParams);
                 const data = response.data;
 
@@ -37,10 +44,10 @@ async function fetchGachaRecords(allRecords,GACHA_TYPE_MAP,gachaUrl,event){
                         console.error(`重试超过次数，停止获取 ${gachaName}`);
                         break;
                     }
-                    await new Promise(resolve => setTimeout(resolve, 300)); // 等待 0.3s 再重试
+                    await new Promise(resolve => setTimeout(resolve, 300));
                     continue;
                 }
-                // 更新查询的 ID 以进行分页
+
                 const fetchedRecords = data.data.list;
                 allRecords[gachaType] = allRecords[gachaType].concat(fetchedRecords);
                 totalFetched += fetchedRecords.length;
@@ -48,7 +55,6 @@ async function fetchGachaRecords(allRecords,GACHA_TYPE_MAP,gachaUrl,event){
                 endId = fetchedRecords[fetchedRecords.length - 1].id;
                 hasMoreData = fetchedRecords.length === size;
 
-                // 每页请求间隔 0.3s
                 await new Promise(resolve => setTimeout(resolve, 300));
                 page++;
             } catch (err) {
@@ -63,8 +69,8 @@ async function fetchGachaRecords(allRecords,GACHA_TYPE_MAP,gachaUrl,event){
             }
         }
     }
+
     return totalFetched;
 }
 
-
-module.exports = { fetchGachaRecords }
+module.exports = { fetchGachaRecords };

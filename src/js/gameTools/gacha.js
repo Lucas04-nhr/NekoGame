@@ -3,6 +3,7 @@ let commonItems = []; //这里是常驻
 // 判断是否为歪
 function isOffBanners(record, commonItems) {
     return (record.card_pool_type === "角色活动跃迁" || record.card_pool_type === "光锥活动跃迁" ||
+        record.card_pool_type === "角色联动跃迁" || record.card_pool_type === "光锥联动跃迁" ||
         record.card_pool_type === "角色活动唤取" || record.card_pool_type === "武器活动祈愿" || record.card_pool_type === "角色活动祈愿"
         || record.card_pool_type === "独家频段"|| record.card_pool_type === "音擎频段")
         && commonItems.includes(record.name);
@@ -72,6 +73,7 @@ function calculateUpAverage(records) {
         r => r.quality_level === 5
         && !commonItems.includes(r.name)
         && (r.card_pool_type === "角色活动跃迁" || r.card_pool_type === "光锥活动跃迁" || r.card_pool_type === "角色活动唤取"
+            || r.card_pool_type === "角色联动跃迁" || r.card_pool_type === "光锥联动跃迁"
             || r.card_pool_type === "武器活动祈愿" || r.card_pool_type === "角色活动祈愿" || r.card_pool_type === "武器活动唤取")
     );
     if (upRecords.length === 0) return "还没抽出UP";

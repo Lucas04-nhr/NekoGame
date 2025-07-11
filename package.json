@@ -1,6 +1,6 @@
 {
   "name": "nekogame",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "main": "src/main.js",
   "description": "summerneko",
   "author": "",
@@ -21,6 +21,7 @@
     "chart.js": "^4.4.6",
     "cheerio": "^1.0.0",
     "dayjs": "^1.11.13",
+    "echarts": "^5.6.0",
     "electron-store": "^10.0.0",
     "electron-updater": "^6.3.9",
     "exceljs": "^4.4.0",
@@ -42,7 +43,7 @@
       "releaseNotesFile": "release-notes.md"
     },
     "extraMetadata": {
-      "version": "2.3.11"
+      "version": "2.3.12"
     },
     "files": [
       "assets/**/*",

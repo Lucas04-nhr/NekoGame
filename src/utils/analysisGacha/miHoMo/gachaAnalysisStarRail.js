@@ -9,7 +9,9 @@ const GACHA_TYPE_MAP = {
     '1': '常驻跃迁',
     '2': '新手跃迁',
     '11': '角色活动跃迁',
-    '12': '光锥活动跃迁'
+    '12': '光锥活动跃迁',
+    '21': '角色联动跃迁',
+    '22': '光锥联动跃迁'
 };
 
 async function insertGachaLogs(logs) {
@@ -51,10 +53,10 @@ async function fetchStarRailGachaData(event) {
     global.Notify(true, `已获取抽卡记录并复制到剪贴板\n${gachaUrl}`);
     // 获取祈愿日志数据
     try {
-        const allRecords = { '1': [], '2': [], '11': [], '12': [] };
+        const allRecords = { '1': [], '2': [], '11': [], '12': [], '21': [], '22': [] };
         let totalFetched = await fetchGachaRecords(allRecords,GACHA_TYPE_MAP,gachaUrl,event);
         // 插入查询到的所有数据
-        const totalInserted = await insertGachaLogs(allRecords['1'].concat(allRecords['2'], allRecords['11'], allRecords['12']));
+        const totalInserted = await insertGachaLogs(allRecords['1'].concat(allRecords['2'], allRecords['11'], allRecords['12'], allRecords['21'], allRecords['22']));
         event.sender.send('gacha-records-status', `查询到的抽卡记录: ${totalFetched} 条,成功插入: ${totalInserted} 条`);
         return { success: true, message: `查询到的抽卡记录: ${totalFetched} 条\n成功插入: ${totalInserted} 条`};
     } catch (error) {

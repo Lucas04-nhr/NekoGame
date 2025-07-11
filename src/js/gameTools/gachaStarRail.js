@@ -73,11 +73,11 @@ async function loadGachaRecords(uid) {
 
     const pools = categorizeRecords(filteredRecords);
     const GACHA_TYPE_ORDER = [
-        "角色活动跃迁", "光锥活动跃迁", "常驻跃迁",
-        "新手跃迁"
+        "角色活动跃迁", "光锥活动跃迁",
+        "角色联动跃迁", "光锥联动跃迁",
+        "常驻跃迁", "新手跃迁"
     ];
 
-    console.log("1")
     const safeValue = (value, fallback = "无数据") => (value === null || value === undefined ? fallback : value);
 
     const generateStatsCards = (avgFiveStarText, avgUpText, mostDrawsText, leastDrawsText) => `
@@ -116,9 +116,9 @@ async function loadGachaRecords(uid) {
     };
     const generateRatingCards = (records, poolType) => {
         const fiveStarAvg = calculateDrawsBetween(records, 5);
-        const isCharacterOrConeEvent = poolType === "角色活动跃迁" || poolType === "光锥活动跃迁"; // 判断角色活动跃迁或光锥活动跃迁
+        const isCharacterOrConeEvent = poolType === "角色活动跃迁" || poolType === "光锥活动跃迁" || poolType === "角色联动跃迁" || poolType === "光锥联动跃迁";
         const noDeviationRate = isCharacterOrConeEvent ? calculateNoDeviationRate(records) : null;
-        const avgUp = isCharacterOrConeEvent ? calculateUpAverage(pools[poolType]) : null; // 修改这里，两个池子都能计算
+        const avgUp = isCharacterOrConeEvent ? calculateUpAverage(pools[poolType]) : null;
         const avgUpText = typeof avgUp === "number" ? `${avgUp.toFixed(2)}` : avgUp;
         const careerRating = getRating(fiveStarAvg, avgUpText);
         const chartId = `star-pie-chart-${poolType}`; // 动态生成唯一 ID
@@ -161,7 +161,7 @@ async function loadGachaRecords(uid) {
 
             const totalDraws = pools[poolType].length;
             const avgFiveStar = calculateDrawsBetween(pools[poolType], 5);
-            const avgUp = (poolType === "角色活动跃迁" || poolType === "光锥活动跃迁") ? calculateUpAverage(pools[poolType]) : null;
+             const avgUp = (poolType === "角色活动跃迁" || poolType === "光锥活动跃迁" || poolType === "角色联动跃迁" || poolType === "光锥联动跃迁") ? calculateUpAverage(pools[poolType]) : null;
 
             const avgFiveStarText = typeof avgFiveStar === "number" ? `${avgFiveStar.toFixed(2)}` : avgFiveStar;
             const avgUpText = typeof avgUp === "number" ? `${avgUp.toFixed(2)}` : avgUp;

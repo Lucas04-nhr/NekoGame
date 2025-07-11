@@ -64,7 +64,7 @@ async function exportUIGFData({ tableName, type, outputFileName, schema, gameTyp
             info: {
                 export_timestamp: Math.floor(Date.now() / 1000),
                 export_app: "NekoGame",
-                export_app_version: "2.3.0",
+                export_app_version: "2.3.12",
                 version: "v4.0"
             },
             [type]: []
