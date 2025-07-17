@@ -1,16 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 窗口控制按钮
-  document.getElementById("minimize").addEventListener("click", () => {
-    window.electronAPI.minimizeWindow();
-  });
+  // 窗口控制按钮 - 仅在非 macOS 平台上添加事件监听器
+  const isMac = navigator.platform.startsWith("Mac");
 
-  document.getElementById("maximize").addEventListener("click", () => {
-    window.electronAPI.maximizeWindow();
-  });
+  if (!isMac) {
+    document.getElementById("minimize").addEventListener("click", () => {
+      window.electronAPI.minimizeWindow();
+    });
 
-  document.getElementById("close").addEventListener("click", () => {
-    window.electronAPI.closeWindow();
-  });
+    document.getElementById("maximize").addEventListener("click", () => {
+      window.electronAPI.maximizeWindow();
+    });
+
+    document.getElementById("close").addEventListener("click", () => {
+      window.electronAPI.closeWindow();
+    });
+  }
 
   const content = document.getElementById("content");
   const tabs = document.querySelectorAll(".tab");
@@ -94,6 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else {
       console.warn("进度条元素未找到");
+    }
+  });
+
+  // 添加 F12 键监听以切换开发者工具
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "F12") {
+      event.preventDefault();
+      window.electronAPI.toggleDevTools();
     }
   });
 });

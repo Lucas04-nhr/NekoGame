@@ -103,7 +103,8 @@ function createWindow() {
       nodeIntegration: false,
       hardwareAcceleration: false, // Disable hardware acceleration to prevent SIGSEGV on macOS
     },
-    frame: false,
+    frame: !isMac, // 在 macOS 上使用原生窗口框架，其他平台使用无框架
+    titleBarStyle: isMac ? "hiddenInset" : undefined, // macOS 上隐藏标题栏但保留控制按钮
   });
   mainWindow.loadFile("src/index.html");
   loadBackground(mainWindow);
@@ -186,6 +187,17 @@ ipcMain.on("window-maximize", () => {
   }
 });
 ipcMain.on("window-close", () => mainWindow.close());
+
+// 开发者工具控制
+ipcMain.on("toggle-dev-tools", () => {
+  if (mainWindow && mainWindow.webContents) {
+    if (mainWindow.webContents.isDevToolsOpened()) {
+      mainWindow.webContents.closeDevTools();
+    } else {
+      mainWindow.webContents.openDevTools();
+    }
+  }
+});
 async function initializeSettings() {
   minimizeToTraySetting = await new Promise((resolve) => {
     getSetting("minimizeToTray", (err, value) => {

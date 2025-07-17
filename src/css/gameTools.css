@@ -168,7 +168,7 @@ body {
 #global-back-button {
   position: absolute;
   top: 20px;
-  left: 20px;
+  left: 150px;
   z-index: 10;
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
@@ -449,15 +449,6 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-top: 10px;
-}
-
-.combined-export {
-  border: 2px solid rgba(65, 156, 255, 0.5);
-}
-
-.combined-export:hover {
-  border-color: rgba(65, 156, 255, 0.8);
-  background: rgba(65, 156, 255, 0.1);
 }
 
 @keyframes fadeIn {

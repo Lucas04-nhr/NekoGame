@@ -451,4 +451,19 @@
   loadDataPath();
   // 初始化字典状态
   loadDictStatus();
+
+  // 开发者工具按钮事件
+  const toggleDevToolsButton = document.getElementById("toggleDevTools");
+  if (toggleDevToolsButton) {
+    toggleDevToolsButton.addEventListener("click", () => {
+      window.electronAPI.toggleDevTools();
+      // 给用户一个视觉反馈
+      toggleDevToolsButton.style.backgroundColor = "rgba(76, 175, 80, 0.8)";
+      toggleDevToolsButton.textContent = "开发者工具已切换";
+      setTimeout(() => {
+        toggleDevToolsButton.style.backgroundColor = "";
+        toggleDevToolsButton.textContent = "打开/关闭开发者工具";
+      }, 1000);
+    });
+  }
 })();
