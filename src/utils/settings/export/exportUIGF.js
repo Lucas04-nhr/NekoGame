@@ -115,7 +115,7 @@ async function exportUIGFData({
       info: {
         export_timestamp: Math.floor(Date.now() / 1000),
         export_app: "NekoGame",
-        export_app_version: "2.3.12",
+        export_app_version: "2.4.0",
         version: "v4.0",
       },
       [type]: [],
@@ -282,7 +282,7 @@ ipcMain.handle("export-combined-uigf-data", async (event, selectedData) => {
       info: {
         export_timestamp: Math.floor(Date.now() / 1000),
         export_app: "NekoGame",
-        export_app_version: "2.3.12",
+        export_app_version: "2.4.0",
         version: "v4.0",
       },
       hk4e: [], // 原神
