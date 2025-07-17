@@ -1,0 +1,99 @@
+/* Neko Game 自定义样式示例 */
+
+/* 修改侧边栏背景色为紫色渐变 */
+.sidebar {
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.3),
+    rgba(79, 70, 229, 0.3)
+  ) !important;
+  border-right: 2px solid rgba(147, 51, 234, 0.5) !important;
+}
+
+/* 修改设置卡片的样式 */
+.setting-card {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 50, 0.8),
+    rgba(50, 30, 80, 0.8)
+  ) !important;
+  border: 1px solid rgba(147, 51, 234, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2) !important;
+}
+
+/* 修改按钮样式 */
+button {
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.7),
+    rgba(79, 70, 229, 0.7)
+  ) !important;
+  border: 1px solid rgba(147, 51, 234, 0.5) !important;
+  transition: all 0.3s ease !important;
+}
+
+button:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.9),
+    rgba(79, 70, 229, 0.9)
+  ) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4) !important;
+}
+
+/* 修改游戏卡片样式 */
+.game-card {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 50, 0.6),
+    rgba(50, 30, 80, 0.6)
+  ) !important;
+  border: 1px solid rgba(147, 51, 234, 0.3) !important;
+}
+
+.game-card:hover {
+  box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3) !important;
+  border-color: rgba(147, 51, 234, 0.6) !important;
+}
+
+/* 修改输入框样式 */
+input[type="text"],
+input[type="range"],
+select {
+  background: rgba(30, 30, 50, 0.8) !important;
+  border: 1px solid rgba(147, 51, 234, 0.3) !important;
+  color: #e0e0e0 !important;
+}
+
+input[type="text"]:focus,
+select:focus {
+  border-color: rgba(147, 51, 234, 0.8) !important;
+  box-shadow: 0 0 10px rgba(147, 51, 234, 0.3) !important;
+}
+
+/* 修改滚动条样式 */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.7),
+    rgba(79, 70, 229, 0.7)
+  ) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.9),
+    rgba(79, 70, 229, 0.9)
+  ) !important;
+}
+
+/* 修改链接颜色 */
+a {
+  color: rgba(147, 51, 234, 0.9) !important;
+}
+
+a:hover {
+  color: rgba(167, 71, 254, 1) !important;
+}

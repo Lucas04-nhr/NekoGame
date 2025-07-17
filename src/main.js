@@ -117,6 +117,30 @@ function createWindow() {
   global.mainWindow = mainWindow; // 更新global.mainWindow
   mainWindow.webContents.on("did-finish-load", () => {
     mainWindow.webContents.send("set-app-path", app.getAppPath());
+
+    // 应用自定义CSS（如果启用）
+    const { getCSSContent } = require("./app/settings/customCSS");
+    getCSSContent()
+      .then((result) => {
+        if (result.success) {
+          const CUSTOM_CSS_ID = "neko-game-custom-css";
+          mainWindow.webContents
+            .executeJavaScript(
+              `
+          const existingStyle = document.getElementById('${CUSTOM_CSS_ID}');
+          if (existingStyle) {
+            existingStyle.remove();
+          }
+          const style = document.createElement('style');
+          style.id = '${CUSTOM_CSS_ID}';
+          style.textContent = \`${result.css.replace(/`/g, "\\`")}\`;
+          document.head.appendChild(style);
+        `
+            )
+            .catch(console.error);
+        }
+      })
+      .catch(console.error);
   });
   // mainWindow.on('minimize', () => {
   //     isWindowVisible = false;
@@ -228,6 +252,8 @@ require("./utils/analysisGacha/analysisIpc"); // 引入分析相关的 IPC 逻�
 require("./utils/settings/checkError");
 require("./utils/settings/export/exportExcel");
 const { loadBackground } = require("./utils/settings/background");
+// 自定义CSS功能
+require("./app/settings/customCSS");
 // 页面功能
 require("./app/appIPC");
 app
@@ -246,6 +272,10 @@ app
       require("./app/update"); // 初始化更新
       require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
       require("./app/settings/uigfDictIpc"); // 初始化UIGF字典下载功能
+
+      // 初始化自定义CSS功能
+      const { initializeCustomCSS } = require("./app/settings/customCSS");
+      initializeCustomCSS();
 
       // 启动时自动下载UIGF字典
       setTimeout(async () => {
