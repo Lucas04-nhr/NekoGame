@@ -41,19 +41,6 @@ function analyzeZzzRankTypes(records) {
 
   console.log("[ZZZ星级分析] 发现的rank_type值:", uniqueRanks);
 
-  // 检测是否为3、4、5格式（已转换的数据应该是2、3、4）
-  const hasThreeFourFive =
-    uniqueRanks.some((rank) => rank >= 5) ||
-    (uniqueRanks.includes(3) &&
-      uniqueRanks.includes(4) &&
-      uniqueRanks.includes(5));
-
-  if (hasThreeFourFive) {
-    console.warn(
-      "[ZZZ星级分析] 检测到3、4、5格式数据，这可能是未转换的导入数据"
-    );
-  }
-
   // 检查是否恰好有3种星级
   if (uniqueRanks.length > 3) {
     return {
@@ -90,18 +77,13 @@ function analyzeZzzRankTypes(records) {
     mapping["B"] = null; // 没有B级数据
   }
 
-  const formatInfo = hasThreeFourFive
-    ? " (检测到3/4/5格式)"
-    : " (标准2/3/4格式)";
   console.log("[ZZZ星级分析] 建立的映射关系:", mapping);
 
   return {
     success: true,
     error: null,
     mapping: mapping,
-    details: `成功分析：${
-      uniqueRanks.length
-    }种星级${formatInfo} - ${Object.entries(mapping)
+    details: `成功分析：${uniqueRanks.length}种星级 - ${Object.entries(mapping)
       .filter(([k, v]) => v !== null)
       .map(([k, v]) => `${k}级=${v}`)
       .join(", ")}`,
@@ -656,36 +638,20 @@ function checkZzzDataFormat(records) {
 
   const uniqueRanks = Array.from(rankTypes).sort((a, b) => b - a);
 
-  // 判断数据格式
+  // 判断数据格式 - 现在只检查是否为标准格式
   const hasStandardFormat = uniqueRanks.every((rank) => rank >= 2 && rank <= 4);
-  const hasLegacyFormat =
-    uniqueRanks.some((rank) => rank >= 5) ||
-    (uniqueRanks.includes(3) &&
-      uniqueRanks.includes(4) &&
-      uniqueRanks.includes(5));
 
-  if (hasStandardFormat && !hasLegacyFormat) {
+  if (hasStandardFormat) {
     return {
       format: "standard",
-      message: `数据格式正确 (2/3/4格式): ${uniqueRanks.join(", ")}`,
+      message: `数据格式正确: ${uniqueRanks.join(", ")}`,
       needsConversion: false,
-      ranks: uniqueRanks,
-    };
-  } else if (hasLegacyFormat) {
-    return {
-      format: "legacy",
-      message: `检测到旧格式数据 (3/4/5格式): ${uniqueRanks.join(
-        ", "
-      )}，建议重新导入数据`,
-      needsConversion: true,
       ranks: uniqueRanks,
     };
   } else {
     return {
-      format: "mixed",
-      message: `数据格式混合: ${uniqueRanks.join(
-        ", "
-      )}，可能包含不同来源的数据`,
+      format: "unknown",
+      message: `未知数据格式: ${uniqueRanks.join(", ")}，请检查数据源`,
       needsConversion: false,
       ranks: uniqueRanks,
     };
