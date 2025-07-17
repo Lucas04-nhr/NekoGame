@@ -117,6 +117,31 @@ async function downloadAllUIGFDicts(lang = "chs") {
     console.log(`失败: ${results.failed.join(", ")}`);
   }
 
+  // 字典下载完成后，更新数据库中已有记录的物品名称
+  if (results.success.length > 0) {
+    try {
+      console.log("开始更新数据库中的物品名称...");
+      const { updateAllGachaItemNames } = require("./updateItemNames");
+      const updateResult = await updateAllGachaItemNames(lang);
+
+      if (updateResult.total.updated > 0) {
+        console.log(
+          `物品名称更新完成: 共更新 ${updateResult.total.updated} 条记录`
+        );
+      } else {
+        console.log("没有记录需要更新物品名称");
+      }
+
+      if (updateResult.total.errors > 0) {
+        console.warn(
+          `物品名称更新过程中出现 ${updateResult.total.errors} 个错误`
+        );
+      }
+    } catch (error) {
+      console.error("更新物品名称失败:", error.message);
+    }
+  }
+
   return results;
 }
 
@@ -290,6 +315,31 @@ async function autoDownloadDictsOnStartup(lang = "chs") {
   console.log(`成功: ${results.success.join(", ")}`);
   if (results.failed.length > 0) {
     console.log(`失败: ${results.failed.join(", ")}`);
+  }
+
+  // 字典下载完成后，更新数据库中已有记录的物品名称
+  if (results.success.length > 0) {
+    try {
+      console.log("开始更新数据库中的物品名称...");
+      const { updateAllGachaItemNames } = require("./updateItemNames");
+      const updateResult = await updateAllGachaItemNames(lang);
+
+      if (updateResult.total.updated > 0) {
+        console.log(
+          `物品名称更新完成: 共更新 ${updateResult.total.updated} 条记录`
+        );
+      } else {
+        console.log("没有记录需要更新物品名称");
+      }
+
+      if (updateResult.total.errors > 0) {
+        console.warn(
+          `物品名称更新过程中出现 ${updateResult.total.errors} 个错误`
+        );
+      }
+    } catch (error) {
+      console.error("更新物品名称失败:", error.message);
+    }
   }
 
   return results;

@@ -445,6 +445,34 @@
   // 刷新字典状态
   refreshDictStatusButton.addEventListener("click", loadDictStatus);
 
+  // 更新物品名称按钮
+  const updateItemNamesButton = document.getElementById("update-item-names");
+  if (updateItemNamesButton) {
+    updateItemNamesButton.addEventListener("click", async () => {
+      try {
+        updateItemNamesButton.disabled = true;
+        updateItemNamesButton.textContent = "更新中...";
+
+        const result = await window.electronAPI.invoke(
+          "update-gacha-item-names",
+          "chs"
+        );
+
+        if (result.success) {
+          animationMessage(true, result.message);
+        } else {
+          animationMessage(false, result.message);
+        }
+      } catch (error) {
+        console.error("更新物品名称失败:", error);
+        animationMessage(false, `更新失败: ${error.message}`);
+      } finally {
+        updateItemNamesButton.disabled = false;
+        updateItemNamesButton.textContent = "更新物品名称";
+      }
+    });
+  }
+
   // 初始化
   loadCustomPath();
   // 初始化加载路径

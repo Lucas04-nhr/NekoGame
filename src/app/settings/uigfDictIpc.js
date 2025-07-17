@@ -145,4 +145,49 @@ ipcMain.handle("auto-download-dicts-startup", async (event, lang = "chs") => {
   }
 });
 
+// 更新抽卡记录的物品名称
+ipcMain.handle("update-gacha-item-names", async (event, lang = "chs") => {
+  try {
+    const {
+      updateAllGachaItemNames,
+    } = require("../../utils/settings/export/updateItemNames");
+    const results = await updateAllGachaItemNames(lang);
+
+    return {
+      success: true,
+      message: `物品名称更新完成！共更新 ${results.total.updated} 条记录`,
+      results,
+    };
+  } catch (error) {
+    console.error("更新物品名称时发生错误:", error);
+    return {
+      success: false,
+      message: `更新失败: ${error.message}`,
+      results: { total: { updated: 0, errors: 1 }, details: {} },
+    };
+  }
+});
+
+// 检查需要更新的物品名称数量
+ipcMain.handle("check-item-names-need-update", async (event, lang = "chs") => {
+  try {
+    const {
+      checkItemNamesNeedUpdate,
+    } = require("../../utils/settings/export/updateItemNames");
+    const results = await checkItemNamesNeedUpdate(lang);
+
+    return {
+      success: true,
+      results,
+    };
+  } catch (error) {
+    console.error("检查物品名称时发生错误:", error);
+    return {
+      success: false,
+      message: `检查失败: ${error.message}`,
+      results: {},
+    };
+  }
+});
+
 console.log("UIGF 字典 IPC 处理程序已注册");
