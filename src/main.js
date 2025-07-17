@@ -10,6 +10,13 @@ const {
 const path = require("path");
 //在调用database前设置
 require("./app/settings/dataFile");
+
+// Validate critical environment variables early
+if (!process.env.NEKO_GAME_FOLDER_PATH) {
+  console.error("NEKO_GAME_FOLDER_PATH environment variable is not set");
+  // This will be set by dataFile.js, but let's ensure it's available
+}
+
 require("./app/console"); // 导入日志管理
 require("./utils/syncMessage"); //导入消息通知
 
@@ -21,6 +28,20 @@ const {
 const { startGameTracking, sendRunningStatus } = require("./app/gameTracker");
 const gotTheLock = app.requestSingleInstanceLock();
 
+// Add process error handlers
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  dialog.showErrorBox(
+    "Uncaught Exception",
+    `An unexpected error occurred: ${error.message}`
+  );
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  dialog.showErrorBox("Unhandled Rejection", `Promise rejection: ${reason}`);
+});
+
 let tray = null;
 let mainWindow;
 global.mainWindow = mainWindow; // 将 mainWindow 保存在全局对象中
@@ -30,7 +51,7 @@ const isMac = process.platform === "darwin";
 
 function createTray() {
   const iconPath = isMac
-    ? path.join(__dirname, "assets", "icon.png") // Use PNG for macOS
+    ? path.join(__dirname, "..", "assets", "icon.icns") // Use ICNS for macOS from correct path
     : path.join(__dirname, "assets", "icon.ico"); // Use ICO for Windows
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
@@ -80,6 +101,7 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false,
       nodeIntegration: false,
+      hardwareAcceleration: false, // Disable hardware acceleration to prevent SIGSEGV on macOS
     },
     frame: false,
   });
@@ -196,15 +218,39 @@ require("./utils/settings/export/exportExcel");
 const { loadBackground } = require("./utils/settings/background");
 // 页面功能
 require("./app/appIPC");
-app.whenReady().then(() => {
-  initializeDatabase();
-  initializeSettings();
-  // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
-  startGameTracking();
-  module.exports = { createWindow };
-  require("./app/update"); // 初始化更新
-  require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
-});
+app
+  .whenReady()
+  .then(() => {
+    try {
+      console.log("Starting app initialization...");
+      initializeDatabase();
+      console.log("Database initialized successfully");
+      initializeSettings();
+      console.log("Settings initialized successfully");
+      // 启动后台进程检测，每20秒检测一次（由 gameTracker.js 设置间隔）
+      startGameTracking();
+      console.log("Game tracking started successfully");
+      module.exports = { createWindow };
+      require("./app/update"); // 初始化更新
+      require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
+      console.log("App initialization completed successfully");
+    } catch (error) {
+      console.error("Error during app initialization:", error);
+      dialog.showErrorBox(
+        "Initialization Error",
+        `Failed to initialize app: ${error.message}`
+      );
+      app.quit();
+    }
+  })
+  .catch((error) => {
+    console.error("App ready failed:", error);
+    dialog.showErrorBox(
+      "App Ready Failed",
+      `App failed to start: ${error.message}`
+    );
+    app.quit();
+  });
 
 // 触发运行状态更新通知
 ipcMain.on("running-status-updated", (event, runningStatus) => {

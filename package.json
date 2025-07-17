@@ -6,8 +6,12 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "chcp 65001 && electron .",
-    "build": "set NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder"
+    "start": "electron .",
+    "start:win": "chcp 65001 && electron .",
+    "build": "electron-builder",
+    "build:win": "set NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --win",
+    "build:mac": "export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --mac",
+    "build:linux": "export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --linux"
   },
   "keywords": [],
   "devDependencies": {
@@ -32,8 +36,10 @@
     "qs": "^6.13.0",
     "sqlite3": "^5.1.7",
     "swiper": "^11.1.15",
-    "winreg": "^1.2.5",
     "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "winreg": "^1.2.5"
   },
   "build": {
     "appId": "com.wenpeng.nekogame",
@@ -60,6 +66,15 @@
     "win": {
       "target": "nsis",
       "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.games"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
     },
     "nsis": {
       "oneClick": false,
