@@ -72,9 +72,17 @@ function analyzeZzzRankTypes(records) {
     mapping[levels[i]] = uniqueRanks[i];
   }
 
-  // 如果只有2种星级，假设是S和A级
+  // 如果只有2种星级
   if (uniqueRanks.length === 2) {
-    mapping["B"] = null; // 没有B级数据
+    // 如果是连续的两个等级，则为A和B（没有S）
+    if (uniqueRanks[0] - uniqueRanks[1] === 1) {
+      mapping["S"] = null; // 没有S级
+      mapping["A"] = uniqueRanks[0];
+      mapping["B"] = uniqueRanks[1];
+    } else {
+      // 否则为S和A（没有B）
+      mapping["B"] = null;
+    }
   }
 
   console.log("[ZZZ星级分析] 建立的映射关系:", mapping);
