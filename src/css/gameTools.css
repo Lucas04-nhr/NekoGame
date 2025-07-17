@@ -168,7 +168,7 @@ body {
 #global-back-button {
   position: absolute;
   top: 20px;
-  left: 150px;
+  left: 2vw; /* Use relative unit for better responsiveness */
   z-index: 10;
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
