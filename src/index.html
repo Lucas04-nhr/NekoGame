@@ -42,9 +42,9 @@
       // 根据平台添加相应的 CSS 类
       if (navigator.platform.startsWith("Mac")) {
         document.body.classList.add("mac");
-        // document.getElementById("library-tab").style.display = "none";
-        // document.getElementById("home-tab").style.display = "none";
-        // document.getElementById("tools-tab").classList.add("active");
+        document.getElementById("library-tab").style.display = "none";
+        document.getElementById("home-tab").style.display = "none";
+        document.getElementById("tools-tab").classList.add("active");
       } else if (navigator.platform.startsWith("Win")) {
         document.body.classList.add("windows");
         document.getElementById("home-tab").classList.add("active");
