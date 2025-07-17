@@ -32,114 +32,119 @@ function initializeTrackedGames() {
 }
 
 
-// 检测后台运行的进程并实时更新时长
-function detectRunningGames() {
-    try {
-        const tasklist = spawn('tasklist', ['/FO', 'CSV']); // 输出为 CSV 格式
-        let fullOutput = ''; // 用于存储完整输出
-        tasklist.stdout.on('data', (data) => {
-            fullOutput += data.toString(); // 累积输出数据
-        });
-        tasklist.on('close', (code) => {
-            if (code !== 0) {
-                console.error(`Tasklist exited with code ${code}`);
-                return;
-            }
-            try {
-                // 将输出解析为数组（去掉 CSV 表头）
-                const processList = fullOutput
-                    .split('\n')
-                    .slice(1) // 去掉表头
-                    .map((line) => line.split('","')[0]?.replace(/"/g, '').trim()) // 提取进程名
-                Object.keys(trackedGames).forEach(processName => {
-                    const game = trackedGames[processName];
-                    const isRunning = processList.some((proc) => proc.toLowerCase() === processName.toLowerCase());
+// 仅在 Windows 平台进行检测
+if (process.platform === 'win32') {
+    // 检测后台运行的进程并实时更新时长
+    function detectRunningGames() {
+        try {
+            const tasklist = spawn('tasklist', ['/FO', 'CSV']); // 输出为 CSV 格式
+            let fullOutput = ''; // 用于存储完整输出
+            tasklist.stdout.on('data', (data) => {
+                fullOutput += data.toString(); // 累积输出数据
+            });
+            tasklist.on('close', (code) => {
+                if (code !== 0) {
+                    console.error(`Tasklist exited with code ${code}`);
+                    return;
+                }
+                try {
+                    // 将输出解析为数组（去掉 CSV 表头）
+                    const processList = fullOutput
+                        .split('\n')
+                        .slice(1) // 去掉表头
+                        .map((line) => line.split('","')[0]?.replace(/"/g, '').trim()) // 提取进程名
+                    Object.keys(trackedGames).forEach(processName => {
+                        const game = trackedGames[processName];
+                        const isRunning = processList.some((proc) => proc.toLowerCase() === processName.toLowerCase());
 
-                    if (isRunning && !game.isRunning) {
-                        game.isRunning = true;
-                        startSession(game.id, (err, sessionId) => {
-                            if (err) {
-                                console.error("Error starting session:", err);
-                            } else {
-                                console.log(`Started session for ${processName}`);
-                                game.sessionId = sessionId;
-                                sendRunningStatus();
-                            }
-                        });
-                    } else if (isRunning && game.isRunning && game.sessionId) {
-                        const endTime = dayjs().tz(chinaTimezone).format('YYYY-MM-DD HH:mm:ss');
-                        const increment = 15;
+                        if (isRunning && !game.isRunning) {
+                            game.isRunning = true;
+                            startSession(game.id, (err, sessionId) => {
+                                if (err) {
+                                    console.error("Error starting session:", err);
+                                } else {
+                                    console.log(`Started session for ${processName}`);
+                                    game.sessionId = sessionId;
+                                    sendRunningStatus();
+                                }
+                            });
+                        } else if (isRunning && game.isRunning && game.sessionId) {
+                            const endTime = dayjs().tz(chinaTimezone).format('YYYY-MM-DD HH:mm:ss');
+                            const increment = 15;
 
-                        db.run(`
-                            UPDATE game_sessions 
-                            SET end_time = ?, duration = strftime('%s', ?) - strftime('%s', start_time)
-                            WHERE id = ? AND datetime(end_time) >= datetime(start_time) 
-                        `, [endTime, endTime, game.sessionId], (err) => {
-                            if (err) console.error("Error updating session duration:", err);
-                        });
+                            db.run(`
+                                UPDATE game_sessions 
+                                SET end_time = ?, duration = strftime('%s', ?) - strftime('%s', start_time)
+                                WHERE id = ? AND datetime(end_time) >= datetime(start_time) 
+                            `, [endTime, endTime, game.sessionId], (err) => {
+                                if (err) console.error("Error updating session duration:", err);
+                            });
 
-                        game.totalTime += increment;
-                        db.run(`UPDATE games SET total_time = ? WHERE id = ?`, [game.totalTime, game.id], (err) => {
-                            if (err) console.error("Error updating total time:", err);
-                        });
-                        sendRunningStatus();
-                    } else if (!isRunning && game.isRunning && game.sessionId) {
-                        game.isRunning = false;
-                        db.get(`SELECT start_time, end_time FROM game_sessions WHERE id = ?`, [game.sessionId], (err, session) => {
-                            if (err) {
-                                console.error("Error fetching session:", err);
-                                return;
-                            }
-                            if (!session || session.end_time === null) {
-                                db.run(`DELETE FROM game_sessions WHERE id = ?`, [game.sessionId], (err) => {
-                                    if (err) console.error("Error deleting invalid session:", err);
-                                });
-                            } else {
-                                endSession(game.id, (err) => {
-                                    if (err) {
-                                        console.error("Error ending session:", err);
-                                    } else {
-                                        console.log(`Ended session for ${processName}`);
-                                        game.sessionId = null;
-                                        sendRunningStatus();
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            } catch (err) {
-                console.error("Error processing tasklist output:", err);
-            }
-        });
-        tasklist.stderr.on('data', (data) => {
-            console.error(`Error fetching process list: ${data.toString()}`);
-        });
-        tasklist.on('error', (err) => {
-            console.error("Error spawning tasklist:", err);
-        });
-    } catch (err) {
-        global.Notify(false, `发生了权限错误${err}\n如果频繁出现，请重启应用`);
-        console.error("Error in detectRunningGames:", err);
+                            game.totalTime += increment;
+                            db.run(`UPDATE games SET total_time = ? WHERE id = ?`, [game.totalTime, game.id], (err) => {
+                                if (err) console.error("Error updating total time:", err);
+                            });
+                            sendRunningStatus();
+                        } else if (!isRunning && game.isRunning && game.sessionId) {
+                            game.isRunning = false;
+                            db.get(`SELECT start_time, end_time FROM game_sessions WHERE id = ?`, [game.sessionId], (err, session) => {
+                                if (err) {
+                                    console.error("Error fetching session:", err);
+                                    return;
+                                }
+                                if (!session || session.end_time === null) {
+                                    db.run(`DELETE FROM game_sessions WHERE id = ?`, [game.sessionId], (err) => {
+                                        if (err) console.error("Error deleting invalid session:", err);
+                                    });
+                                } else {
+                                    endSession(game.id, (err) => {
+                                        if (err) {
+                                            console.error("Error ending session:", err);
+                                        } else {
+                                            console.log(`Ended session for ${processName}`);
+                                            game.sessionId = null;
+                                            sendRunningStatus();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } catch (err) {
+                    console.error("Error processing tasklist output:", err);
+                }
+            });
+            tasklist.stderr.on('data', (data) => {
+                console.error(`Error fetching process list: ${data.toString()}`);
+            });
+            tasklist.on('error', (err) => {
+                console.error("Error spawning tasklist:", err);
+            });
+        } catch (err) {
+            global.Notify(false, `发生了权限错误${err}\n如果频繁出现，请重启应用`);
+            console.error("Error in detectRunningGames:", err);
+        }
     }
-}
 
-// 向前端发送游戏运行状态
-function sendRunningStatus() {
-    //if (!mainWindow || !mainWindow.webContents) return; // 添加保护性判断
-    const runningStatus = Object.keys(trackedGames).map(processName => {
-        const game = trackedGames[processName];
-        return { id: game.id, isRunning: game.isRunning };
-    });
-    //mainWindow.webContents.send('running-status-updated', runningStatus);
-    ipcMain.emit('running-status-updated', null, runningStatus);  // 发送到主进程
-}
+    // 向前端发送游戏运行状态
+    function sendRunningStatus() {
+        const runningStatus = Object.keys(trackedGames).map(processName => {
+            const game = trackedGames[processName];
+            return { id: game.id, isRunning: game.isRunning };
+        });
+        ipcMain.emit('running-status-updated', null, runningStatus);  // 发送到主进程
+    }
 
-
-// 启动检测循环，每15秒检测一次
-function startGameTracking() {
-    initializeTrackedGames();
-    setInterval(() => detectRunningGames(), 15000);
+    // 启动检测循环，每15秒检测一次
+    function startGameTracking() {
+        initializeTrackedGames();
+        setInterval(() => detectRunningGames(), 15000);
+    }
+} else {
+    // 非 Windows 平台时，定义空函数避免报错
+    function detectRunningGames() {}
+    function sendRunningStatus() {}
+    function startGameTracking() {}
 }
 
 module.exports = {

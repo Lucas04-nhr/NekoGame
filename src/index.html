@@ -29,8 +29,8 @@
         <nav class="sidebar">
             <h2>Neko Game</h2>
             <ul>
-                <li id="home-tab" class="tab active" data-page="home">主页</li>
-                <li id="library-tab" class="tab" data-page="library">游戏库</li>
+                <li id="home-tab" class="tab" data-page="home">主页</li>
+                <li id="library-tab" class="tab" data-page="library" style="display: none;">游戏库</li>
                 <li id="tools-tab" class="tab" data-page="gameTools">游戏工具</li>
                 <li id="settings-tab" class="tab" data-page="settings">设置</li>
             </ul>
@@ -38,5 +38,16 @@
         <main id="content" class="content"></main>
     </div>
     <script src="js/renderer.js"></script>
+    <script>
+        if (navigator.platform.startsWith('Win')) {
+            document.getElementById('home-tab').classList.add('active');
+        }
+        if (navigator.platform.startsWith('Mac')) {
+            document.getElementById('library-tab').style.display = 'none';
+            document.getElementById('home-tab').style.display = 'none';
+            document.getElementById('tools-tab').classList.add('active');
+        }
+    </script>
+
 </body>
 </html>
