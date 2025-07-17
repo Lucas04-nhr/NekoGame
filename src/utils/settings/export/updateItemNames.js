@@ -1,4 +1,4 @@
-const { loadDict } = require("./fetchUIGF");
+const { loadMetadata } = require("../../metadata/hakushiClient");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
@@ -13,26 +13,113 @@ const db2 = new sqlite3.Database(
   }
 );
 
+// 游戏数据类型映射 - 定义每个游戏需要加载哪些类型的元数据
+const GAME_METADATA_TYPES = {
+  genshin: ["character", "weapon"],
+  starrail: ["character", "lightcone"],
+  zzz: ["character", "weapon", "bangboo"],
+};
+
+// 游戏语言字段映射 - 不同游戏使用不同的中文字段名
+const GAME_LANGUAGE_FIELDS = {
+  genshin: ["CHS", "EN", "JP", "KR"],
+  starrail: ["cn", "en", "jp", "kr"],
+  zzz: ["CHS", "EN", "JA", "KO"],
+};
+
 /**
- * 根据item_id和字典更新记录的name字段
+ * 为指定游戏构建完整的物品名称字典
+ * @param {string} game - 游戏名称 (genshin, starrail, zzz)
+ * @param {string} preferredLang - 首选语言 (默认为游戏的第一个中文字段)
+ * @returns {Object|null} - 物品ID到名称的映射对象
+ */
+function buildItemNameDict(game, preferredLang = null) {
+  const types = GAME_METADATA_TYPES[game];
+  const langFields = GAME_LANGUAGE_FIELDS[game];
+
+  if (!types || !langFields) {
+    console.warn(`不支持的游戏: ${game}`);
+    return null;
+  }
+
+  // 如果没有指定首选语言，使用游戏的第一个语言字段（通常是中文）
+  const primaryLang = preferredLang || langFields[0];
+
+  const itemDict = {};
+  let totalItems = 0;
+
+  // 加载所有类型的元数据并合并
+  for (const type of types) {
+    const metadata = loadMetadata(game, type);
+    if (!metadata) {
+      console.warn(`无法加载 ${game} 的 ${type} 元数据`);
+      continue;
+    }
+
+    // 遍历元数据，提取物品ID和名称
+    Object.entries(metadata).forEach(([itemId, itemData]) => {
+      if (itemData && itemData[primaryLang]) {
+        itemDict[itemId] = itemData[primaryLang];
+        totalItems++;
+      } else {
+        // 如果首选语言不存在，按优先级尝试回退到其他语言
+        let foundName = null;
+        for (const fallbackLang of langFields) {
+          if (itemData[fallbackLang]) {
+            foundName = itemData[fallbackLang];
+            break;
+          }
+        }
+
+        if (foundName) {
+          itemDict[itemId] = foundName;
+          totalItems++;
+        } else {
+          console.warn(
+            `物品 ${itemId} 缺少所有支持的语言字段: ${langFields.join(", ")}`
+          );
+        }
+      }
+    });
+
+    console.log(
+      `已加载 ${game} 的 ${type} 元数据: ${Object.keys(metadata).length} 个条目`
+    );
+  }
+
+  if (totalItems > 0) {
+    console.log(
+      `${game} 完整字典构建完成，包含 ${totalItems} 个物品，使用语言字段: ${primaryLang}`
+    );
+    return itemDict;
+  } else {
+    console.warn(`${game} 未能构建有效的物品字典`);
+    return null;
+  }
+}
+
+/**
+ * 根据item_id和Hakushi元数据更新记录的name字段
  * @param {string} tableName - 表名 (genshin_gacha, starrail_gacha, zzz_gacha)
  * @param {string} game - 游戏名称 (genshin, starrail, zzz)
- * @param {string} lang - 语言代码
+ * @param {string} preferredLang - 首选语言字段 (可选，默认使用游戏的首选中文字段)
  * @returns {Promise<{updated: number, errors: number}>} 更新结果
  */
-async function updateItemNamesInTable(tableName, game, lang = "chs") {
+async function updateItemNamesInTable(tableName, game, preferredLang = null) {
   return new Promise((resolve, reject) => {
     console.log(`开始更新 ${tableName} 表中的物品名称...`);
 
-    // 加载字典
-    const dict = loadDict(game, lang);
+    // 构建物品字典
+    const dict = buildItemNameDict(game, preferredLang);
     if (!dict) {
-      console.warn(`无法加载 ${game} 的字典，跳过更新`);
+      console.warn(`无法为 ${game} 构建物品字典，跳过更新`);
       resolve({ updated: 0, errors: 0 });
       return;
     }
 
-    console.log(`已加载 ${game} 字典，包含 ${Object.keys(dict).length} 个条目`);
+    console.log(
+      `已构建 ${game} 物品字典，包含 ${Object.keys(dict).length} 个条目`
+    );
 
     let updated = 0;
     let errors = 0;
@@ -102,10 +189,10 @@ async function updateItemNamesInTable(tableName, game, lang = "chs") {
 
 /**
  * 更新所有游戏的抽卡记录物品名称
- * @param {string} lang - 语言代码
+ * @param {string} preferredLang - 首选语言字段 (可选，默认使用各游戏的首选中文字段)
  * @returns {Promise<Object>} 总体更新结果
  */
-async function updateAllGachaItemNames(lang = "chs") {
+async function updateAllGachaItemNames(preferredLang = null) {
   console.log("开始更新所有抽卡记录的物品名称...");
 
   const gameConfigs = [
@@ -128,7 +215,7 @@ async function updateAllGachaItemNames(lang = "chs") {
       const result = await updateItemNamesInTable(
         config.table,
         config.game,
-        lang
+        preferredLang
       );
       results[config.game] = result;
       totalUpdated += result.updated;
@@ -163,10 +250,10 @@ async function updateAllGachaItemNames(lang = "chs") {
 
 /**
  * 检查是否有记录需要更新物品名称
- * @param {string} lang - 语言代码
+ * @param {string} preferredLang - 首选语言字段 (可选，默认使用各游戏的首选中文字段)
  * @returns {Promise<Object>} 检查结果
  */
-async function checkItemNamesNeedUpdate(lang = "chs") {
+async function checkItemNamesNeedUpdate(preferredLang = null) {
   const gameConfigs = [
     { table: "genshin_gacha", game: "genshin" },
     { table: "starrail_gacha", game: "starrail" },
@@ -177,13 +264,13 @@ async function checkItemNamesNeedUpdate(lang = "chs") {
 
   for (const config of gameConfigs) {
     try {
-      const dict = loadDict(config.game, lang);
+      const dict = buildItemNameDict(config.game, preferredLang);
       if (!dict) {
         results[config.game] = {
           needUpdate: 0,
           total: 0,
           dictAvailable: false,
-          message: "字典不可用",
+          message: "元数据不可用",
         };
         continue;
       }
@@ -234,7 +321,10 @@ async function checkItemNamesNeedUpdate(lang = "chs") {
 }
 
 module.exports = {
+  buildItemNameDict,
   updateItemNamesInTable,
   updateAllGachaItemNames,
   checkItemNamesNeedUpdate,
+  GAME_METADATA_TYPES,
+  GAME_LANGUAGE_FIELDS,
 };
