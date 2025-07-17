@@ -72,10 +72,6 @@
       "icon": "assets/icon.icns",
       "category": "public.app-category.games"
     },
-    "linux": {
-      "target": "AppImage",
-      "icon": "assets/icon.png"
-    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
