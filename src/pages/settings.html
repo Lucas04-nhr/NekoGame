@@ -195,6 +195,68 @@
       </div>
     </div>
   </div>
+  <!-- 自定义样式卡片 -->
+  <div class="setting-card">
+    <div class="card-header">
+      <h3>自定义样式</h3>
+    </div>
+    <div class="card-body">
+      <div class="settings-option">
+        <span>启用自定义CSS</span>
+        <p>启用后将应用您的自定义CSS样式</p>
+        <div class="switch-container">
+          <input type="checkbox" id="enableCustomCSS" />
+          <label for="enableCustomCSS" class="switch-label"
+            ><span class="switch-button"></span
+          ></label>
+        </div>
+      </div>
+      <div class="settings-option">
+        <label for="local-css-path">本地CSS文件路径</label>
+        <input
+          type="text"
+          id="local-css-path"
+          placeholder="选择本地CSS文件"
+          readonly
+        />
+        <button type="button" id="browse-local-css">选择本地CSS文件</button>
+        <p>选择本地CSS文件来自定义程序样式</p>
+      </div>
+      <div class="settings-option">
+        <label for="remote-css-url">网络CSS文件URL</label>
+        <input
+          type="text"
+          id="remote-css-url"
+          placeholder="请输入CSS文件的完整URL，如：https://example.com/style.css"
+        />
+        <button type="button" id="save-remote-css">保存网络CSS</button>
+        <p>输入CSS文件的URL地址来应用网络样式</p>
+      </div>
+      <div class="settings-option">
+        <label>当前应用的CSS</label>
+        <div
+          id="current-css-status"
+          style="
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(60, 60, 60, 0.8);
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #e0e0e0;
+          "
+        >
+          <div>无自定义CSS</div>
+        </div>
+        <div
+          style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px"
+        >
+          <button type="button" id="refresh-css">刷新CSS</button>
+          <button type="button" id="clear-css">清除所有自定义CSS</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 祈愿工具卡片 -->
   <div class="setting-card">
     <div class="card-header">

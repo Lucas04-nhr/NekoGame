@@ -466,4 +466,169 @@
       }, 1000);
     });
   }
+
+  // 自定义CSS功能
+  const enableCustomCSSCheckbox = document.getElementById("enableCustomCSS");
+  const localCSSPathInput = document.getElementById("local-css-path");
+  const browseCSSButton = document.getElementById("browse-local-css");
+  const remoteCSSURLInput = document.getElementById("remote-css-url");
+  const saveRemoteCSSButton = document.getElementById("save-remote-css");
+  const currentCSSStatusDiv = document.getElementById("current-css-status");
+  const refreshCSSButton = document.getElementById("refresh-css");
+  const clearCSSButton = document.getElementById("clear-css");
+
+  // 加载自定义CSS设置
+  async function loadCustomCSSSettings() {
+    try {
+      const settings = await window.electronAPI.invoke(
+        "load-custom-css-settings"
+      );
+
+      enableCustomCSSCheckbox.checked = settings.enabled || false;
+      localCSSPathInput.value = settings.localPath || "";
+      remoteCSSURLInput.value = settings.remoteURL || "";
+
+      updateCSSStatus(settings);
+    } catch (error) {
+      console.error("加载自定义CSS设置失败:", error);
+      animationMessage(false, "加载CSS设置失败");
+    }
+  }
+
+  // 更新CSS状态显示
+  function updateCSSStatus(settings) {
+    let statusText = "无自定义CSS";
+    let statusColor = "#aaa";
+
+    if (settings.enabled) {
+      if (settings.localPath) {
+        statusText = `本地CSS: ${settings.localPath}`;
+        statusColor = "#4caf50";
+      } else if (settings.remoteURL) {
+        statusText = `网络CSS: ${settings.remoteURL}`;
+        statusColor = "#2196f3";
+      } else {
+        statusText = "已启用但未配置CSS文件";
+        statusColor = "#ff9800";
+      }
+    }
+
+    currentCSSStatusDiv.innerHTML = `<div style="color: ${statusColor};">${statusText}</div>`;
+  }
+
+  // 启用/禁用自定义CSS
+  enableCustomCSSCheckbox.addEventListener("change", async () => {
+    try {
+      const enabled = enableCustomCSSCheckbox.checked;
+      await window.electronAPI.invoke("set-custom-css-enabled", enabled);
+
+      if (enabled) {
+        await window.electronAPI.invoke("apply-custom-css");
+        animationMessage(true, "自定义CSS已启用");
+      } else {
+        await window.electronAPI.invoke("remove-custom-css");
+        animationMessage(true, "自定义CSS已禁用");
+      }
+
+      loadCustomCSSSettings();
+    } catch (error) {
+      console.error("切换CSS设置失败:", error);
+      animationMessage(false, "切换CSS设置失败");
+    }
+  });
+
+  // 选择本地CSS文件
+  browseCSSButton.addEventListener("click", async () => {
+    try {
+      const result = await window.electronAPI.invoke("select-css-file");
+      if (result.success && result.filePath) {
+        localCSSPathInput.value = result.filePath;
+        await window.electronAPI.invoke(
+          "set-custom-css-local-path",
+          result.filePath
+        );
+
+        if (enableCustomCSSCheckbox.checked) {
+          await window.electronAPI.invoke("apply-custom-css");
+        }
+
+        animationMessage(true, "本地CSS文件已设置");
+        loadCustomCSSSettings();
+      } else if (result.canceled) {
+        // 用户取消了选择，不显示错误
+      } else {
+        animationMessage(false, result.message || "选择CSS文件失败");
+      }
+    } catch (error) {
+      console.error("选择CSS文件失败:", error);
+      animationMessage(false, "选择CSS文件失败");
+    }
+  });
+
+  // 保存网络CSS URL
+  saveRemoteCSSButton.addEventListener("click", async () => {
+    try {
+      const url = remoteCSSURLInput.value.trim();
+      if (!url) {
+        animationMessage(false, "请输入CSS文件的URL");
+        return;
+      }
+
+      // 简单的URL验证
+      try {
+        new URL(url);
+      } catch {
+        animationMessage(false, "请输入有效的URL");
+        return;
+      }
+
+      await window.electronAPI.invoke("set-custom-css-remote-url", url);
+
+      if (enableCustomCSSCheckbox.checked) {
+        await window.electronAPI.invoke("apply-custom-css");
+      }
+
+      animationMessage(true, "网络CSS URL已保存");
+      loadCustomCSSSettings();
+    } catch (error) {
+      console.error("保存网络CSS URL失败:", error);
+      animationMessage(false, "保存网络CSS URL失败");
+    }
+  });
+
+  // 刷新CSS
+  refreshCSSButton.addEventListener("click", async () => {
+    try {
+      if (enableCustomCSSCheckbox.checked) {
+        await window.electronAPI.invoke("apply-custom-css");
+        animationMessage(true, "CSS已刷新");
+      } else {
+        animationMessage(false, "请先启用自定义CSS");
+      }
+    } catch (error) {
+      console.error("刷新CSS失败:", error);
+      animationMessage(false, "刷新CSS失败");
+    }
+  });
+
+  // 清除所有自定义CSS
+  clearCSSButton.addEventListener("click", async () => {
+    try {
+      await window.electronAPI.invoke("clear-all-custom-css");
+      await window.electronAPI.invoke("remove-custom-css");
+
+      enableCustomCSSCheckbox.checked = false;
+      localCSSPathInput.value = "";
+      remoteCSSURLInput.value = "";
+
+      animationMessage(true, "所有自定义CSS已清除");
+      loadCustomCSSSettings();
+    } catch (error) {
+      console.error("清除CSS失败:", error);
+      animationMessage(false, "清除CSS失败");
+    }
+  });
+
+  // 初始化自定义CSS设置
+  loadCustomCSSSettings();
 })();

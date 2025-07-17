@@ -71,4 +71,17 @@ contextBridge.exposeInMainWorld("electronAPI", {
   }, // 发送保存设置到主进程
   selectBackgroundFile: () => ipcRenderer.invoke("selectBackgroundFile"), // 调用主进程的 `selectBackgroundFile`
   toggleDevTools: () => ipcRenderer.send("toggle-dev-tools"), // 切换开发者工具
+
+  // 自定义CSS相关方法
+  loadCustomCSSSettings: () => ipcRenderer.invoke("load-custom-css-settings"),
+  setCustomCSSEnabled: (enabled) =>
+    ipcRenderer.invoke("set-custom-css-enabled", enabled),
+  setCustomCSSLocalPath: (path) =>
+    ipcRenderer.invoke("set-custom-css-local-path", path),
+  setCustomCSSRemoteURL: (url) =>
+    ipcRenderer.invoke("set-custom-css-remote-url", url),
+  selectCSSFile: () => ipcRenderer.invoke("select-css-file"),
+  applyCustomCSS: () => ipcRenderer.invoke("apply-custom-css"),
+  removeCustomCSS: () => ipcRenderer.invoke("remove-custom-css"),
+  clearAllCustomCSS: () => ipcRenderer.invoke("clear-all-custom-css"),
 });
