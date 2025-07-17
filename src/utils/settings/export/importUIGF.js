@@ -20,6 +20,34 @@ const UIGF_FIELDS = [
 ];
 
 /**
+ * ZZZ星级转换函数
+ * 将3、4、5等级转换为2、3、4等级存储到数据库
+ * @param {number|string} rankType - 原始星级值
+ * @returns {number} - 转换后的星级值
+ */
+function convertZzzRankType(rankType) {
+  const rank = parseInt(rankType);
+
+  // 如果已经是2、3、4格式，直接返回
+  if (rank >= 2 && rank <= 4) {
+    return rank;
+  }
+
+  // 转换3、4、5格式为2、3、4格式
+  if (rank >= 3 && rank <= 5) {
+    const converted = rank - 1;
+    console.log(
+      `[ZZZ星级转换] ${rank} -> ${converted} (3/4/5格式转为2/3/4格式)`
+    );
+    return converted;
+  }
+
+  // 如果是其他值，记录警告但保持原值
+  console.warn(`[ZZZ星级转换] 未知的rank_type值: ${rank}，保持原值`);
+  return rank;
+}
+
+/**
  * 根据本地字典获取物品ID
  * @param {string} itemName - 物品名称
  * @param {string} gameType - 游戏类型 (genshin, starrail, zzz)
@@ -218,9 +246,22 @@ async function insertUIGF(
   let dictHits = 0;
   let apiFallbacks = 0;
   let failures = 0;
+  let zzzConversions = 0; // 统计ZZZ星级转换次数
 
   for (const record of list) {
     const recordData = { ...record, uid, lang };
+
+    // ZZZ数据星级转换统计
+    if (gameType === "zzz" && recordData.rank_type) {
+      const originalRank = parseInt(recordData.rank_type);
+      if (
+        originalRank >= 3 &&
+        originalRank <= 5 &&
+        originalRank !== originalRank - 1
+      ) {
+        zzzConversions++;
+      }
+    }
     // 检查字段完整性
     checkUIGF(
       recordData.id,
@@ -309,6 +350,11 @@ async function insertUIGF(
       console.warn(`字典处理失败: ${err.message}`);
       apiFallbacks++;
     }
+    // ZZZ数据星级转换处理
+    if (gameType === "zzz" && recordData.rank_type) {
+      recordData.rank_type = convertZzzRankType(recordData.rank_type);
+    }
+
     // 插入数据
     const values = UIGF_FIELDS.map((field) => recordData[field] || "");
     await new Promise((resolve, reject) => {
@@ -327,6 +373,11 @@ async function insertUIGF(
   console.log(
     `数据处理完成 - 字典验证/获取: ${dictHits}, 未使用字典: ${apiFallbacks}, 失败: ${failures}`
   );
+  if (gameType === "zzz" && zzzConversions > 0) {
+    console.log(
+      `🔄 ZZZ星级转换: ${zzzConversions} 条记录从3/4/5格式转换为2/3/4格式`
+    );
+  }
   if (dictHits > 0) {
     console.log(`✅ 本地字典有效，${dictHits} 个物品通过字典验证或获取ID`);
   }
