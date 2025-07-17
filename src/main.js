@@ -51,7 +51,7 @@ const isMac = process.platform === "darwin";
 
 function createTray() {
   const iconPath = isMac
-    ? path.join(__dirname, "assets", "icon.icns") // Use ICNS for macOS from correct path
+    ? path.join(__dirname, "assets", "icon.png") // Use PNG for macOS from correct path
     : path.join(__dirname, "assets", "icon.ico"); // Use ICO for Windows
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
