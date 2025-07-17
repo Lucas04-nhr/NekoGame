@@ -152,7 +152,9 @@
   });
   document.getElementById("exportWuWa").addEventListener("click", async () => {
     const result = await window.electronAPI.invoke("exportGachaData");
-    animationMessage(result.success, result.message);
+    if (result.success || result.message !== "用户取消了保存操作") {
+      animationMessage(result.success, result.message);
+    }
   });
 
   document
