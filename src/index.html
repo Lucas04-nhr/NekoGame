@@ -30,14 +30,7 @@
         <h2>Neko Game</h2>
         <ul>
           <li id="home-tab" class="tab" data-page="home">主页</li>
-          <li
-            id="library-tab"
-            class="tab"
-            data-page="library"
-            style="display: none"
-          >
-            游戏库
-          </li>
+          <li id="library-tab" class="tab" data-page="library">游戏库</li>
           <li id="tools-tab" class="tab" data-page="gameTools">游戏工具</li>
           <li id="settings-tab" class="tab" data-page="settings">设置</li>
         </ul>
@@ -49,9 +42,9 @@
       // 根据平台添加相应的 CSS 类
       if (navigator.platform.startsWith("Mac")) {
         document.body.classList.add("mac");
-        document.getElementById("library-tab").style.display = "none";
-        document.getElementById("home-tab").style.display = "none";
-        document.getElementById("tools-tab").classList.add("active");
+        // document.getElementById("library-tab").style.display = "none";
+        // document.getElementById("home-tab").style.display = "none";
+        // document.getElementById("tools-tab").classList.add("active");
       } else if (navigator.platform.startsWith("Win")) {
         document.body.classList.add("windows");
         document.getElementById("home-tab").classList.add("active");
