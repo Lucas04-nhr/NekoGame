@@ -1,74 +1,68 @@
-.content{
-    overflow: auto;
-    /*box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);*/
+.content {
+  overflow: auto;
+  /*box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);*/
 }
 
 h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 p {
-    font-size: 0.8em;
-    color: #9ca3af;
-    margin-bottom: 10px;
+  font-size: 0.8em;
+  color: #9ca3af;
+  margin-bottom: 10px;
 }
-
 
 .settings-section h3 {
-    color: #ffffff;
-    font-size: 18px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #3a3a3a;
-    padding-bottom: 5px;
+  color: #ffffff;
+  font-size: 18px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #3a3a3a;
+  padding-bottom: 5px;
 }
-
 
 /* 开关按钮样式 */
 .settings-option {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
-
 
 input[type="checkbox"] {
-    display: none;
+  display: none;
 }
 
-
 input[type="checkbox"]:checked + .switch-label {
-    background-color: rgba(76, 175, 80,0.6);
+  background-color: rgba(76, 175, 80, 0.6);
 }
 
 input[type="checkbox"]:checked + .switch-label .switch-button {
-    left: 22px;
+  left: 22px;
 }
 
 a[target="_blank"] {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
 }
 
 a[target="_blank"]:hover {
-    color: #0056b3;
-    text-decoration: underline;
+  color: #0056b3;
+  text-decoration: underline;
 }
 
-
-input[type="text"]{
-    width: 100%;
+input[type="text"] {
+  width: 100%;
 }
 
 /* 聚焦时的样式 */
 input[type="text"]:focus {
-    outline: none;  /* 去除默认的蓝色边框 */
-    background-color: rgba(85,85,85,0.5);
+  outline: none; /* 去除默认的蓝色边框 */
+  background-color: rgba(85, 85, 85, 0.5);
 }
-
 
 /* 设置容器 */
 .settings-container {
@@ -84,7 +78,8 @@ input[type="text"]:focus {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 15px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease,
+    backdrop-filter 0.3s ease;
 }
 
 .setting-card:hover {
@@ -98,7 +93,7 @@ input[type="text"]:focus {
   margin: 0;
   color: #fff;
   font-size: 18px;
-    padding:5px;
+  padding: 5px;
 }
 
 .card-header p {
@@ -137,7 +132,6 @@ input[type="text"]:focus {
   display: flex;
   align-items: center;
 }
-
 
 .switch-label {
   display: inline-block;
@@ -208,4 +202,67 @@ a[target="_blank"] {
 a[target="_blank"]:hover {
   color: #0056b3;
   text-decoration: underline;
+}
+
+/* UIGF 字典管理样式 */
+#dict-status {
+  background: rgba(60, 60, 60, 0.8) !important;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  font-size: 0.9em;
+  color: #e0e0e0;
+}
+
+#dict-status div {
+  margin-bottom: 6px;
+}
+
+#dict-status div:last-child {
+  margin-bottom: 0;
+}
+
+.dict-game-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dict-game-status:last-child {
+  border-bottom: none;
+}
+
+.dict-button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.dict-button-group button {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 12px;
+  font-size: 0.9em;
+}
+
+/* 字典状态指示器 */
+.dict-status-indicator {
+  font-size: 1.1em;
+  margin-right: 8px;
+}
+
+.dict-status-success {
+  color: #4caf50;
+}
+
+.dict-status-error {
+  color: #f44336;
+}
+
+.dict-status-info {
+  color: #2196f3;
 }

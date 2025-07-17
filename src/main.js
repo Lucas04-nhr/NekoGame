@@ -233,6 +233,7 @@ app
       module.exports = { createWindow };
       require("./app/update"); // 初始化更新
       require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
+      require("./app/settings/uigfDictIpc"); // 初始化UIGF字典下载功能
       console.log("App initialization completed successfully");
     } catch (error) {
       console.error("Error during app initialization:", error);
