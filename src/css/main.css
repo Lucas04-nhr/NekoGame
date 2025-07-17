@@ -1,552 +1,587 @@
-html, body {
-    overflow: hidden;
-    height: 100%;
-    margin: 0;
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
 }
 
-
 body {
-    margin: 0;
-    font-family: Arial, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #e0e0e0;
+  margin: 0;
+  font-family: Arial, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #e0e0e0;
 }
 
 .container {
-    display: flex;
-    height: 100vh;
+  display: flex;
+  height: 100vh;
 }
 
 /* 自定义标题栏样式 */
 .title-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    background-color: rgb(44, 44, 44, 0);
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-right: 10px;
-    box-sizing: border-box;
-    -webkit-app-region: drag;
-    z-index: 10;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background-color: rgb(44, 44, 44, 0);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 10px;
+  box-sizing: border-box;
+  -webkit-app-region: drag;
+  z-index: 10;
+}
+
+/* 在 macOS 上隐藏自定义标题栏 */
+body.mac .title-bar {
+  display: none;
 }
 
 .window-controls {
-    display: flex;
+  display: flex;
+}
+
+/* 在 macOS 上隐藏自定义窗口控制按钮 */
+body.mac .window-controls {
+  display: none;
 }
 
 .control-button {
-    font-size: 18px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    margin-left: 5px;
-    border-radius: 3px;
-    -webkit-app-region: no-drag;
-    transition: background 0.3s ease;
+  font-size: 18px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 5px;
+  border-radius: 3px;
+  -webkit-app-region: no-drag;
+  transition: background 0.3s ease;
 }
 
 .control-button:hover {
-    background-color: rgb(255, 255, 255, 0.3);
-    backdrop-filter: blur(3px);
+  background-color: rgb(255, 255, 255, 0.3);
+  backdrop-filter: blur(3px);
 }
 
 #global-back-button {
-    font-size: 18px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    margin-left: 5px;
-    border-radius: 3px;
-    -webkit-app-region: no-drag;
-    transition: background 0.3s ease;
+  font-size: 18px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 5px;
+  border-radius: 3px;
+  -webkit-app-region: no-drag;
+  transition: background 0.3s ease;
 }
 #global-back-button.hidden {
-    opacity: 0;
-    transform: translateX(-50px); /* 初始偏移 */
-    pointer-events: none; /* 不可点击 */
+  opacity: 0;
+  transform: translateX(-50px); /* 初始偏移 */
+  pointer-events: none; /* 不可点击 */
 }
 #global-back-button.visible {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 #global-back-button:hover {
-    background-color: rgb(255, 255, 255, 0.3);
-    backdrop-filter: blur(3px);
+  background-color: rgb(255, 255, 255, 0.3);
+  backdrop-filter: blur(3px);
 }
 
 /* 左侧导航栏 */
 .sidebar {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
-    background-color: rgb(44, 44, 44, 0);
-    backdrop-filter: blur(4px);
-    padding: 20px;
-    box-sizing: border-box;
-    margin-top: 40px;
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+  background-color: rgb(44, 44, 44, 0);
+  backdrop-filter: blur(4px);
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: 40px;
+}
+
+/* 在 macOS 上调整侧边栏顶部边距 */
+body.mac .sidebar {
+  margin-top: 0;
+  padding-top: 40px; /* 为原生标题栏留出空间 */
 }
 
 .sidebar h2 {
-    color: #ffffff;
-    font-size: 24px;
-    margin-bottom: 20px;
+  color: #ffffff;
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 
 .sidebar ul {
-    list-style: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
 }
 
 .sidebar ul li {
-    padding: 15px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background 0.3s ease;
+  padding: 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s ease;
 }
 
 .sidebar ul li.active,
 .sidebar ul li:hover {
-    background-color: rgba(117, 117, 117, 0.4);
+  background-color: rgba(117, 117, 117, 0.4);
 }
 
 .sidebar ul li.active {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 /* 右侧内容区域 */
 .content {
-    flex: 1;
-    padding: 20px;
-    box-sizing: border-box;
-    margin-top: 40px;
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: 40px;
+}
+
+/* 在 macOS 上调整主内容区域顶部边距 */
+body.mac .content {
+  margin-top: 0;
+  padding-top: 40px; /* 为原生标题栏留出空间 */
 }
 
 /* 游戏库主布局 */
 .library {
-    display: flex;
-    height: 100%;
+  display: flex;
+  height: 100%;
 }
 
 .game-list {
-    width: 300px;
-    background-color: rgb(44, 44, 44, 0.4);
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    border-radius: 10px;
-    margin-bottom: 10px;
+  width: 300px;
+  background-color: rgb(44, 44, 44, 0.4);
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .game-list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 #game-count {
-    color: #ffffff;
-    font-size: 14px;
+  color: #ffffff;
+  font-size: 14px;
 }
 
 .menu {
-    position: relative;
+  position: relative;
 }
 
 .menu-button {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 18px;
-    cursor: pointer;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
 }
 
 /* 游戏列表样式 */
 .games-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .game-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    margin: 5px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin: 5px;
 }
 
 /* 选中效果 */
 .game-item.selected {
-    background-color: rgba(85, 85, 85, 0.4);
-    backdrop-filter: blur(3px);
+  background-color: rgba(85, 85, 85, 0.4);
+  backdrop-filter: blur(3px);
 }
 
 .game-item:hover {
-    background-color: rgb(255, 255, 255, 0.2);
-    backdrop-filter: blur(3px);
+  background-color: rgb(255, 255, 255, 0.2);
+  backdrop-filter: blur(3px);
 }
-
 
 /* 游戏图标样式 */
 .game-icon {
-    position: relative;
-    z-index: 2;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    margin-right: 10px;
-    object-fit: cover;
+  position: relative;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  margin-right: 10px;
+  object-fit: cover;
 }
 
 .game-title {
-    color: #ffffff;
-    font-size: 16px;
+  color: #ffffff;
+  font-size: 16px;
 }
-
 
 /* 滚动条样式 */
 ::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(255, 255, 255, 0.3);
-    border-radius: 3px;
+  background-color: rgb(255, 255, 255, 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 /* 顶部进度条容器样式 */
 #progress-bar-container {
-    pointer-events: none;
-    display: none; /* 初始隐藏 */
-    width: 100%; /* 占满标题栏宽度 */
-    height: 5px;
-    background-color: #f3f3f3;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 15; /* 确保高于其他标题栏元素 */
+  pointer-events: none;
+  display: none; /* 初始隐藏 */
+  width: 100%; /* 占满标题栏宽度 */
+  height: 5px;
+  background-color: #f3f3f3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 15; /* 确保高于其他标题栏元素 */
+}
+
+/* 在 macOS 上调整进度条位置 */
+body.mac #progress-bar-container {
+  position: fixed;
+  top: 22px; /* 原生标题栏高度 */
+  z-index: 1000;
 }
 
 /* 进度条样式 */
 #progress-bar {
-    width: 0%; /* 初始宽度为0 */
-    height: 100%;
-    background-color: #76c7c0; /* 自定义进度条颜色 */
-    transition: width 0.3s ease;
+  width: 0%; /* 初始宽度为0 */
+  height: 100%;
+  background-color: #76c7c0; /* 自定义进度条颜色 */
+  transition: width 0.3s ease;
 }
 
 /* 悬停时的效果 */
 .progress-bar-container:hover .progress-bar {
-    background-color: #5adbd0; /* 鼠标悬停时稍微变亮 */
+  background-color: #5adbd0; /* 鼠标悬停时稍微变亮 */
 }
 
 /* 下载速度文本 */
 .download-speed {
-    font-size: 10px;
-    color: #ddd;
-    margin-right: 10px; /* 与右边缘保持一些距离 */
-    opacity: 0.8;
+  font-size: 10px;
+  color: #ddd;
+  margin-right: 10px; /* 与右边缘保持一些距离 */
+  opacity: 0.8;
 }
-
-
 
 /* 模态窗口样式 */
 .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(44, 44, 44, 0.3);
-    backdrop-filter: blur(4px);
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(44, 44, 44, 0.3);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
 }
 
 .modal-content {
-    width: 400px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(44, 44, 44, 0.3);
-    backdrop-filter: blur(4px);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    box-sizing: border-box;
+  width: 400px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(44, 44, 44, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .modal-header {
-    padding: 10px 20px;
-    backdrop-filter: blur(4px);
-    text-align: center;
-    font-weight: bold;
-    color: #fff;
-    font-size: 1.2em;
-    border-bottom: 1px solid #444;
+  padding: 10px 20px;
+  backdrop-filter: blur(4px);
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.2em;
+  border-bottom: 1px solid #444;
 }
 
 .modal-body {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    max-height: calc(80vh - 120px);
-    animation: fadeIn 0.3s ease;
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: calc(80vh - 120px);
+  animation: fadeIn 0.3s ease;
 }
 
 .modal-footer {
-    padding: 10px 20px;
-    backdrop-filter: blur(4px);
-    border-top: 1px solid #444;
-    display: flex;
-    justify-content: space-between;
-    box-sizing: border-box;
+  padding: 10px 20px;
+  backdrop-filter: blur(4px);
+  border-top: 1px solid #444;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
 /* 图片预览框调整 */
 .image-preview-square {
-    width: 100%;
-    padding-top: 100%; /* 保持正方形比例 */
-    background-color: rgba(68,68,68,0.7);
-    border-radius: 5px;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 15px;
+  width: 100%;
+  padding-top: 100%; /* 保持正方形比例 */
+  background-color: rgba(68, 68, 68, 0.7);
+  border-radius: 5px;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 15px;
 }
 
 .image-preview-vertical {
-    width: 100%;
-    padding-top: 175%;
-    background-color: rgba(68,68,68,0.7);
-    border-radius: 5px;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 15px;
+  width: 100%;
+  padding-top: 175%;
+  background-color: rgba(68, 68, 68, 0.7);
+  border-radius: 5px;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 15px;
 }
 
 .image-preview-horizontal {
-    width: 100%;
-    padding-top: 43.75%; /* 16:7 横版比例 */
-    background-color: rgba(68,68,68,0.7);
-    border-radius: 5px;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 15px;
+  width: 100%;
+  padding-top: 43.75%; /* 16:7 横版比例 */
+  background-color: rgba(68, 68, 68, 0.7);
+  border-radius: 5px;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 15px;
 }
 
 /* 按钮样式 */
-.submit-btn, .close-btn, #browse-path, #edit-browse-path {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.submit-btn,
+.close-btn,
+#browse-path,
+#edit-browse-path {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.submit-btn:hover, .close-btn:hover, #browse-path:hover {
-    background-color: rgba(255, 255, 255, 0.5);
+.submit-btn:hover,
+.close-btn:hover,
+#browse-path:hover {
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* 防止文本框选 */
 * {
-    -webkit-user-select: none; /* Chrome/Safari */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* IE10+ */
-    user-select: none;         /* Standard */
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  user-select: none; /* Standard */
 }
 
 @keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-
 .fade-out {
-    animation: fadeOut 0.2s forwards;
+  animation: fadeOut 0.2s forwards;
 }
 
 .fade-in {
-    animation: fadeIn 0.3s forwards;
+  animation: fadeIn 0.3s forwards;
 }
 
 @keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* 点击效果 */
 .clicked-effect {
-    animation: clickEffect 0.2s ease;
+  animation: clickEffect 0.2s ease;
 }
 
 @keyframes clickEffect {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
-
-
 
 /* 趋势图 */
 #trend-chart {
-    width: 100%;
-    height: 200px;
-    margin-top: 10px;
+  width: 100%;
+  height: 200px;
+  margin-top: 10px;
 }
 
 /* 省略号菜单 */
 .ellipsis-menu {
-    position: relative;
+  position: relative;
 }
 
-
 .menu-dropdown {
-    display: none;
-    position: absolute;
-    top: 25px;
-    right: 0;
-    background-color: rgba(209, 209, 209, 0.8);
-    padding: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
-    white-space: nowrap; /* 强制内容不换行 */
+  display: none;
+  position: absolute;
+  top: 25px;
+  right: 0;
+  background-color: rgba(209, 209, 209, 0.8);
+  padding: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  white-space: nowrap; /* 强制内容不换行 */
 }
 
 .menu-button:hover + .menu-dropdown,
 .menu-dropdown:hover {
-    display: block;
+  display: block;
 }
 
 .menu-dropdown a {
-    color: #ffffff;
-    text-decoration: none;
-    display: block;
-    margin-bottom: 5px;
+  color: #ffffff;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 5px;
 }
 
 /* 复制提示框样式 */
 .copy-tooltip {
-    position: absolute;
-    background-color: rgba(48, 48, 48, 0.58);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 10000;
+  position: absolute;
+  background-color: rgba(48, 48, 48, 0.58);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 10000;
 }
 
 /* 显示时的样式 */
 .copy-tooltip.show {
-    opacity: 1;
-    transform: translateY(-10px);
+  opacity: 1;
+  transform: translateY(-10px);
 }
 
 /* 提示框的动画 */
 .copy-tooltip.fade-out {
-    opacity: 0;
-    transform: translateY(0);
+  opacity: 0;
+  transform: translateY(0);
 }
 
 /* 浮窗样式 */
 .notification {
-    position: fixed;
-    top: -120px;  /* 初始位置在屏幕上方外面 */
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 16px;
-    width: 80%;
-    max-width: 280px;
-    max-height: 80px;
-    text-align: center;
-    z-index: 1000;
-    transition: top 0.5s ease-in-out, transform 0.2s ease;
-    cursor: pointer;
-    overflow: hidden;
+  position: fixed;
+  top: -120px; /* 初始位置在屏幕上方外面 */
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 80%;
+  max-width: 280px;
+  max-height: 80px;
+  text-align: center;
+  z-index: 1000;
+  transition: top 0.5s ease-in-out, transform 0.2s ease;
+  cursor: pointer;
+  overflow: hidden;
 }
 
-
-
 .notification.overflow {
-    overflow-y: auto;
+  overflow-y: auto;
 }
 
 .notification::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 /* 成功通知的样式 */
 .notification.success {
-    background-color: rgba(82, 255, 82, 0.4);
-    backdrop-filter: blur(2px);
+  background-color: rgba(82, 255, 82, 0.4);
+  backdrop-filter: blur(2px);
 }
 
 /* 失败通知的样式 */
 .notification.fail {
-    background-color: rgba(255, 72, 72, 0.4);
-    backdrop-filter: blur(2px);
+  background-color: rgba(255, 72, 72, 0.4);
+  backdrop-filter: blur(2px);
 }
 
 .notification:hover {
-    cursor: pointer;
-    transform: translateX(-50%) scale(1.05);
-    opacity: 1;
+  cursor: pointer;
+  transform: translateX(-50%) scale(1.05);
+  opacity: 1;
 }
 
 .notification.clicked {
-    background-color: rgba(63, 81, 181, 0.7);
+  background-color: rgba(63, 81, 181, 0.7);
 }
 
-
 .notification .copy-tooltip {
-    display: none;
+  display: none;
 }
 
 .notification .copy-tooltip.show {
-    display: block;
-    pointer-events: none;
+  display: block;
+  pointer-events: none;
 }
-
-

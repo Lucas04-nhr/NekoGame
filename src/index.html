@@ -1,53 +1,61 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Neko Game</title>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main.css" />
     <script src="js/gameTools/gacha.js"></script>
     <script src="js/gameTools/gachaZzzSpecial.js"></script>
     <script src="js/tools/syncNotification.js"></script>
     <script src="js/tools/modalManager.js"></script>
     <script src="./js/import/chart.js"></script>
     <script src="./js/import/echarts.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <header class="title-bar">
-        <div id="progress-bar-container" class="progress-bar-container">
-            <div id="progress-bar" class="progress-bar"></div>
-            <span id="download-speed" class="download-speed"></span>
-        </div>
-        <div class="window-controls">
-            <span id="minimize" class="control-button">🗕</span>
-            <span id="maximize" class="control-button">🗖</span>
-            <span id="close" class="control-button">✕</span>
-        </div>
+      <div id="progress-bar-container" class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar"></div>
+        <span id="download-speed" class="download-speed"></span>
+      </div>
+      <div class="window-controls">
+        <span id="minimize" class="control-button">🗕</span>
+        <span id="maximize" class="control-button">🗖</span>
+        <span id="close" class="control-button">✕</span>
+      </div>
     </header>
 
     <div class="container">
-        <nav class="sidebar">
-            <h2>Neko Game</h2>
-            <ul>
-                <li id="home-tab" class="tab" data-page="home">主页</li>
-                <li id="library-tab" class="tab" data-page="library" style="display: none;">游戏库</li>
-                <li id="tools-tab" class="tab" data-page="gameTools">游戏工具</li>
-                <li id="settings-tab" class="tab" data-page="settings">设置</li>
-            </ul>
-        </nav>
-        <main id="content" class="content"></main>
+      <nav class="sidebar">
+        <h2>Neko Game</h2>
+        <ul>
+          <li id="home-tab" class="tab" data-page="home">主页</li>
+          <li
+            id="library-tab"
+            class="tab"
+            data-page="library"
+            style="display: none"
+          >
+            游戏库
+          </li>
+          <li id="tools-tab" class="tab" data-page="gameTools">游戏工具</li>
+          <li id="settings-tab" class="tab" data-page="settings">设置</li>
+        </ul>
+      </nav>
+      <main id="content" class="content"></main>
     </div>
     <script src="js/renderer.js"></script>
     <script>
-        if (navigator.platform.startsWith('Win')) {
-            document.getElementById('home-tab').classList.add('active');
-        }
-        if (navigator.platform.startsWith('Mac')) {
-            document.getElementById('library-tab').style.display = 'none';
-            document.getElementById('home-tab').style.display = 'none';
-            document.getElementById('tools-tab').classList.add('active');
-        }
+      // 根据平台添加相应的 CSS 类
+      if (navigator.platform.startsWith("Mac")) {
+        document.body.classList.add("mac");
+        document.getElementById("library-tab").style.display = "none";
+        document.getElementById("home-tab").style.display = "none";
+        document.getElementById("tools-tab").classList.add("active");
+      } else if (navigator.platform.startsWith("Win")) {
+        document.body.classList.add("windows");
+        document.getElementById("home-tab").classList.add("active");
+      }
     </script>
-
-</body>
+  </body>
 </html>

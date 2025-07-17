@@ -44,22 +44,26 @@
       </div>
     </div>
 
-    <div class="tool-card" data-tool="gachaPlanning">
-      <h3 class="tool-title">抽卡规划</h3>
-      <p class="tool-description">在这里查看各游戏各版本可获得抽数</p>
-      <p class="tool-description"></p>
-    </div>
-
-    <div class="tool-card combined-export">
+    <div class="tool-card combined-export" style="pointer-events: none">
       <h3 class="tool-title">UIGF v4 联合导出</h3>
       <p class="tool-description">
         将多个游戏的抽卡记录导出到同一个UIGF v4文件
       </p>
       <div class="tool-actions">
-        <button id="combinedExport" class="action-button-export">
+        <button
+          id="combinedExport"
+          class="action-button-export"
+          style="pointer-events: auto"
+        >
           联合导出
         </button>
       </div>
+    </div>
+
+    <div class="tool-card" data-tool="gachaPlanning">
+      <h3 class="tool-title">抽卡规划</h3>
+      <p class="tool-description">在这里查看各游戏各版本可获得抽数</p>
+      <p class="tool-description"></p>
     </div>
 
     <!--        <div class="tool-card" data-tool="tool2">-->
