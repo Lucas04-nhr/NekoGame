@@ -73,7 +73,7 @@ async function insertUIGF(query, insertedCount, uid, lang, fetchItemIdFn, list){
     for (const record of list) {
         const recordData = { ...record, uid, lang };
         // 检查字段完整性
-        checkUIGF(recordData.id, recordData.uid, recordData.gacha_type, recordData.time, recordData.rank_type, recordData);
+        checkUIGF(recordData.id, recordData.uid, recordData.gacha_type, recordData.time, recordData.rank_type, recordData.name, recordData);
         // 补充 item_id 如果缺失
         if (!recordData.item_id && recordData.name && fetchItemIdFn) {
             try {
