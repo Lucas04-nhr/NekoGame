@@ -10,8 +10,7 @@
     "start:win": "chcp 65001 && electron .",
     "build": "electron-builder",
     "build:win": "set NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --win",
-    "build:mac": "export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --mac",
-    "build:linux": "export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --linux"
+    "build:mac": "export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --mac"
   },
   "keywords": [],
   "devDependencies": {
