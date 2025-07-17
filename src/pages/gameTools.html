@@ -1,54 +1,74 @@
 <div id="tool-container">
-    <!-- 工具列表 -->
-    <div id="tool-list">
-        <div class="tool-card" data-tool="gachaWuwa">
-            <h3 class="tool-title">鸣潮唤取分析</h3>
-            <p class="tool-description">进入获取与查看鸣潮抽卡记录</p>
-            <div class="tool-actions">
-                <button id = 'exportWuWa' class="action-button-export">导出数据</button>
-            </div>
-        </div>
+  <!-- 工具列表 -->
+  <div id="tool-list">
+    <div class="tool-card" data-tool="gachaWuwa">
+      <h3 class="tool-title">鸣潮唤取分析</h3>
+      <p class="tool-description">进入获取与查看鸣潮抽卡记录</p>
+      <div class="tool-actions">
+        <button id="exportWuWa" class="action-button-export">导出数据</button>
+      </div>
+    </div>
 
-        <div class="tool-card" data-tool="gachaStarRail">
-            <h3 class="tool-title">崩铁跃迁分析</h3>
-            <p class="tool-description">进入获取与查看崩铁抽卡记录</p>
-            <div class="tool-actions">
-                <button id = 'exportStarRail' class="action-button-export">导出数据</button>
-                <button id = 'importStarRail' class="action-button-import">导入数据</button>
-            </div>
-        </div>
+    <div class="tool-card" data-tool="gachaStarRail">
+      <h3 class="tool-title">崩铁跃迁分析</h3>
+      <p class="tool-description">进入获取与查看崩铁抽卡记录</p>
+      <div class="tool-actions">
+        <button id="exportStarRail" class="action-button-export">
+          导出数据
+        </button>
+        <button id="importStarRail" class="action-button-import">
+          导入数据
+        </button>
+      </div>
+    </div>
 
-        <div class="tool-card" data-tool="gachaGenshin">
-            <h3 class="tool-title">原神祈愿分析</h3>
-            <p class="tool-description">进入获取与查看原神抽卡记录</p>
-            <div class="tool-actions">
-                <button id = 'exportGenshin' class="action-button-export">导出数据</button>
-                <button id = 'importGenshin' class="action-button-import">导入数据</button>
-            </div>
-        </div>
+    <div class="tool-card" data-tool="gachaGenshin">
+      <h3 class="tool-title">原神祈愿分析</h3>
+      <p class="tool-description">进入获取与查看原神抽卡记录</p>
+      <div class="tool-actions">
+        <button id="exportGenshin" class="action-button-export">
+          导出数据
+        </button>
+        <button id="importGenshin" class="action-button-import">
+          导入数据
+        </button>
+      </div>
+    </div>
 
-        <div class="tool-card" data-tool="gachaZzz">
-            <h3 class="tool-title">绝区零频段分析</h3>
-            <p class="tool-description">进入获取与查看绝区零抽卡记录</p>
-            <div class="tool-actions">
-                <button id = 'exportZzz' class="action-button-export">导出数据</button>
-                <button id = 'importZzz' class="action-button-import">导入数据</button>
-            </div>
-        </div>
+    <div class="tool-card" data-tool="gachaZzz">
+      <h3 class="tool-title">绝区零频段分析</h3>
+      <p class="tool-description">进入获取与查看绝区零抽卡记录</p>
+      <div class="tool-actions">
+        <button id="exportZzz" class="action-button-export">导出数据</button>
+        <button id="importZzz" class="action-button-import">导入数据</button>
+      </div>
+    </div>
 
-        <div class="tool-card" data-tool="gachaPlanning">
-            <h3 class="tool-title">抽卡规划</h3>
-            <p class="tool-description">在这里查看各游戏各版本可获得抽数</p>
-            <p class="tool-description"></p>
-        </div>
+    <div class="tool-card" data-tool="gachaPlanning">
+      <h3 class="tool-title">抽卡规划</h3>
+      <p class="tool-description">在这里查看各游戏各版本可获得抽数</p>
+      <p class="tool-description"></p>
+    </div>
 
-<!--        <div class="tool-card" data-tool="tool2">-->
-<!--            <h3 class="tool-title">工具 1</h3>-->
-<!--            <p class="tool-description">工具 1 test。</p>-->
-<!--            <div class="tool-actions">-->
-<!--                <button id = 'getStarRailRecords' class="action-button">获取崩铁记录</button>-->
-<!--            </div>-->
-<!--        </div>-->
+    <div class="tool-card combined-export">
+      <h3 class="tool-title">UIGF v4 联合导出</h3>
+      <p class="tool-description">
+        将多个游戏的抽卡记录导出到同一个UIGF v4文件
+      </p>
+      <div class="tool-actions">
+        <button id="combinedExport" class="action-button-export">
+          联合导出
+        </button>
+      </div>
+    </div>
+
+    <!--        <div class="tool-card" data-tool="tool2">-->
+    <!--            <h3 class="tool-title">工具 1</h3>-->
+    <!--            <p class="tool-description">工具 1 test。</p>-->
+    <!--            <div class="tool-actions">-->
+    <!--                <button id = 'getStarRailRecords' class="action-button">获取崩铁记录</button>-->
+    <!--            </div>-->
+    <!--        </div>-->
 
     <!--    <div class="tool-card" data-tool="tool3">-->
     <!--        <h3 class="tool-title">工具 3</h3>-->
@@ -57,27 +77,60 @@
     <!--            <button class="action-button">开始</button>-->
     <!--        </div>-->
     <!--    </div>-->
-    </div>
-    <!-- 子页面区域 -->
-    <div id="subpage-content" class="hidden"></div>
+  </div>
+  <!-- 子页面区域 -->
+  <div id="subpage-content" class="hidden"></div>
 </div>
 <!--返回按钮-->
 <span id="global-back-button" class="global-back-button hidden">↩</span>
 <!--UID选择窗口-->
 <div id="uidSelectionModal" class="modal">
-    <div class="modal-content-game">
-        <div class="modal-header-game">
-            <h2>选择 UID</h2>
-            <button id="closeModal" class="close-button">&times;</button>
-        </div>
-        <div class="modal-body-game">
-            <div id="uidListContainer" class="uid-list"></div>
-        </div>
-        <div class="modal-footer-game">
-            <button id="selectAllUIDs" class="modal-button">全选</button>
-            <button id="confirmUIDSelection" class="modal-button primary">确认</button>
-        </div>
+  <div class="modal-content-game">
+    <div class="modal-header-game">
+      <h2>选择 UID</h2>
+      <button id="closeModal" class="close-button">&times;</button>
     </div>
+    <div class="modal-body-game">
+      <div id="uidListContainer" class="uid-list"></div>
+    </div>
+    <div class="modal-footer-game">
+      <button id="selectAllUIDs" class="modal-button">全选</button>
+      <button id="confirmUIDSelection" class="modal-button primary">
+        确认
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--联合导出UID选择窗口-->
+<div id="combinedExportModal" class="modal">
+  <div class="modal-content-combined">
+    <div class="modal-header-combined">
+      <h2>UIGF v4 联合导出 - 选择UID</h2>
+      <button id="closeCombinedModal" class="close-button">&times;</button>
+    </div>
+    <div class="modal-body-combined">
+      <div class="game-section">
+        <h3>原神</h3>
+        <div id="genshinUidList" class="uid-list-section"></div>
+      </div>
+      <div class="game-section">
+        <h3>崩坏：星穹铁道</h3>
+        <div id="starRailUidList" class="uid-list-section"></div>
+      </div>
+      <div class="game-section">
+        <h3>绝区零</h3>
+        <div id="zzzUidList" class="uid-list-section"></div>
+      </div>
+    </div>
+    <div class="modal-footer-combined">
+      <button id="selectAllCombined" class="modal-button">全选</button>
+      <button id="deselectAllCombined" class="modal-button">全不选</button>
+      <button id="confirmCombinedExport" class="modal-button primary">
+        确认导出
+      </button>
+    </div>
+  </div>
 </div>
 <!-- 引入样式 -->
-<link rel="stylesheet" href="./css/gameTools.css">
+<link rel="stylesheet" href="./css/gameTools.css" />

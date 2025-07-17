@@ -1,3 +1,178 @@
+// 处理联合导出功能
+async function handleCombinedExport() {
+  const modal = document.getElementById("combinedExportModal");
+  const genshinUidList = document.getElementById("genshinUidList");
+  const starRailUidList = document.getElementById("starRailUidList");
+  const zzzUidList = document.getElementById("zzzUidList");
+  const confirmButton = document.getElementById("confirmCombinedExport");
+  const selectAllButton = document.getElementById("selectAllCombined");
+  const deselectAllButton = document.getElementById("deselectAllCombined");
+  const closeButton = document.getElementById("closeCombinedModal");
+
+  // 重置模态窗口
+  const resetCombinedModal = () => {
+    genshinUidList.innerHTML = "";
+    starRailUidList.innerHTML = "";
+    zzzUidList.innerHTML = "";
+    // 移除旧的事件监听器
+    confirmButton.replaceWith(confirmButton.cloneNode(true));
+    selectAllButton.replaceWith(selectAllButton.cloneNode(true));
+    deselectAllButton.replaceWith(deselectAllButton.cloneNode(true));
+    closeButton.replaceWith(closeButton.cloneNode(true));
+  };
+
+  try {
+    resetCombinedModal();
+
+    // 获取各游戏的UID列表
+    const [genshinUIDs, starRailUIDs, zzzUIDs] = await Promise.all([
+      window.electronAPI.invoke("get-genshin-player-uids").catch(() => []),
+      window.electronAPI.invoke("get-starRail-player-uids").catch(() => []),
+      window.electronAPI.invoke("get-zzz-player-uids").catch(() => []),
+    ]);
+
+    // 生成UID项目
+    const createUidItems = (uids, container, gameType) => {
+      uids.forEach((uid) => {
+        const uidItem = document.createElement("div");
+        uidItem.className = "combined-uid-item";
+        uidItem.innerText = uid;
+        uidItem.dataset.uid = uid;
+        uidItem.dataset.game = gameType;
+        container.appendChild(uidItem);
+
+        uidItem.addEventListener("click", () => {
+          uidItem.classList.toggle("selected");
+          updateCombinedButtons();
+        });
+      });
+    };
+
+    createUidItems(genshinUIDs, genshinUidList, "原神");
+    createUidItems(starRailUIDs, starRailUidList, "崩铁");
+    createUidItems(zzzUIDs, zzzUidList, "绝区零");
+
+    // 更新按钮状态
+    const updateCombinedButtons = () => {
+      const allItems = document.querySelectorAll(".combined-uid-item");
+      const selectedItems = document.querySelectorAll(
+        ".combined-uid-item.selected"
+      );
+      const allSelected =
+        allItems.length > 0 && selectedItems.length === allItems.length;
+
+      const newSelectAllButton = document.getElementById("selectAllCombined");
+      if (allSelected) {
+        newSelectAllButton.innerText = "全不选";
+        newSelectAllButton.classList.add("primary");
+      } else {
+        newSelectAllButton.innerText = "全选";
+        newSelectAllButton.classList.remove("primary");
+      }
+    };
+
+    // 显示模态窗口
+    openModal(modal);
+
+    // 全选/全不选功能
+    document
+      .getElementById("selectAllCombined")
+      .addEventListener("click", () => {
+        const allItems = document.querySelectorAll(".combined-uid-item");
+        const selectedItems = document.querySelectorAll(
+          ".combined-uid-item.selected"
+        );
+        const allSelected =
+          allItems.length > 0 && selectedItems.length === allItems.length;
+
+        if (allSelected) {
+          allItems.forEach((item) => item.classList.remove("selected"));
+        } else {
+          allItems.forEach((item) => item.classList.add("selected"));
+        }
+        updateCombinedButtons();
+      });
+
+    // 全不选功能
+    document
+      .getElementById("deselectAllCombined")
+      .addEventListener("click", () => {
+        const allItems = document.querySelectorAll(".combined-uid-item");
+        allItems.forEach((item) => item.classList.remove("selected"));
+        updateCombinedButtons();
+      });
+
+    // 确认导出
+    document
+      .getElementById("confirmCombinedExport")
+      .addEventListener("click", async () => {
+        const selectedItems = document.querySelectorAll(
+          ".combined-uid-item.selected"
+        );
+
+        if (selectedItems.length === 0) {
+          animationMessage(false, "请至少选择一个UID");
+          return;
+        }
+
+        // 按游戏分组选中的UID
+        const selectedData = {
+          genshin: [],
+          starRail: [],
+          zzz: [],
+        };
+
+        selectedItems.forEach((item) => {
+          const uid = item.dataset.uid;
+          const game = item.dataset.game;
+
+          if (game === "原神") {
+            selectedData.genshin.push(uid);
+          } else if (game === "崩铁") {
+            selectedData.starRail.push(uid);
+          } else if (game === "绝区零") {
+            selectedData.zzz.push(uid);
+          }
+        });
+
+        closeModal(modal);
+
+        // 禁用导出按钮
+        const exportButton = document.getElementById("combinedExport");
+        exportButton.disabled = true;
+        exportButton.innerText = "导出中...";
+
+        try {
+          const result = await window.electronAPI.invoke(
+            "export-combined-uigf-data",
+            selectedData
+          );
+          if (result.success) {
+            animationMessage(true, result.message);
+          } else {
+            animationMessage(false, result.message);
+          }
+        } catch (error) {
+          animationMessage(false, `联合导出失败: ${error.message}`);
+        } finally {
+          exportButton.disabled = false;
+          exportButton.innerText = "联合导出";
+        }
+      });
+
+    // 关闭模态窗口
+    document
+      .getElementById("closeCombinedModal")
+      .addEventListener("click", () => {
+        closeModal(modal);
+      });
+
+    updateCombinedButtons();
+  } catch (error) {
+    animationMessage(false, `获取UID列表失败: ${error.message}`);
+  }
+}
+
 function gameToolsInit() {
   const toolList = document.getElementById("tool-list");
   const subpageContent = document.getElementById("subpage-content");
@@ -263,6 +438,13 @@ function gameToolsInit() {
   //         document.getElementById('getStarRailRecords').innerText = '获取崩铁记录';
   //     }
   // });
+
+  // 联合导出功能
+  document
+    .getElementById("combinedExport")
+    .addEventListener("click", async () => {
+      await handleCombinedExport();
+    });
 }
 
 // 动态加载工具子页面内容
