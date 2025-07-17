@@ -60,8 +60,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openDataPath: (path) => ipcRenderer.send("open-data-path", path),
   openExternal: (url) => ipcRenderer.send("open-external", url),
   launchGame: (gamePath) => ipcRenderer.invoke("launch-game", gamePath),
-  // Removed generic invoke method for IPC security.
-  // If needed, expose only specific safe channels here.
+  invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args), // 通用的 invoke 方法
   refreshGachaRecords: () => ipcRenderer.invoke("refresh-gacha-records"),
   // 获取已保存的记录
   getGachaRecords: () => ipcRenderer.invoke("get-gacha-records"),
