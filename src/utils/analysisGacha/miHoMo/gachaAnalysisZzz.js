@@ -21,11 +21,6 @@ const GACHA_TYPE_MAP = {
 function convertZzzRankType(rankType) {
   const rank = parseInt(rankType);
 
-  // 如果已经是2、3、4格式，直接返回
-  if (rank >= 2 && rank <= 4) {
-    return rank;
-  }
-
   // 转换3、4、5格式为2、3、4格式
   if (rank >= 3 && rank <= 5) {
     const converted = rank - 1;
@@ -33,6 +28,11 @@ function convertZzzRankType(rankType) {
       `[ZZZ星级转换] ${rank} -> ${converted} (3/4/5格式转为2/3/4格式)`
     );
     return converted;
+  }
+
+  // 如果已经是2格式或其他值，直接返回
+  if (rank === 2) {
+    return rank;
   }
 
   // 如果是其他值，记录警告但保持原值
