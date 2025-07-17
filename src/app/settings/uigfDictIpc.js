@@ -4,7 +4,10 @@ const {
   downloadAllUIGFDicts,
   checkDictExists,
   loadDict,
-} = require("../utils/settings/export/fetchUIGF");
+  getDownloadTimestamp,
+  getAllDownloadTimestamps,
+  autoDownloadDictsOnStartup,
+} = require("../../utils/settings/export/fetchUIGF");
 
 // 下载单个游戏的字典
 ipcMain.handle("download-uigf-dict", async (event, game, lang = "chs") => {
@@ -82,21 +85,28 @@ ipcMain.handle("get-dict-status", (event, lang = "chs") => {
   try {
     const games = ["genshin", "starrail", "zzz"];
     const status = {};
+    const timestamps = getAllDownloadTimestamps(lang);
 
     for (const game of games) {
       const exists = checkDictExists(game, lang);
+      const timestamp = timestamps[game];
+
       if (exists) {
         const dict = loadDict(game, lang);
         status[game] = {
           exists: true,
           itemCount: dict ? Object.keys(dict).length : 0,
           valid: dict !== null,
+          lastDownload: timestamp ? timestamp.dateString : "未知",
+          lastDownloadTimestamp: timestamp ? timestamp.timestamp : null,
         };
       } else {
         status[game] = {
           exists: false,
           itemCount: 0,
           valid: false,
+          lastDownload: timestamp ? timestamp.dateString : "从未下载",
+          lastDownloadTimestamp: timestamp ? timestamp.timestamp : null,
         };
       }
     }
@@ -108,6 +118,29 @@ ipcMain.handle("get-dict-status", (event, lang = "chs") => {
       success: false,
       status: {},
       message: error.message,
+    };
+  }
+});
+
+// 启动时自动下载字典
+ipcMain.handle("auto-download-dicts-startup", async (event, lang = "chs") => {
+  try {
+    const results = await autoDownloadDictsOnStartup(lang);
+    const totalGames =
+      results.success.length + results.failed.length + results.skipped.length;
+    const message = `启动下载完成！成功: ${results.success.length}, 失败: ${results.failed.length}/${totalGames}`;
+
+    return {
+      success: results.failed.length === 0,
+      message,
+      results,
+    };
+  } catch (error) {
+    console.error("启动时下载字典发生错误:", error);
+    return {
+      success: false,
+      message: `启动下载失败: ${error.message}`,
+      results: { success: [], failed: [], skipped: [] },
     };
   }
 });

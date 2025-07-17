@@ -368,10 +368,25 @@
           : "文件损坏"
         : "未下载";
 
+      // 格式化下载时间显示
+      const downloadTimeText =
+        info.lastDownload &&
+        info.lastDownload !== "从未下载" &&
+        info.lastDownload !== "未知"
+          ? `最近下载: ${info.lastDownload}`
+          : info.lastDownload === "从未下载"
+          ? "从未下载"
+          : "下载时间未知";
+
       html += `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span>${statusIcon} ${gameName}:</span>
-                    <span style="font-size: 0.9em; color: #666;">${statusText}</span>
+                <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <span style="font-weight: 500;">${statusIcon} ${gameName}</span>
+                        <span style="font-size: 0.9em; color: #ccc;">${statusText}</span>
+                    </div>
+                    <div style="font-size: 0.8em; color: #999;">
+                        ${downloadTimeText}
+                    </div>
                 </div>
             `;
     }

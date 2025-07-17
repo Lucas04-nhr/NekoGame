@@ -29,7 +29,8 @@ async function downloadUIGFDict(game, lang = "chs") {
   const apiUrl = `https://api.uigf.org/dict/${game}/${lang}.json`;
   const fileName = `${game}_dict_${lang}.json`;
   const dataDir = process.env.NEKO_GAME_FOLDER_PATH;
-  const filePath = path.join(dataDir, fileName);
+  const dictDir = path.join(dataDir, "dict");
+  const filePath = path.join(dictDir, fileName);
 
   try {
     console.log(`正在下载 ${game} 的 ${lang} 字典...`);
@@ -52,13 +53,19 @@ async function downloadUIGFDict(game, lang = "chs") {
       throw new Error("字典数据格式无效");
     }
 
-    // 确保数据目录存在
+    // 确保数据目录和字典子目录存在
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
+    }
+    if (!fs.existsSync(dictDir)) {
+      fs.mkdirSync(dictDir, { recursive: true });
     }
 
     // 写入文件
     fs.writeFileSync(filePath, JSON.stringify(response.data, null, 2), "utf8");
+
+    // 记录下载时间戳
+    saveDownloadTimestamp(game, lang);
 
     console.log(`${game} 的 ${lang} 字典下载成功: ${filePath}`);
     console.log(`字典包含 ${Object.keys(response.data).length} 个条目`);
@@ -121,7 +128,8 @@ async function downloadAllUIGFDicts(lang = "chs") {
  */
 function checkDictExists(game, lang = "chs") {
   const fileName = `${game}_dict_${lang}.json`;
-  const filePath = path.join(process.env.NEKO_GAME_FOLDER_PATH, fileName);
+  const dictDir = path.join(process.env.NEKO_GAME_FOLDER_PATH, "dict");
+  const filePath = path.join(dictDir, fileName);
   return fs.existsSync(filePath);
 }
 
@@ -133,7 +141,8 @@ function checkDictExists(game, lang = "chs") {
  */
 function loadDict(game, lang = "chs") {
   const fileName = `${game}_dict_${lang}.json`;
-  const filePath = path.join(process.env.NEKO_GAME_FOLDER_PATH, fileName);
+  const dictDir = path.join(process.env.NEKO_GAME_FOLDER_PATH, "dict");
+  const filePath = path.join(dictDir, fileName);
 
   try {
     if (!fs.existsSync(filePath)) {
@@ -149,9 +158,150 @@ function loadDict(game, lang = "chs") {
   }
 }
 
+/**
+ * 保存字典下载时间戳
+ * @param {string} game - 游戏名称
+ * @param {string} lang - 语言代码
+ */
+function saveDownloadTimestamp(game, lang = "chs") {
+  const dictDir = path.join(process.env.NEKO_GAME_FOLDER_PATH, "dict");
+  const timestampFile = path.join(dictDir, "uigf_download_timestamps.json");
+  let timestamps = {};
+
+  // 确保dict目录存在
+  if (!fs.existsSync(dictDir)) {
+    fs.mkdirSync(dictDir, { recursive: true });
+  }
+
+  // 读取现有时间戳
+  try {
+    if (fs.existsSync(timestampFile)) {
+      const data = fs.readFileSync(timestampFile, "utf8");
+      timestamps = JSON.parse(data);
+    }
+  } catch (error) {
+    console.warn("读取时间戳文件失败，将创建新文件:", error.message);
+    timestamps = {};
+  }
+
+  // 更新时间戳
+  const key = `${game}_${lang}`;
+  timestamps[key] = {
+    timestamp: Date.now(),
+    dateString: new Date().toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }),
+    game,
+    lang,
+  };
+
+  // 保存时间戳文件
+  try {
+    fs.writeFileSync(
+      timestampFile,
+      JSON.stringify(timestamps, null, 2),
+      "utf8"
+    );
+    console.log(`已记录 ${game} 的 ${lang} 字典下载时间`);
+  } catch (error) {
+    console.error("保存时间戳文件失败:", error.message);
+  }
+}
+
+/**
+ * 获取字典下载时间戳
+ * @param {string} game - 游戏名称
+ * @param {string} lang - 语言代码
+ * @returns {Object|null} - 时间戳信息或null
+ */
+function getDownloadTimestamp(game, lang = "chs") {
+  const dictDir = path.join(process.env.NEKO_GAME_FOLDER_PATH, "dict");
+  const timestampFile = path.join(dictDir, "uigf_download_timestamps.json");
+
+  try {
+    if (!fs.existsSync(timestampFile)) {
+      return null;
+    }
+
+    const data = fs.readFileSync(timestampFile, "utf8");
+    const timestamps = JSON.parse(data);
+    const key = `${game}_${lang}`;
+
+    return timestamps[key] || null;
+  } catch (error) {
+    console.error("读取时间戳文件失败:", error.message);
+    return null;
+  }
+}
+
+/**
+ * 获取所有字典的下载时间戳
+ * @param {string} lang - 语言代码
+ * @returns {Object} - 所有游戏的时间戳信息
+ */
+function getAllDownloadTimestamps(lang = "chs") {
+  const games = ["genshin", "starrail", "zzz"];
+  const result = {};
+
+  for (const game of games) {
+    result[game] = getDownloadTimestamp(game, lang);
+  }
+
+  return result;
+}
+
+/**
+ * 自动下载所有字典（启动时调用）
+ * @param {string} lang - 语言代码
+ * @returns {Promise<{success: string[], failed: string[], skipped: string[]}>} - 下载结果
+ */
+async function autoDownloadDictsOnStartup(lang = "chs") {
+  console.log("启动时自动下载 UIGF 字典...");
+
+  const games = ["genshin", "starrail", "zzz"];
+  const results = {
+    success: [],
+    failed: [],
+    skipped: [],
+  };
+
+  for (const game of games) {
+    try {
+      console.log(`正在下载 ${game} 字典...`);
+      const success = await downloadUIGFDict(game, lang);
+
+      if (success) {
+        results.success.push(game);
+      } else {
+        results.failed.push(game);
+      }
+    } catch (error) {
+      console.error(`下载 ${game} 字典时发生错误:`, error.message);
+      results.failed.push(game);
+    }
+  }
+
+  console.log("启动时字典下载完成:");
+  console.log(`成功: ${results.success.join(", ")}`);
+  if (results.failed.length > 0) {
+    console.log(`失败: ${results.failed.join(", ")}`);
+  }
+
+  return results;
+}
+
 module.exports = {
   downloadUIGFDict,
   downloadAllUIGFDicts,
   checkDictExists,
   loadDict,
+  saveDownloadTimestamp,
+  getDownloadTimestamp,
+  getAllDownloadTimestamps,
+  autoDownloadDictsOnStartup,
 };

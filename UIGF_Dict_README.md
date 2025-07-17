@@ -4,6 +4,11 @@
 
 本功能实现了从 UIGF API 下载物品名称字典的功能，支持原神(genshin)、星穹铁道(starrail)、绝区零(zzz)三个游戏的中文简体(chs)字典。
 
+**✨ 新特性**:
+
+- **自动下载**: 每次启动应用时自动下载最新字典
+- **时间追踪**: 记录并显示每个字典的最近下载时间
+
 ## 实现的功能
 
 ### 1. 字典下载 (fetchUIGF.js)
@@ -12,6 +17,10 @@
 - **downloadAllUIGFDicts(lang)**: 下载所有支持游戏的字典
 - **checkDictExists(game, lang)**: 检查字典文件是否存在
 - **loadDict(game, lang)**: 读取字典文件数据
+- **saveDownloadTimestamp(game, lang)**: 保存字典下载时间戳
+- **getDownloadTimestamp(game, lang)**: 获取字典下载时间戳
+- **getAllDownloadTimestamps(lang)**: 获取所有字典的下载时间戳
+- **autoDownloadDictsOnStartup(lang)**: 启动时自动下载字典
 
 ### 2. IPC 通信 (uigfDictIpc.js)
 
@@ -49,11 +58,25 @@ src/
 └── main.js                   # 主进程加载点
 ```
 
-## 字典文件命名规则
+## 字典文件和存储结构
 
-下载的字典文件保存在数据目录中，命名格式为：
+### 存储位置
 
-- `{game}_dict_{lang}.json`
+字典文件保存在数据目录的 `dict` 子文件夹中，目录结构如下：
+
+```
+NekoGame/
+└── dict/
+    ├── genshin_dict_chs.json
+    ├── starrail_dict_chs.json
+    ├── zzz_dict_chs.json
+    └── uigf_download_timestamps.json
+```
+
+### 文件命名规则
+
+- **字典文件**: `{game}_dict_{lang}.json`
+- **时间戳文件**: `uigf_download_timestamps.json`
 
 例如：
 
