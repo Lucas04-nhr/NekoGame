@@ -497,23 +497,24 @@
 
   // 更新CSS状态显示
   function updateCSSStatus(settings) {
-    let statusText = "无自定义CSS";
+    let statusText = "none";
     let statusColor = "#aaa";
 
     if (settings.enabled) {
       if (settings.localPath) {
-        statusText = `本地CSS: ${settings.localPath}`;
+        statusText = "local";
         statusColor = "#4caf50";
       } else if (settings.remoteURL) {
-        statusText = `网络CSS: ${settings.remoteURL}`;
+        statusText = "online";
         statusColor = "#2196f3";
       } else {
-        statusText = "已启用但未配置CSS文件";
+        statusText = "none";
         statusColor = "#ff9800";
       }
     }
 
-    currentCSSStatusDiv.innerHTML = `<div style="color: ${statusColor};">${statusText}</div>`;
+    currentCSSStatusDiv.innerHTML = statusText;
+    currentCSSStatusDiv.style.color = statusColor;
   }
 
   // 启用/禁用自定义CSS
@@ -543,16 +544,20 @@
       const result = await window.electronAPI.invoke("select-css-file");
       if (result.success && result.filePath) {
         localCSSPathInput.value = result.filePath;
+        // 清除网络CSS URL，实现互斥
+        remoteCSSURLInput.value = "";
+
         await window.electronAPI.invoke(
           "set-custom-css-local-path",
           result.filePath
         );
+        await window.electronAPI.invoke("set-custom-css-remote-url", ""); // 清除网络URL
 
         if (enableCustomCSSCheckbox.checked) {
           await window.electronAPI.invoke("apply-custom-css");
         }
 
-        animationMessage(true, "本地CSS文件已设置");
+        animationMessage(true, "本地CSS文件已设置，网络CSS已清除");
         loadCustomCSSSettings();
       } else if (result.canceled) {
         // 用户取消了选择，不显示错误
@@ -582,13 +587,17 @@
         return;
       }
 
+      // 清除本地CSS文件路径，实现互斥
+      localCSSPathInput.value = "";
+
       await window.electronAPI.invoke("set-custom-css-remote-url", url);
+      await window.electronAPI.invoke("set-custom-css-local-path", ""); // 清除本地路径
 
       if (enableCustomCSSCheckbox.checked) {
         await window.electronAPI.invoke("apply-custom-css");
       }
 
-      animationMessage(true, "网络CSS URL已保存");
+      animationMessage(true, "网络CSS URL已保存，本地CSS已清除");
       loadCustomCSSSettings();
     } catch (error) {
       console.error("保存网络CSS URL失败:", error);

@@ -56,7 +56,7 @@ async function readLocalCSS(filePath) {
 }
 
 /**
- * 获取CSS内容（本地文件优先，然后是网络URL）
+ * 获取CSS内容（严格互斥：本地文件优先，如果有本地文件则不使用网络URL）
  * @returns {Promise<{success: boolean, css?: string, source?: string, message?: string}>}
  */
 async function getCSSContent() {
@@ -66,18 +66,18 @@ async function getCSSContent() {
     return { success: false, message: "自定义CSS未启用" };
   }
 
-  // 优先使用本地CSS文件
+  // 优先使用本地CSS文件，如果有本地文件就不使用网络URL
   if (settings.localPath) {
     try {
       const css = await readLocalCSS(settings.localPath);
       return { success: true, css, source: "local" };
     } catch (error) {
       console.error("读取本地CSS失败:", error);
-      // 如果本地文件失败，尝试网络URL
+      return { success: false, message: `读取本地CSS失败: ${error.message}` };
     }
   }
 
-  // 尝试网络CSS URL
+  // 只有在没有本地文件时才尝试网络CSS URL
   if (settings.remoteURL) {
     try {
       const css = await downloadCSS(settings.remoteURL);
@@ -90,7 +90,6 @@ async function getCSSContent() {
 
   return { success: false, message: "未配置CSS文件" };
 }
-
 /**
  * 获取自定义CSS设置
  * @returns {Promise<object>} CSS设置对象
