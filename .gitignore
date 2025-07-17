@@ -5,3 +5,6 @@ dist
 # macOS system files
 ._*
 .DS_Store
+
+# Intermediate test files
+*test*

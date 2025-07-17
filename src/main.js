@@ -233,6 +233,22 @@ app
       module.exports = { createWindow };
       require("./app/update"); // 初始化更新
       require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
+      require("./app/settings/uigfDictIpc"); // 初始化UIGF字典下载功能
+
+      // 启动时自动下载UIGF字典
+      setTimeout(async () => {
+        try {
+          const {
+            autoDownloadDictsOnStartup,
+          } = require("./utils/settings/export/fetchUIGF");
+          console.log("开始启动时自动下载UIGF字典...");
+          await autoDownloadDictsOnStartup("chs");
+          console.log("启动时UIGF字典下载完成");
+        } catch (error) {
+          console.error("启动时下载UIGF字典失败:", error);
+        }
+      }, 3000); // 延迟3秒启动，确保应用完全初始化
+
       console.log("App initialization completed successfully");
     } catch (error) {
       console.error("Error during app initialization:", error);
