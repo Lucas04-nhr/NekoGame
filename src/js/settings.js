@@ -343,14 +343,14 @@
     loadCustomPath();
   });
 
-  // UIGF 字典功能
+  // Hakushi 元数据功能
   const dictStatusDiv = document.getElementById("dict-status");
   const downloadAllDictsButton = document.getElementById("download-all-dicts");
   const refreshDictStatusButton = document.getElementById(
     "refresh-dict-status"
   );
 
-  // 格式化字典状态显示
+  // 格式化元数据状态显示
   function formatDictStatus(status) {
     const gameNames = {
       genshin: "原神",
@@ -358,27 +358,81 @@
       zzz: "绝区零",
     };
 
-    let html =
-      '<div style="font-weight: bold; margin-bottom: 8px;">字典状态:</div>';
+    const typeNames = {
+      character: "角色",
+      weapon: "武器",
+      lightcone: "光锥",
+      bangboo: "邦布",
+    };
 
-    for (const [game, info] of Object.entries(status)) {
+    let html =
+      '<div style="font-weight: bold; margin-bottom: 8px;">元数据状态:</div>';
+
+    for (const [game, gameData] of Object.entries(status)) {
       const gameName = gameNames[game] || game;
-      const statusIcon = info.exists && info.valid ? "✅" : "❌";
-      const statusText = info.exists
-        ? info.valid
-          ? `已下载 (${info.itemCount} 项)`
-          : "文件损坏"
+
+      // 汇总游戏的整体状态
+      let totalItems = 0;
+      let hasAnyData = false;
+      let allValid = true;
+      let latestDownload = null;
+      let typeDetails = [];
+
+      for (const [type, typeData] of Object.entries(gameData)) {
+        if (typeData.exists) {
+          hasAnyData = true;
+          totalItems += typeData.itemCount || 0;
+
+          if (!typeData.valid) {
+            allValid = false;
+          }
+
+          // 记录类型详情
+          typeDetails.push({
+            name: typeNames[type] || type,
+            count: typeData.itemCount || 0,
+            valid: typeData.valid,
+          });
+
+          // 找最新的下载时间
+          if (
+            typeData.lastDownloadTimestamp &&
+            (!latestDownload ||
+              typeData.lastDownloadTimestamp > latestDownload.timestamp)
+          ) {
+            latestDownload = {
+              timestamp: typeData.lastDownloadTimestamp,
+              dateString: typeData.lastDownload,
+            };
+          }
+        }
+      }
+
+      const statusIcon = hasAnyData && allValid ? "✅" : "❌";
+      const statusText = hasAnyData
+        ? allValid
+          ? `已下载 (${totalItems} 项)`
+          : "部分文件损坏"
         : "未下载";
 
       // 格式化下载时间显示
       const downloadTimeText =
-        info.lastDownload &&
-        info.lastDownload !== "从未下载" &&
-        info.lastDownload !== "未知"
-          ? `最近下载: ${info.lastDownload}`
-          : info.lastDownload === "从未下载"
-          ? "从未下载"
-          : "下载时间未知";
+        latestDownload &&
+        latestDownload.dateString &&
+        latestDownload.dateString !== "从未下载" &&
+        latestDownload.dateString !== "未知"
+          ? `更新时间: ${latestDownload.dateString}`
+          : hasAnyData
+          ? "下载时间未知"
+          : "从未下载";
+
+      // 构建类型详情
+      const typeDetailsText =
+        typeDetails.length > 0
+          ? typeDetails
+              .map((t) => `${t.name}: ${t.count}项${t.valid ? "" : "(损坏)"}`)
+              .join(", ")
+          : "";
 
       html += `
                 <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
@@ -389,6 +443,11 @@
                     <div style="font-size: 0.8em; color: #999;">
                         ${downloadTimeText}
                     </div>
+                    ${
+                      typeDetailsText
+                        ? `<div style="font-size: 0.75em; color: #888; margin-top: 4px;">${typeDetailsText}</div>`
+                        : ""
+                    }
                 </div>
             `;
     }
@@ -396,11 +455,11 @@
     return html;
   }
 
-  // 加载字典状态
+  // 加载元数据状态
   async function loadDictStatus() {
     try {
-      dictStatusDiv.innerHTML = "<div>正在检查字典状态...</div>";
-      const result = await window.electronAPI.invoke("get-dict-status", "chs");
+      dictStatusDiv.innerHTML = "<div>正在检查元数据状态...</div>";
+      const result = await window.electronAPI.invoke("get-metadata-status");
 
       if (result.success) {
         dictStatusDiv.innerHTML = formatDictStatus(result.status);
@@ -408,22 +467,19 @@
         dictStatusDiv.innerHTML = `<div style="color: red;">状态检查失败: ${result.message}</div>`;
       }
     } catch (error) {
-      console.error("加载字典状态失败:", error);
+      console.error("加载元数据状态失败:", error);
       dictStatusDiv.innerHTML = `<div style="color: red;">状态检查失败: ${error.message}</div>`;
     }
   }
 
-  // 下载所有字典
+  // 下载所有元数据
   downloadAllDictsButton.addEventListener("click", async () => {
     try {
       downloadAllDictsButton.disabled = true;
       downloadAllDictsButton.textContent = "下载中...";
-      dictStatusDiv.innerHTML = "<div>正在下载字典...</div>";
+      dictStatusDiv.innerHTML = "<div>正在下载元数据...</div>";
 
-      const result = await window.electronAPI.invoke(
-        "download-all-uigf-dicts",
-        "chs"
-      );
+      const result = await window.electronAPI.invoke("download-all-metadata");
 
       if (result.success) {
         animationMessage(true, result.message);
@@ -434,22 +490,49 @@
       // 刷新状态
       await loadDictStatus();
     } catch (error) {
-      console.error("下载字典失败:", error);
+      console.error("下载元数据失败:", error);
       animationMessage(false, `下载失败: ${error.message}`);
     } finally {
       downloadAllDictsButton.disabled = false;
-      downloadAllDictsButton.textContent = "下载所有字典";
+      downloadAllDictsButton.textContent = "下载所有元数据";
     }
   });
 
-  // 刷新字典状态
+  // 刷新元数据状态
   refreshDictStatusButton.addEventListener("click", loadDictStatus);
+
+  // 更新物品名称按钮
+  const updateItemNamesButton = document.getElementById("update-item-names");
+  if (updateItemNamesButton) {
+    updateItemNamesButton.addEventListener("click", async () => {
+      try {
+        updateItemNamesButton.disabled = true;
+        updateItemNamesButton.textContent = "更新中...";
+
+        const result = await window.electronAPI.invoke(
+          "update-item-names-from-hakushi"
+        );
+
+        if (result.success) {
+          animationMessage(true, result.message);
+        } else {
+          animationMessage(false, result.message);
+        }
+      } catch (error) {
+        console.error("更新物品名称失败:", error);
+        animationMessage(false, `更新失败: ${error.message}`);
+      } finally {
+        updateItemNamesButton.disabled = false;
+        updateItemNamesButton.textContent = "更新物品名称";
+      }
+    });
+  }
 
   // 初始化
   loadCustomPath();
   // 初始化加载路径
   loadDataPath();
-  // 初始化字典状态
+  // 初始化元数据状态
   loadDictStatus();
 
   // 开发者工具按钮事件

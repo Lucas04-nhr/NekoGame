@@ -1,6 +1,6 @@
 {
   "name": "nekogame",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "main": "src/main.js",
   "description": "summerneko",
   "author": "",
@@ -10,7 +10,7 @@
     "start:win": "chcp 65001 && electron .",
     "build": "electron-builder",
     "build:win": "set NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --win",
-    "build:mac": "export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --mac"
+    "build:mac": "export CSC_IDENTITY_AUTO_DISCOVERY=false && export NODE_TLS_REJECT_UNAUTHORIZED=0 && electron-builder --mac -c.mac.identity=null"
   },
   "keywords": [],
   "devDependencies": {
@@ -48,7 +48,7 @@
       "releaseNotesFile": "release-notes.md"
     },
     "extraMetadata": {
-      "version": "2.4.1"
+      "version": "2.5.0"
     },
     "files": [
       "assets/**/*",

@@ -272,22 +272,57 @@ app
       require("./app/update"); // 初始化更新
       require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
       require("./app/settings/uigfDictIpc"); // 初始化UIGF字典下载功能
+      require("./app/settings/hakushiMetadataIpc"); // 初始化Hakushi元数据下载功能
 
       // 初始化自定义CSS功能
       const { initializeCustomCSS } = require("./app/settings/customCSS");
       initializeCustomCSS();
 
-      // 启动时自动下载UIGF字典
+      // 启动时自动下载所有元数据和字典
       setTimeout(async () => {
         try {
-          const {
-            autoDownloadDictsOnStartup,
-          } = require("./utils/settings/export/fetchUIGF");
-          console.log("开始启动时自动下载UIGF字典...");
-          await autoDownloadDictsOnStartup("chs");
-          console.log("启动时UIGF字典下载完成");
+          console.log("开始启动时自动下载元数据和字典...");
+
+          // 使用统一的元数据客户端下载所有数据
+          const metadataClient = require("./utils/metadata/metadataClient");
+          const results = await metadataClient.autoDownloadAllOnStartup("chs");
+
+          console.log("启动时元数据和字典下载完成");
+
+          // 输出下载结果统计
+          if (results.uigf) {
+            console.log(
+              `UIGF字典: 成功 ${results.uigf.success.length}, 跳过 ${results.uigf.skipped.length}, 失败 ${results.uigf.failed.length}`
+            );
+          }
+          if (results.hakushi) {
+            const hakushiStats = Object.values(results.hakushi).reduce(
+              (acc, game) => {
+                acc.success += game.success.length;
+                acc.skipped += game.skipped.length;
+                acc.failed += game.failed.length;
+                return acc;
+              },
+              { success: 0, skipped: 0, failed: 0 }
+            );
+            console.log(
+              `Hakushi元数据: 成功 ${hakushiStats.success}, 跳过 ${hakushiStats.skipped}, 失败 ${hakushiStats.failed}`
+            );
+          }
         } catch (error) {
-          console.error("启动时下载UIGF字典失败:", error);
+          console.error("启动时下载元数据和字典失败:", error);
+
+          // 如果统一客户端失败，回退到单独的UIGF下载
+          try {
+            console.log("回退到单独下载UIGF字典...");
+            const {
+              autoDownloadDictsOnStartup,
+            } = require("./utils/settings/export/fetchUIGF");
+            await autoDownloadDictsOnStartup("chs");
+            console.log("UIGF字典下载完成");
+          } catch (fallbackError) {
+            console.error("UIGF字典下载也失败了:", fallbackError);
+          }
         }
       }, 3000); // 延迟3秒启动，确保应用完全初始化
 
