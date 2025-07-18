@@ -2,11 +2,35 @@ const path = require("path");
 const { createWindow } = require("../main");
 const axios = require("axios");
 const { ipcMain, BrowserWindow, shell, app, dialog } = require("electron");
+const { getGithubPATForAPI } = require("./settings/githubPAT");
 
 let guideWindow = null;
 const GITHUB_RELEASES_URL =
   "https://api.github.com/repos/Lucas04-nhr/NekoGame/releases/latest";
 const GITHUB_RELEASES_PAGE = "https://github.com/Lucas04-nhr/NekoGame/releases";
+
+// 获取 GitHub API 请求配置
+async function getGithubAPIConfig() {
+  const pat = await getGithubPATForAPI();
+  const config = {
+    timeout: 10000, // 10秒超时
+    headers: {
+      "User-Agent": "NekoGame-Update-Checker",
+      Accept: "application/vnd.github.v3+json",
+    },
+  };
+
+  if (pat) {
+    config.headers["Authorization"] = `token ${pat}`;
+    console.log(
+      "使用 GitHub PAT 进行 API 请求 (前3位: " + pat.substring(0, 3) + "...)"
+    );
+  } else {
+    console.log("使用匿名 API 请求（受速率限制）");
+  }
+
+  return config;
+}
 
 async function initializeUpdater() {
   const Store = (await import("electron-store")).default;
@@ -32,8 +56,45 @@ async function checkForUpdates() {
     const store = new Store();
     const currentVersion = app.getVersion();
 
-    const response = await axios.get(GITHUB_RELEASES_URL);
-    const latestRelease = response.data;
+    const apiConfig = await getGithubAPIConfig();
+
+    // 首先尝试获取最新的 release
+    let response;
+    let latestRelease;
+
+    try {
+      response = await axios.get(GITHUB_RELEASES_URL, apiConfig);
+      latestRelease = response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        // 如果没有 latest release，尝试获取所有 releases 并取第一个
+        console.log("没有找到 latest release，尝试获取所有 releases");
+        const allReleasesResponse = await axios.get(
+          "https://api.github.com/repos/Lucas04-nhr/NekoGame/releases",
+          apiConfig
+        );
+        const allReleases = allReleasesResponse.data;
+
+        if (!allReleases || allReleases.length === 0) {
+          console.log("仓库中没有任何 releases");
+          if (global.mainWindow) {
+            dialog.showMessageBox(global.mainWindow, {
+              type: "info",
+              title: "无可用更新",
+              message: "当前仓库中没有可用的发布版本",
+              buttons: ["好的"],
+            });
+          }
+          return;
+        }
+
+        // 取第一个 release（通常是最新的）
+        latestRelease = allReleases[0];
+      } else {
+        throw error; // 重新抛出其他错误
+      }
+    }
+
     const latestVersion = latestRelease.tag_name.replace(/^v/, ""); // 移除 'v' 前缀
 
     // 简单的版本比较
@@ -69,6 +130,37 @@ async function checkForUpdates() {
     }
   } catch (error) {
     console.error("检查更新失败:", error.message);
+
+    // 提供更详细的错误信息
+    let errorMessage = "检查更新失败";
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 403) {
+        errorMessage =
+          "GitHub API 速率限制超出\n\n💡 解决方案：\n1. 在设置页面配置 GitHub Personal Access Token\n2. 访问 https://github.com/settings/tokens 生成 Token\n3. 仅需要 'public_repo' 权限";
+      } else if (status === 404) {
+        errorMessage =
+          "仓库或发布版本未找到\n\n这可能是因为：\n1. 仓库还没有发布任何版本\n2. 仓库地址配置错误\n\n请前往 GitHub Releases 页面查看最新版本";
+      } else {
+        errorMessage = `GitHub API 错误 (${status})\n\n${
+          error.response.data?.message || error.message
+        }`;
+      }
+    } else if (error.code === "ENOTFOUND" || error.code === "ECONNREFUSED") {
+      errorMessage = "网络连接失败\n\n请检查网络连接是否正常";
+    } else {
+      errorMessage = `更新检查失败\n\n${error.message}`;
+    }
+
+    // 显示详细错误信息给用户
+    if (global.mainWindow) {
+      dialog.showMessageBox(global.mainWindow, {
+        type: "error",
+        title: "检查更新失败",
+        message: errorMessage,
+        buttons: ["好的"],
+      });
+    }
   }
 }
 
@@ -135,8 +227,44 @@ ipcMain.on("check-for-updates", async () => {
   console.log("主动检查更新...");
 
   try {
-    const response = await axios.get(GITHUB_RELEASES_URL);
-    const latestRelease = response.data;
+    const apiConfig = await getGithubAPIConfig();
+
+    // 首先尝试获取最新的 release
+    let response;
+    let latestRelease;
+
+    try {
+      response = await axios.get(GITHUB_RELEASES_URL, apiConfig);
+      latestRelease = response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        // 如果没有 latest release，尝试获取所有 releases 并取第一个
+        console.log("没有找到 latest release，尝试获取所有 releases");
+        const allReleasesResponse = await axios.get(
+          "https://api.github.com/repos/Lucas04-nhr/NekoGame/releases",
+          apiConfig
+        );
+        const allReleases = allReleasesResponse.data;
+
+        if (!allReleases || allReleases.length === 0) {
+          console.log("仓库中没有任何 releases");
+          dialog.showMessageBox(global.mainWindow, {
+            type: "info",
+            title: "无可用更新",
+            message: "当前仓库中没有可用的发布版本",
+            buttons: ["好的"],
+          });
+          global.mainWindow.webContents.send("update-status", "no-releases");
+          return;
+        }
+
+        // 取第一个 release（通常是最新的）
+        latestRelease = allReleases[0];
+      } else {
+        throw error; // 重新抛出其他错误
+      }
+    }
+
     const currentVersion = app.getVersion();
     const latestVersion = latestRelease.tag_name.replace(/^v/, "");
 
@@ -157,10 +285,32 @@ ipcMain.on("check-for-updates", async () => {
     }
   } catch (error) {
     console.error("检查更新失败:", error.message);
+
+    // 提供更详细的错误信息
+    let errorMessage = "检查更新失败";
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 403) {
+        errorMessage =
+          "GitHub API 速率限制超出\n\n💡 解决方案：\n1. 在设置页面配置 GitHub Personal Access Token\n2. 访问 https://github.com/settings/tokens 生成 Token\n3. 仅需要 'public_repo' 权限";
+      } else if (status === 404) {
+        errorMessage =
+          "仓库或发布版本未找到\n\n这可能是因为：\n1. 仓库还没有发布任何版本\n2. 仓库地址配置错误\n\n请前往 GitHub Releases 页面查看最新版本";
+      } else {
+        errorMessage = `GitHub API 错误 (${status})\n\n${
+          error.response.data?.message || error.message
+        }`;
+      }
+    } else if (error.code === "ENOTFOUND" || error.code === "ECONNREFUSED") {
+      errorMessage = "网络连接失败\n\n请检查网络连接是否正常";
+    } else {
+      errorMessage = `更新检查失败\n\n${error.message}`;
+    }
+
     dialog.showMessageBox(global.mainWindow, {
       type: "error",
       title: "检查更新失败",
-      message: "无法连接到更新服务器，请检查网络连接。",
+      message: errorMessage,
       buttons: ["好的"],
     });
   }
