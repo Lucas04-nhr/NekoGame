@@ -104,6 +104,10 @@ jobs:
               echo "EXE_FILE=$exe_file" >> $GITHUB_OUTPUT
               echo "EXE_NAME=$(basename "$exe_file")" >> $GITHUB_OUTPUT
             fi
+            if [ -n "$blockmap_file" ]; then
+              echo "BLOCKMAP_FILE=$blockmap_file" >> $GITHUB_OUTPUT
+              echo "BLOCKMAP_NAME=$(basename "$blockmap_file")" >> $GITHUB_OUTPUT
+            fi
           else
             dmg_file=$(find dist -name "*.dmg" -type f | head -1)
             blockmap_file=$(find dist -name "*.blockmap" -type f | head -1)
