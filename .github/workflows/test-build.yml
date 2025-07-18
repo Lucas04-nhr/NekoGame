@@ -34,7 +34,7 @@ jobs:
         run: npm run ${{ matrix.build_command }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: testbuild-${{ matrix.os }}-${{ github.run_id }}
           path: ${{ matrix.os == 'windows-latest' && 'dist/*.exe' || 'dist/*.dmg' }}
