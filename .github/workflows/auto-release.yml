@@ -29,29 +29,14 @@ jobs:
           echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           echo "VERSION_NUMBER=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Read release notes
-        id: release_notes
-        run: |
-          if [ -f "release-notes.md" ]; then
-            echo "RELEASE_NOTES_EXIST=true" >> $GITHUB_OUTPUT
-            # 将多行内容转换为环境变量
-            {
-              echo "RELEASE_BODY<<EOF"
-              cat release-notes.md
-              echo "EOF"
-            } >> $GITHUB_OUTPUT
-          else
-            echo "RELEASE_NOTES_EXIST=false" >> $GITHUB_OUTPUT
-            echo "RELEASE_BODY=Release ${{ steps.tag_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           tag: ${{ steps.tag_version.outputs.VERSION }}
           name: Release ${{ steps.tag_version.outputs.VERSION }}
-          body: ${{ steps.release_notes.outputs.RELEASE_BODY }}
+          bodyFile: release-notes.md
+          generateReleaseNotes: true
           draft: false
           prerelease: ${{ contains(steps.tag_version.outputs.VERSION, 'beta') || contains(steps.tag_version.outputs.VERSION, 'alpha') || contains(steps.tag_version.outputs.VERSION, 'rc') }}
           token: ${{ secrets.GITHUB_TOKEN }}
