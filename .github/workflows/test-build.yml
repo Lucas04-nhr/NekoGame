@@ -12,8 +12,11 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        build_command: [build:win, build:mac]
+        include:
+          - os: windows-latest
+            build_command: build:win
+          - os: macos-latest
+            build_command: build:mac
 
     steps:
       - name: Checkout code
