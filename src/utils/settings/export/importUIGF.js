@@ -20,30 +20,26 @@ const UIGF_FIELDS = [
 ];
 
 /**
- * ZZZ星级转换函数
- * 将3、4、5等级转换为2、3、4等级存储到数据库
+ * ZZZ星级验证函数
+ * 验证星级值的有效性，如果遇到5级物品则报错
  * @param {number|string} rankType - 原始星级值
- * @returns {number} - 转换后的星级值
+ * @returns {number} - 验证后的星级值
  */
 function convertZzzRankType(rankType) {
   const rank = parseInt(rankType);
 
-  // 转换3、4、5格式为2、3、4格式
-  if (rank >= 3 && rank <= 5) {
-    const converted = rank - 1;
-    console.log(
-      `[ZZZ星级转换] ${rank} -> ${converted} (3/4/5格式转为2/3/4格式)`
-    );
-    return converted;
+  // 检查是否为5级物品，如果是则报错
+  if (rank === 5) {
+    throw new Error(`原始文件错误：检测到5级物品，ZZZ游戏中不应该存在5级物品`);
   }
 
-  // 如果已经是2格式或其他值，直接返回
-  if (rank === 2) {
+  // 验证有效的星级范围 (2-4)
+  if (rank >= 2 && rank <= 4) {
     return rank;
   }
 
   // 如果是其他值，记录警告但保持原值
-  console.warn(`[ZZZ星级转换] 未知的rank_type值: ${rank}，保持原值`);
+  console.warn(`[ZZZ星级验证] 未知的rank_type值: ${rank}，保持原值`);
   return rank;
 }
 
@@ -312,18 +308,9 @@ async function insertUIGF(
   let metadataHits = 0;
   let apiFallbacks = 0;
   let failures = 0;
-  let zzzConversions = 0; // 统计ZZZ星级转换次数
 
   for (const record of list) {
     const recordData = { ...record, uid, lang };
-
-    // ZZZ数据星级转换统计
-    if (gameType === "zzz" && recordData.rank_type) {
-      const originalRank = parseInt(recordData.rank_type);
-      if (originalRank >= 3 && originalRank <= 5) {
-        zzzConversions++;
-      }
-    }
     // 检查字段完整性
     checkUIGF(
       recordData.id,
@@ -432,11 +419,6 @@ async function insertUIGF(
   console.log(
     `数据处理完成 - Hakushi元数据命中: ${metadataHits}, API回退: ${apiFallbacks}, 失败: ${failures}`
   );
-  if (gameType === "zzz" && zzzConversions > 0) {
-    console.log(
-      `🔄 ZZZ星级转换: ${zzzConversions} 条记录从3/4/5格式转换为2/3/4格式`
-    );
-  }
   if (metadataHits > 0) {
     console.log(
       `✅ Hakushi元数据有效，${metadataHits} 个物品通过元数据验证或获取ID`

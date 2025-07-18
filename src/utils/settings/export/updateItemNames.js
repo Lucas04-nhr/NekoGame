@@ -1,6 +1,7 @@
 const { loadMetadata } = require("../../metadata/hakushiClient");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const fs = require("fs");
 
 // 获取数据库连接
 const nekoGameFolderPath = process.env.NEKO_GAME_FOLDER_PATH;
@@ -325,6 +326,281 @@ module.exports = {
   updateItemNamesInTable,
   updateAllGachaItemNames,
   checkItemNamesNeedUpdate,
+  updateAllGachaItemNamesWithGameDict,
+  checkItemNamesNeedUpdateWithGameDict,
   GAME_METADATA_TYPES,
   GAME_LANGUAGE_FIELDS,
 };
+
+/**
+ * 使用游戏字典文件更新单个游戏的抽卡数据物品名称
+ * @param {string} game - 游戏名称
+ * @param {string} lang - 语言代码
+ * @returns {Promise<Object>} 更新结果
+ */
+async function updateGachaItemNamesWithGameDict(game, lang = "CHS") {
+  const { loadGameDict } = require("./generateGameDict");
+
+  try {
+    // 加载游戏字典
+    const dict = loadGameDict(game, lang);
+    if (!dict) {
+      return {
+        success: false,
+        message: `无法加载 ${game} ${lang} 字典文件`,
+        updated: 0,
+        total: 0,
+      };
+    }
+
+    // 确定数据库表名
+    const tableMap = {
+      genshin: "genshin_gacha",
+      starrail: "starrail_gacha",
+      zzz: "zzz_gacha",
+    };
+
+    const tableName = tableMap[game];
+    if (!tableName) {
+      return {
+        success: false,
+        message: `不支持的游戏: ${game}`,
+        updated: 0,
+        total: 0,
+      };
+    }
+
+    console.log(`正在使用字典更新 ${game} 的物品名称...`);
+
+    return new Promise((resolve, reject) => {
+      // 查询需要更新的记录
+      const selectQuery = `SELECT ROWID, item_id, name FROM ${tableName} WHERE item_id IS NOT NULL`;
+
+      db2.all(selectQuery, [], (err, rows) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        let updated = 0;
+        let total = rows.length;
+        let processed = 0;
+
+        if (total === 0) {
+          resolve({
+            success: true,
+            message: `${game} 表中没有数据`,
+            updated: 0,
+            total: 0,
+          });
+          return;
+        }
+
+        // 处理每条记录
+        rows.forEach((row) => {
+          const dictName = dict[row.item_id];
+
+          // 如果字典中有对应的名称且与当前名称不同，则更新
+          if (dictName && dictName !== row.name) {
+            const updateQuery = `UPDATE ${tableName} SET name = ? WHERE ROWID = ?`;
+
+            db2.run(updateQuery, [dictName, row.ROWID], function (updateErr) {
+              processed++;
+
+              if (!updateErr) {
+                updated++;
+                console.log(
+                  `更新 ${game}: ${row.item_id} ${row.name} -> ${dictName}`
+                );
+              } else {
+                console.error(
+                  `更新失败 ${game}: ${row.item_id}`,
+                  updateErr.message
+                );
+              }
+
+              // 所有记录处理完成
+              if (processed === total) {
+                resolve({
+                  success: true,
+                  message: `${game} 物品名称更新完成，更新了 ${updated}/${total} 条记录`,
+                  updated,
+                  total,
+                  dictSize: Object.keys(dict).length,
+                });
+              }
+            });
+          } else {
+            processed++;
+            // 如果不需要更新，直接跳过
+            if (processed === total) {
+              resolve({
+                success: true,
+                message: `${game} 物品名称更新完成，更新了 ${updated}/${total} 条记录`,
+                updated,
+                total,
+                dictSize: Object.keys(dict).length,
+              });
+            }
+          }
+        });
+      });
+    });
+  } catch (error) {
+    console.error(`更新 ${game} 物品名称失败:`, error.message);
+    return {
+      success: false,
+      message: `更新 ${game} 物品名称失败: ${error.message}`,
+      updated: 0,
+      total: 0,
+    };
+  }
+}
+
+/**
+ * 使用游戏字典文件更新所有游戏的抽卡数据物品名称
+ * @param {string} lang - 语言代码，默认为 "CHS"
+ * @returns {Promise<Object>} 更新结果汇总
+ */
+async function updateAllGachaItemNamesWithGameDict(lang = "CHS") {
+  console.log("=== 开始使用游戏字典更新物品名称 ===");
+
+  const games = ["genshin", "starrail", "zzz"];
+  const results = {
+    success: [],
+    failed: [],
+    total: {
+      updated: 0,
+      records: 0,
+      games: 0,
+    },
+  };
+
+  for (const game of games) {
+    try {
+      const result = await updateGachaItemNamesWithGameDict(game, lang);
+
+      if (result.success) {
+        results.success.push({
+          game,
+          ...result,
+        });
+        results.total.updated += result.updated;
+        results.total.records += result.total;
+      } else {
+        results.failed.push({
+          game,
+          ...result,
+        });
+      }
+
+      results.total.games++;
+    } catch (error) {
+      const failedResult = {
+        game,
+        success: false,
+        message: `处理 ${game} 时发生异常: ${error.message}`,
+        updated: 0,
+        total: 0,
+      };
+
+      results.failed.push(failedResult);
+      results.total.games++;
+      console.error(`❌ ${failedResult.message}`);
+    }
+  }
+
+  // 输出汇总信息
+  console.log("\n=== 物品名称更新完成 ===");
+  console.log(`处理游戏数: ${results.total.games}`);
+  console.log(`成功更新: ${results.success.length} 个游戏`);
+  console.log(`更新失败: ${results.failed.length} 个游戏`);
+  console.log(`总更新记录: ${results.total.updated}/${results.total.records}`);
+
+  if (results.failed.length > 0) {
+    console.log("\n失败详情:");
+    results.failed.forEach((result) => {
+      console.log(`  - ${result.game}: ${result.message}`);
+    });
+  }
+
+  return results;
+}
+
+/**
+ * 检查使用游戏字典需要更新的物品名称数量
+ * @param {string} lang - 语言代码，默认为 "CHS"
+ * @returns {Promise<Object>} 检查结果
+ */
+async function checkItemNamesNeedUpdateWithGameDict(lang = "CHS") {
+  const { loadGameDict } = require("./generateGameDict");
+
+  const games = ["genshin", "starrail", "zzz"];
+  const results = {};
+
+  for (const game of games) {
+    try {
+      // 加载游戏字典
+      const dict = loadGameDict(game, lang);
+      if (!dict) {
+        results[game] = {
+          needUpdate: 0,
+          total: 0,
+          dictAvailable: false,
+          message: `字典文件不存在: ${game} ${lang}`,
+        };
+        continue;
+      }
+
+      // 确定数据库表名
+      const tableMap = {
+        genshin: "genshin_gacha",
+        starrail: "starrail_gacha",
+        zzz: "zzz_gacha",
+      };
+
+      const tableName = tableMap[game];
+
+      const checkResult = await new Promise((resolve, reject) => {
+        const selectQuery = `SELECT item_id, name FROM ${tableName} WHERE item_id IS NOT NULL`;
+
+        db2.all(selectQuery, [], (err, rows) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          let needUpdate = 0;
+          let total = rows.length;
+
+          // 检查每条记录是否需要更新
+          rows.forEach((row) => {
+            const dictName = dict[row.item_id];
+            if (dictName && dictName !== row.name) {
+              needUpdate++;
+            }
+          });
+
+          resolve({
+            total,
+            needUpdate,
+            dictAvailable: true,
+            dictSize: Object.keys(dict).length,
+          });
+        });
+      });
+
+      results[game] = checkResult;
+    } catch (error) {
+      console.error(`检查 ${game} 失败:`, error.message);
+      results[game] = {
+        needUpdate: 0,
+        total: 0,
+        dictAvailable: false,
+        error: error.message,
+      };
+    }
+  }
+
+  return results;
+}
