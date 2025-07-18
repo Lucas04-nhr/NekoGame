@@ -52,10 +52,10 @@ async function getItemIdWithHakushi(
 
     // 回退到API
     console.log(`回退到API获取ID: ${itemName}`);
-    return await fetchItemId(gameType, itemName, itemType, rankType);
+    return await fetchItemId(itemName, "chs", gameType);
   } catch (error) {
     console.warn(`获取物品ID失败: ${error.message}，回退到API`);
-    return await fetchItemId(gameType, itemName, itemType, rankType);
+    return await fetchItemId(itemName, "chs", gameType);
   }
 }
 
@@ -71,8 +71,8 @@ function findItemNameFromAllTypes(itemId, gameType, lang = "CHS") {
     // 根据游戏类型确定要查找的元数据类型
     const metadataTypes = {
       genshin: ["character", "weapon"],
-      starrail: ["character", "weapon"],
-      zzz: ["character", "weapon"],
+      starrail: ["character", "lightcone"],
+      zzz: ["character", "weapon", "bangboo"],
     };
 
     const typesToCheck = metadataTypes[gameType] || [];
@@ -110,8 +110,8 @@ function findItemIdFromAllTypes(itemName, gameType, lang = "CHS") {
   try {
     const metadataTypes = {
       genshin: ["character", "weapon"],
-      starrail: ["character", "weapon"],
-      zzz: ["character", "weapon"],
+      starrail: ["character", "lightcone"],
+      zzz: ["character", "weapon", "bangboo"],
     };
 
     const typesToCheck = metadataTypes[gameType] || [];
@@ -508,15 +508,26 @@ async function importStarRailData(hsrData) {
 }
 
 /**
- * ZZZ星级转换函数
+ * ZZZ星级验证函数
+ * 验证星级值的有效性，如果遇到5级物品则报错
  * @param {number|string} rankType - 原始星级值
- * @returns {number} - 转换后的星级值
+ * @returns {number} - 验证后的星级值
  */
 function convertZzzRankType(rankType) {
   const rank = parseInt(rankType);
-  if (rank >= 3 && rank <= 5) {
-    return rank - 1;
+
+  // 检查是否为5级物品，如果是则报错
+  if (rank === 5) {
+    throw new Error(`原始文件错误：检测到5级物品，ZZZ游戏中不应该存在5级物品`);
   }
+
+  // 验证有效的星级范围 (2-4)
+  if (rank >= 2 && rank <= 4) {
+    return rank;
+  }
+
+  // 如果是其他值，记录警告但保持原值
+  console.warn(`[ZZZ星级验证] 未知的rank_type值: ${rank}，保持原值`);
   return rank;
 }
 
