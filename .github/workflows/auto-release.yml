@@ -1,0 +1,67 @@
+name: Auto Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*" # 当推送以 'v' 开头的标签时触发
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史记录
+
+      - name: Extract tag version
+        id: tag_version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "VERSION_NUMBER=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Read release notes
+        id: release_notes
+        run: |
+          if [ -f "release-notes.md" ]; then
+            echo "RELEASE_NOTES_EXIST=true" >> $GITHUB_OUTPUT
+            # 将多行内容转换为环境变量
+            {
+              echo "RELEASE_BODY<<EOF"
+              cat release-notes.md
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          else
+            echo "RELEASE_NOTES_EXIST=false" >> $GITHUB_OUTPUT
+            echo "RELEASE_BODY=Release ${{ steps.tag_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag_version.outputs.VERSION }}
+          release_name: Release ${{ steps.tag_version.outputs.VERSION }}
+          body: ${{ steps.release_notes.outputs.RELEASE_BODY }}
+          draft: false
+          prerelease: ${{ contains(steps.tag_version.outputs.VERSION, 'beta') || contains(steps.tag_version.outputs.VERSION, 'alpha') || contains(steps.tag_version.outputs.VERSION, 'rc') }}
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "✅ Successfully created release ${{ steps.tag_version.outputs.VERSION }}"
+          echo "📝 Release notes sourced from release-notes.md"
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.tag_version.outputs.VERSION }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Failed to create release ${{ steps.tag_version.outputs.VERSION }}"
+          echo "Please check the workflow logs for details"

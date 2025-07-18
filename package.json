@@ -41,9 +41,9 @@
     "winreg": "^1.2.5"
   },
   "build": {
-    "appId": "com.wenpeng.nekogame",
+    "appId": "com.uigf.nekogame",
     "productName": "NekoGame",
-    "copyright": "Copyright © 2023",
+    "copyright": "Copyright © 2025",
     "releaseInfo": {
       "releaseNotesFile": "release-notes.md"
     },
@@ -74,13 +74,6 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "Summer-Neko",
-        "repo": "NekoGame"
-      }
-    ]
+    }
   }
 }
