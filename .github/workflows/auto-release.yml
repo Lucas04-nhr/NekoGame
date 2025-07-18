@@ -92,13 +92,36 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run ${{ matrix.build_command }}
 
+      - name: Find and upload artifacts
+        shell: bash
+        run: |
+          # 查找构建产物
+          artifacts=$(find dist -name "*.dmg" -o -name "*.blockmap" -type f)
+
+          # 输出找到的文件
+          echo "Found artifacts:"
+          echo "$artifacts"
+
+          # 如果找到文件，则上传
+          if [ -n "$artifacts" ]; then
+            echo "$artifacts" | while read -r file; do
+              if [ -f "$file" ]; then
+                echo "Uploading: $file"
+              fi
+            done
+          else
+            echo "No artifacts found to upload"
+          fi
+
       - name: Upload release assets
+        if: success()
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ needs.create-release.outputs.version }}
-          artifacts: ${{ matrix.artifact_pattern }}
+          artifacts: "dist/*.exe,dist/*.dmg,dist/*.blockmap"
           allowUpdates: true
-          updateOnlyUnreleased: false
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify build completion
