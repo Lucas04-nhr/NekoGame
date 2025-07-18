@@ -1,3 +1,19 @@
+# v2.5.1 Release Notes
+
+> [!NOTE]
+> This is a patch version of the v2.5.0 release, focusing on change the deprecated release workflow to the new one.
+>
+> 这是 v2.5.0 版本的补丁版本，主要关注将已弃用的发布工作流更改为新的工作流。
+
+## 🌟 New Features / 新功能
+
+### 🔄 Release Workflow Update / 发布工作流更新
+
+- **Updated release workflow** - Transitioned from deprecated release workflow to the new one
+- **更新发布工作流** - 从已弃用的发布工作流过渡到新的工作流
+
+---
+
 # v2.5.0 Release Notes
 
 ## 🌟 New Features / 新功能

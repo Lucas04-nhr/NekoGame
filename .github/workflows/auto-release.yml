@@ -14,8 +14,8 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.tag_version.outputs.VERSION }}
+      release_body: ${{ steps.release_notes.outputs.RELEASE_BODY }}
 
     steps:
       - name: Checkout repository
@@ -46,16 +46,14 @@ jobs:
           fi
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ steps.tag_version.outputs.VERSION }}
-          release_name: Release ${{ steps.tag_version.outputs.VERSION }}
+          tag: ${{ steps.tag_version.outputs.VERSION }}
+          name: Release ${{ steps.tag_version.outputs.VERSION }}
           body: ${{ steps.release_notes.outputs.RELEASE_BODY }}
           draft: false
           prerelease: ${{ contains(steps.tag_version.outputs.VERSION, 'beta') || contains(steps.tag_version.outputs.VERSION, 'alpha') || contains(steps.tag_version.outputs.VERSION, 'rc') }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify release created
         run: |
@@ -94,65 +92,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run ${{ matrix.build_command }}
 
-      - name: Find artifacts
-        id: find_artifacts
-        shell: bash
-        run: |
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            exe_file=$(find dist -name "*.exe" -type f | head -1)
-            if [ -n "$exe_file" ]; then
-              echo "EXE_FILE=$exe_file" >> $GITHUB_OUTPUT
-              echo "EXE_NAME=$(basename "$exe_file")" >> $GITHUB_OUTPUT
-            fi
-            if [ -n "$blockmap_file" ]; then
-              echo "BLOCKMAP_FILE=$blockmap_file" >> $GITHUB_OUTPUT
-              echo "BLOCKMAP_NAME=$(basename "$blockmap_file")" >> $GITHUB_OUTPUT
-            fi
-          else
-            dmg_file=$(find dist -name "*.dmg" -type f | head -1)
-            blockmap_file=$(find dist -name "*.blockmap" -type f | head -1)
-            if [ -n "$dmg_file" ]; then
-              echo "DMG_FILE=$dmg_file" >> $GITHUB_OUTPUT
-              echo "DMG_NAME=$(basename "$dmg_file")" >> $GITHUB_OUTPUT
-            fi
-            if [ -n "$blockmap_file" ]; then
-              echo "BLOCKMAP_FILE=$blockmap_file" >> $GITHUB_OUTPUT
-              echo "BLOCKMAP_NAME=$(basename "$blockmap_file")" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-      - name: Upload Windows executable
-        if: matrix.os == 'windows-latest' && steps.find_artifacts.outputs.EXE_FILE
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload release assets
+        uses: ncipollo/release-action@v1
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.EXE_FILE }}
-          asset_name: ${{ steps.find_artifacts.outputs.EXE_NAME }}
-          asset_content_type: application/octet-stream
-
-      - name: Upload macOS DMG
-        if: matrix.os == 'macos-latest' && steps.find_artifacts.outputs.DMG_FILE
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.DMG_FILE }}
-          asset_name: ${{ steps.find_artifacts.outputs.DMG_NAME }}
-          asset_content_type: application/octet-stream
-
-      - name: Upload macOS blockmap
-        if: matrix.os == 'macos-latest' && steps.find_artifacts.outputs.BLOCKMAP_FILE
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.BLOCKMAP_FILE }}
-          asset_name: ${{ steps.find_artifacts.outputs.BLOCKMAP_NAME }}
-          asset_content_type: application/octet-stream
+          tag: ${{ needs.create-release.outputs.version }}
+          artifacts: ${{ matrix.artifact_pattern }}
+          allowUpdates: true
+          updateOnlyUnreleased: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify build completion
         run: |
