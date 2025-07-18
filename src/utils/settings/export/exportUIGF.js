@@ -115,7 +115,7 @@ async function exportUIGFData({
       info: {
         export_timestamp: Math.floor(Date.now() / 1000),
         export_app: "NekoGame",
-        export_app_version: "2.5.1",
+        export_app_version: "2.5.2",
         version: "v4.0",
       },
       [type]: [],
@@ -282,7 +282,7 @@ ipcMain.handle("export-combined-uigf-data", async (event, selectedData) => {
       info: {
         export_timestamp: Math.floor(Date.now() / 1000),
         export_app: "NekoGame",
-        export_app_version: "2.5.1",
+        export_app_version: "2.5.2",
         version: "v4.0",
       },
       hk4e: [], // 原神
@@ -415,9 +415,9 @@ ipcMain.handle("detect-combined-uigf-data", async () => {
 });
 
 // 导入联合UIGF数据
-ipcMain.handle("import-combined-uigf-data", async (event, filePath) => {
+ipcMain.handle("import-combined-uigf-data", async (event, options) => {
   try {
-    return await importCombinedUIGFData(filePath);
+    return await importCombinedUIGFData(options);
   } catch (error) {
     console.error("联合导入失败:", error);
     return { success: false, message: `联合导入失败: ${error.message}` };

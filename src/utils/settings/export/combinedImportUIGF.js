@@ -30,10 +30,21 @@ async function getItemIdWithHakushi(
   try {
     // 如果已有item_id，首先尝试用Hakushi验证/获取对应名称
     if (itemId) {
+      // 验证ID是否存在（使用原始语言）
       const foundName = findItemNameFromAllTypes(itemId, gameType, hakushiLang);
       if (foundName) {
-        console.log(`Hakushi元数据验证成功: ${itemName} (ID: ${itemId})`);
-        return itemId;
+        // 验证成功后，强制获取中文名称
+        const chineseName = findItemNameFromAllTypes(itemId, gameType, "CHS");
+        console.log(
+          `Hakushi元数据验证成功: ${itemName} (ID: ${itemId}) -> 标准化名称: ${
+            chineseName || foundName
+          }`
+        );
+        return { itemId, standardizedName: chineseName || foundName };
+      } else {
+        console.log(
+          `Hakushi元数据验证失败: ${itemName} (ID: ${itemId})，未找到对应名称`
+        );
       }
     }
 
@@ -45,8 +56,20 @@ async function getItemIdWithHakushi(
         hakushiLang
       );
       if (metadataItemId) {
-        console.log(`从Hakushi元数据获取ID: ${itemName} -> ${metadataItemId}`);
-        return metadataItemId;
+        // 强制获取中文标准化名称
+        const standardizedName = findItemNameFromAllTypes(
+          metadataItemId,
+          gameType,
+          "CHS"
+        );
+        console.log(
+          `从Hakushi元数据获取ID: ${itemName} -> ${metadataItemId} (标准化名称: ${standardizedName})`
+        );
+        return { itemId: metadataItemId, standardizedName };
+      } else {
+        console.log(
+          `从Hakushi元数据查找失败: ${itemName}，语言: ${hakushiLang}`
+        );
       }
     }
 
@@ -68,6 +91,16 @@ async function getItemIdWithHakushi(
  */
 function findItemNameFromAllTypes(itemId, gameType, lang = "CHS") {
   try {
+    // 语言代码映射：将标准化的语言代码映射到元数据中的实际字段名
+    const langMap = {
+      CHS: "cn", // 中文简体
+      EN: "en", // 英文
+      JP: "jp", // 日文
+      KR: "kr", // 韩文
+    };
+
+    const actualLangKey = langMap[lang] || lang.toLowerCase();
+
     // 根据游戏类型确定要查找的元数据类型
     const metadataTypes = {
       genshin: ["character", "weapon"],
@@ -81,7 +114,7 @@ function findItemNameFromAllTypes(itemId, gameType, lang = "CHS") {
       try {
         const metadata = getHakushiMetadata(gameType, type);
         if (metadata && metadata[itemId]) {
-          const nameData = metadata[itemId][lang];
+          const nameData = metadata[itemId][actualLangKey];
           if (nameData) {
             return nameData;
           }
@@ -108,6 +141,16 @@ function findItemNameFromAllTypes(itemId, gameType, lang = "CHS") {
  */
 function findItemIdFromAllTypes(itemName, gameType, lang = "CHS") {
   try {
+    // 语言代码映射：将标准化的语言代码映射到元数据中的实际字段名
+    const langMap = {
+      CHS: "cn", // 中文简体
+      EN: "en", // 英文
+      JP: "jp", // 日文
+      KR: "kr", // 韩文
+    };
+
+    const actualLangKey = langMap[lang] || lang.toLowerCase();
+
     const metadataTypes = {
       genshin: ["character", "weapon"],
       starrail: ["character", "lightcone"],
@@ -121,7 +164,7 @@ function findItemIdFromAllTypes(itemName, gameType, lang = "CHS") {
         const metadata = getHakushiMetadata(gameType, type);
         if (metadata) {
           for (const [id, data] of Object.entries(metadata)) {
-            if (data[lang] === itemName) {
+            if (data[actualLangKey] === itemName) {
               return id;
             }
           }
@@ -169,16 +212,21 @@ async function detectUIGFGames(filePath) {
         uigfData[gameKey].length > 0
       ) {
         const gameData = uigfData[gameKey];
-        const uids = [];
+        const uidData = [];
 
-        // 计算总记录数
+        // 计算总记录数和每个UID的记录数
         let totalRecords = 0;
         gameData.forEach((playerData) => {
           if (playerData.uid) {
-            uids.push(playerData.uid);
-          }
-          if (playerData.list && Array.isArray(playerData.list)) {
-            totalRecords += playerData.list.length;
+            const recordCount =
+              playerData.list && Array.isArray(playerData.list)
+                ? playerData.list.length
+                : 0;
+            uidData.push({
+              uid: playerData.uid,
+              recordCount: recordCount,
+            });
+            totalRecords += recordCount;
           }
         });
 
@@ -186,7 +234,8 @@ async function detectUIGFGames(filePath) {
           detectedGames.push({
             key: gameInfo.key,
             name: gameInfo.name,
-            uids: uids,
+            uids: uidData.map((u) => u.uid), // 保持兼容性
+            uidData: uidData, // 新增：详细的UID数据
             recordCount: totalRecords,
           });
         }
@@ -213,10 +262,21 @@ async function detectUIGFGames(filePath) {
 
 /**
  * 导入UIGF v4联合数据
- * @param {string} filePath - UIGF文件路径
+ * @param {object} options - 导入选项 {filePath: string, selectedUIDs?: object}
  * @returns {object} 导入结果
  */
-async function importCombinedUIGFData(filePath) {
+async function importCombinedUIGFData(options) {
+  let filePath, selectedUIDs;
+
+  // 兼容旧版本的字符串参数
+  if (typeof options === "string") {
+    filePath = options;
+    selectedUIDs = null;
+  } else {
+    filePath = options.filePath;
+    selectedUIDs = options.selectedUIDs;
+  }
+
   try {
     const data = fs.readFileSync(filePath, "utf8");
     const uigfData = JSON.parse(data);
@@ -235,13 +295,23 @@ async function importCombinedUIGFData(filePath) {
       uigfData.hk4e.length > 0
     ) {
       try {
-        const genshinResult = await importGenshinData(uigfData.hk4e);
-        importResults.push({
-          game: "原神",
-          success: genshinResult.success,
-          message: genshinResult.message,
-          count: genshinResult.count || 0,
-        });
+        // 过滤选中的UID数据
+        let filteredData = uigfData.hk4e;
+        if (selectedUIDs && selectedUIDs.hk4e) {
+          filteredData = uigfData.hk4e.filter((playerData) =>
+            selectedUIDs.hk4e.includes(playerData.uid)
+          );
+        }
+
+        if (filteredData.length > 0) {
+          const genshinResult = await importGenshinData(filteredData);
+          importResults.push({
+            game: "原神",
+            success: genshinResult.success,
+            message: genshinResult.message,
+            count: genshinResult.count || 0,
+          });
+        }
       } catch (error) {
         importResults.push({
           game: "原神",
@@ -259,13 +329,23 @@ async function importCombinedUIGFData(filePath) {
       uigfData.hkrpg.length > 0
     ) {
       try {
-        const hsrResult = await importStarRailData(uigfData.hkrpg);
-        importResults.push({
-          game: "崩坏：星穹铁道",
-          success: hsrResult.success,
-          message: hsrResult.message,
-          count: hsrResult.count || 0,
-        });
+        // 过滤选中的UID数据
+        let filteredData = uigfData.hkrpg;
+        if (selectedUIDs && selectedUIDs.hkrpg) {
+          filteredData = uigfData.hkrpg.filter((playerData) =>
+            selectedUIDs.hkrpg.includes(playerData.uid)
+          );
+        }
+
+        if (filteredData.length > 0) {
+          const hsrResult = await importStarRailData(filteredData);
+          importResults.push({
+            game: "崩坏：星穹铁道",
+            success: hsrResult.success,
+            message: hsrResult.message,
+            count: hsrResult.count || 0,
+          });
+        }
       } catch (error) {
         importResults.push({
           game: "崩坏：星穹铁道",
@@ -283,13 +363,23 @@ async function importCombinedUIGFData(filePath) {
       uigfData.nap.length > 0
     ) {
       try {
-        const zzzResult = await importZzzData(uigfData.nap);
-        importResults.push({
-          game: "绝区零",
-          success: zzzResult.success,
-          message: zzzResult.message,
-          count: zzzResult.count || 0,
-        });
+        // 过滤选中的UID数据
+        let filteredData = uigfData.nap;
+        if (selectedUIDs && selectedUIDs.nap) {
+          filteredData = uigfData.nap.filter((playerData) =>
+            selectedUIDs.nap.includes(playerData.uid)
+          );
+        }
+
+        if (filteredData.length > 0) {
+          const zzzResult = await importZzzData(filteredData);
+          importResults.push({
+            game: "绝区零",
+            success: zzzResult.success,
+            message: zzzResult.message,
+            count: zzzResult.count || 0,
+          });
+        }
       } catch (error) {
         importResults.push({
           game: "绝区零",
@@ -362,8 +452,8 @@ async function importGenshinData(genshinData) {
         if (processed.has(recordKey)) continue;
         processed.add(recordKey);
 
-        // 获取物品ID (优先使用Hakushi元数据)
-        const itemIdValue = await getItemIdWithHakushi(
+        // 获取物品ID和标准化名称 (优先使用Hakushi元数据)
+        const itemResult = await getItemIdWithHakushi(
           "genshin",
           name,
           item_type,
@@ -371,6 +461,14 @@ async function importGenshinData(genshinData) {
           item_id,
           lang
         );
+
+        // 使用标准化名称或原始名称
+        const finalName =
+          itemResult && itemResult.standardizedName
+            ? itemResult.standardizedName
+            : name;
+        const finalItemId =
+          itemResult && itemResult.itemId ? itemResult.itemId : itemResult;
 
         // 插入数据库
         await new Promise((resolve, reject) => {
@@ -382,10 +480,10 @@ async function importGenshinData(genshinData) {
               uid,
               gacha_id,
               gacha_type,
-              itemIdValue,
+              finalItemId,
               count || "1",
               time,
-              name,
+              finalName,
               lang,
               item_type,
               rank_type,
@@ -452,8 +550,8 @@ async function importStarRailData(hsrData) {
         if (processed.has(recordKey)) continue;
         processed.add(recordKey);
 
-        // 获取物品ID (优先使用Hakushi元数据)
-        const itemIdValue = await getItemIdWithHakushi(
+        // 获取物品ID和标准化名称 (优先使用Hakushi元数据)
+        const itemResult = await getItemIdWithHakushi(
           "starrail",
           name,
           item_type,
@@ -461,6 +559,14 @@ async function importStarRailData(hsrData) {
           item_id,
           lang
         );
+
+        // 使用标准化名称或原始名称
+        const finalName =
+          itemResult && itemResult.standardizedName
+            ? itemResult.standardizedName
+            : name;
+        const finalItemId =
+          itemResult && itemResult.itemId ? itemResult.itemId : itemResult;
 
         // 插入数据库
         await new Promise((resolve, reject) => {
@@ -472,10 +578,10 @@ async function importStarRailData(hsrData) {
               uid,
               gacha_id,
               gacha_type,
-              itemIdValue,
+              finalItemId,
               count || "1",
               time,
-              name,
+              finalName,
               lang,
               item_type,
               rank_type,
@@ -569,8 +675,8 @@ async function importZzzData(zzzData) {
         // 转换ZZZ星级
         const convertedRankType = convertZzzRankType(rank_type);
 
-        // 获取物品ID (优先使用Hakushi元数据)
-        const itemIdValue = await getItemIdWithHakushi(
+        // 获取物品ID和标准化名称 (优先使用Hakushi元数据)
+        const itemResult = await getItemIdWithHakushi(
           "zzz",
           name,
           item_type,
@@ -578,6 +684,14 @@ async function importZzzData(zzzData) {
           item_id,
           lang
         );
+
+        // 使用标准化名称或原始名称
+        const finalName =
+          itemResult && itemResult.standardizedName
+            ? itemResult.standardizedName
+            : name;
+        const finalItemId =
+          itemResult && itemResult.itemId ? itemResult.itemId : itemResult;
 
         // 插入数据库
         await new Promise((resolve, reject) => {
@@ -589,10 +703,10 @@ async function importZzzData(zzzData) {
               uid,
               gacha_id,
               gacha_type,
-              itemIdValue,
+              finalItemId,
               count || "1",
               time,
-              name,
+              finalName,
               lang,
               item_type,
               convertedRankType,

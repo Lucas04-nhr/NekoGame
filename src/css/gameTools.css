@@ -486,19 +486,55 @@ body {
   font-size: 1rem;
   font-weight: bold;
   color: #fff;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
 .game-data-count {
   font-size: 0.9rem;
   color: #a0a0a0;
-  margin-bottom: 3px;
+  margin-bottom: 8px;
 }
 
-.game-uid-list {
+.import-uid-selection {
+  margin-top: 10px;
+}
+
+.import-uid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.import-uid-item {
+  background: rgba(240, 240, 240, 0.75);
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease, transform 0.3s ease;
   font-size: 0.85rem;
-  color: #888;
-  font-family: monospace;
+  color: #333;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.import-uid-item:hover {
+  background: rgba(221, 221, 221, 0.76);
+  transform: scale(1.05);
+}
+
+.import-uid-item.selected {
+  background: rgba(65, 156, 255, 0.8);
+  color: #fff;
+  transform: scale(1.05);
+  border-color: rgba(65, 156, 255, 1);
+}
+
+.import-uid-item .uid-record-count {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 2px;
 }
 
 .import-warning {

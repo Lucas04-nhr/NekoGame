@@ -1,8 +1,7 @@
 <div id="tool-container">
   <!-- 工具列表 -->
   <div id="tool-list">
-
-    <div class="tool-card" data-tool="gachaWuwa" style="display: none;">
+    <div class="tool-card" data-tool="gachaWuwa" style="display: none">
       <h3 class="tool-title">鸣潮唤取分析</h3>
       <p class="tool-description">进入获取与查看鸣潮抽卡记录</p>
       <div class="tool-actions">
@@ -74,11 +73,16 @@
     <div class="tool-card" data-tool="combined-operations">
       <h3 class="tool-title">UIGF v4 操作</h3>
       <p class="tool-description">
-        导出多个游戏的抽卡记录到同一个 UIGF v4 文件，或导入包含多个游戏数据的 UIGF v4 文件
+        导出多个游戏的抽卡记录到同一个 UIGF v4 文件，或导入包含多个游戏数据的
+        UIGF v4 文件
       </p>
       <div class="tool-actions">
-        <button id="combinedExport" class="action-button-export">导出数据</button>
-        <button id="combinedImport" class="action-button-import">导入数据</button>
+        <button id="combinedExport" class="action-button-export">
+          导出数据
+        </button>
+        <button id="combinedImport" class="action-button-import">
+          导入数据
+        </button>
       </div>
     </div>
 
@@ -132,14 +136,14 @@
 <div id="combinedImportModal" class="modal">
   <div class="modal-content-combined">
     <div class="modal-header-combined">
-      <h2>UIGF v4 联合导入 - 确认导入</h2>
+      <h2>UIGF v4 联合导入 - 选择导入数据</h2>
       <button id="closeCombinedImportModal" class="close-button">
         &times;
       </button>
     </div>
     <div class="modal-body-combined">
       <div class="import-preview">
-        <h3>检测到以下游戏数据:</h3>
+        <h3>检测到以下游戏数据，请选择要导入的 UID:</h3>
         <div id="detectedGamesContainer"></div>
         <div class="import-warning">
           <p>⚠️ 导入将会覆盖现有数据，请确保已做好备份</p>
@@ -147,6 +151,8 @@
       </div>
     </div>
     <div class="modal-footer-combined">
+      <button id="selectAllImportUIDs" class="modal-button">全选</button>
+      <button id="deselectAllImportUIDs" class="modal-button">全不选</button>
       <button id="cancelCombinedImport" class="modal-button">取消</button>
       <button id="confirmCombinedImport" class="modal-button primary">
         确认导入
