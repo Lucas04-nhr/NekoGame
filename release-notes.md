@@ -1,4 +1,4 @@
-# v2.5.1 Release Notes
+# v2.5.0 Release Notes
 
 ## 🌟 New Features / 新功能
 
