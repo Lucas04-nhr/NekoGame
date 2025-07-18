@@ -210,9 +210,12 @@ body {
   transition: opacity 0.3s ease-in-out;
 }
 
-.modal-game {
+/* 基础模态窗口样式 */
+.modal {
   display: none;
   position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background: rgba(50, 50, 50, 0.5);
@@ -449,6 +452,104 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-top: 10px;
+}
+
+/* 联合导入模态窗口样式 */
+.import-preview {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.import-preview h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+  color: #fff;
+  text-align: center;
+}
+
+.detected-game-info {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: background 0.3s ease;
+}
+
+.detected-game-info:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.game-name {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.game-data-count {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  margin-bottom: 8px;
+}
+
+.import-uid-selection {
+  margin-top: 10px;
+}
+
+.import-uid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.import-uid-item {
+  background: rgba(240, 240, 240, 0.75);
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease, transform 0.3s ease;
+  font-size: 0.85rem;
+  color: #333;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.import-uid-item:hover {
+  background: rgba(221, 221, 221, 0.76);
+  transform: scale(1.05);
+}
+
+.import-uid-item.selected {
+  background: rgba(65, 156, 255, 0.8);
+  color: #fff;
+  transform: scale(1.05);
+  border-color: rgba(65, 156, 255, 1);
+}
+
+.import-uid-item .uid-record-count {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.import-warning {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 165, 0, 0.15);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  border-radius: 5px;
+  text-align: center;
+}
+
+.import-warning p {
+  margin: 0;
+  color: #ffcc66;
+  font-size: 0.9rem;
 }
 
 @keyframes fadeIn {

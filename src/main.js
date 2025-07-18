@@ -273,6 +273,7 @@ app
       require("./app/uploadData/uploadDataIpc"); // 初始化上传代码
       require("./app/settings/uigfDictIpc"); // 初始化UIGF字典下载功能
       require("./app/settings/hakushiMetadataIpc"); // 初始化Hakushi元数据下载功能
+      require("./app/settings/githubPAT"); // 初始化GitHub PAT设置
 
       // 初始化自定义CSS功能
       const { initializeCustomCSS } = require("./app/settings/customCSS");

@@ -173,8 +173,8 @@
     <div class="card-body">
       <p>如果遇到了任何问题，也欢迎反馈</p>
       <div class="settings-option">
-        <a href="https://github.com/Summer-Neko/NekoGame" target="_blank"
-          >本项目完全免费，访问 GitHub 查看项目详情</a
+        <a href="https://github.com/Lucas04-nhr/NekoGame" target="_blank"
+          >NekoGame</a
         >
       </div>
     </div>
@@ -194,10 +194,50 @@
       </div>
       <div class="settings-option">
         <a
-          href="https://pan.baidu.com/s/13IdCeOVPxHfxVpq2vO_8kw?pwd=4l1a"
+          href="https://github.com/Lucas04-nhr/NekoGame/releases"
           target="_blank"
-          >或者前往网盘查看是否有更新</a
+          >或者前往 GitHub Releases 查看最新版本</a
         >
+      </div>
+      <div class="settings-option">
+        <label for="github-pat"
+          >GitHub Personal Access Token (提升 API 速率限制):</label
+        >
+        <div
+          style="display: flex; gap: 8px; align-items: center; margin-top: 4px"
+        >
+          <input
+            type="password"
+            id="github-pat"
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            style="
+              flex: 1;
+              padding: 6px 8px;
+              border: 1px solid #555;
+              background: #2a2a2a;
+              color: white;
+              border-radius: 4px;
+            "
+          />
+          <button
+            id="save-github-pat"
+            style="padding: 6px 12px; white-space: nowrap"
+          >
+            保存
+          </button>
+          <button
+            id="clear-github-pat"
+            style="padding: 6px 12px; white-space: nowrap"
+          >
+            清除
+          </button>
+        </div>
+        <div style="font-size: 0.8em; color: #aaa; margin-top: 4px">
+          <a href="https://github.com/settings/tokens" target="_blank"
+            >点击这里生成 GitHub Token</a
+          >
+          <span style="margin-left: 8px">• 仅需 public_repo 权限</span>
+        </div>
       </div>
     </div>
   </div>

@@ -220,7 +220,7 @@
   </head>
   <body>
     <div class="guide-container">
-      <h1 class="guide-header">欢迎使用 Neko Game V2.5.0</h1>
+      <h1 class="guide-header">欢迎使用 Neko Game V2.5.2</h1>
       <div class="guide-content">
         <p class="guide-text">这是一个专为获得更好游戏体验而设计的应用。</p>
         <p class="guide-text">
@@ -264,217 +264,36 @@
         </p>
         <p>
           <a
-            href="https://github.com/Summer-Neko/NekoGame"
+            href="https://github.com/Lucas04-nhr/NekoGame"
             target="_blank"
             class="guide-link"
             >NekoGame 项目地址，欢迎点星星支持</a
           >
         </p>
       </div>
-      <div class="update-log">
+      <div class="update-log" style="margin-bottom: 10em">
         <h2>更新日志</h2>
-        <div class="log-entry">
-          <h3>2.5.0</h3>
-          <p class="log-time">2025-07-11</p>
-          <p>· 支持崩铁角色联动卡池与光锥联动卡池</p>
-          <p>· 不知道更新些啥了，之后就修修bug、慢慢更新吧。</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.11</h3>
-          <p class="log-time">2025-04-11</p>
-          <p>
-            ·
-            目前抽卡分析界面可以支持多语言了，目前的常驻角色/武器数据只包含简中和繁中，如果需要其他语言或者调整相关数据可以自己编辑commonItems.json文件
-          </p>
-          <p>
-            ·
-            调整了抽卡分析时鸣潮路径的获取顺序，目前优先从用户保存在游戏库数据库中的路径获取，其次才是注册表
-          </p>
-          <p>· 不知道更新些啥了，之后就修修bug、慢慢更新吧。</p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本2.3.10</h3>
-          <p class="log-time">2025-03-11</p>
-          <p>· 解决了大部分情况下log日志文件不会自动删除的问题</p>
-          <p>· 不知道更新些啥了，之后就修修bug、慢慢更新吧。</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.9</h3>
-          <p class="log-time">2025-01-22</p>
-          <p>· 新年好！祝大家2025每天都是好心情！</p>
-          <p>
-            ·
-            调整原神和绝区零获取cache文件夹逻辑为获取最新更改的文件夹，而不再从远程获取配置
-          </p>
-          <p>· 部分样式、逻辑调整</p>
-          <p>· 不知道更新些啥了，之后就修修bug、慢慢更新吧。</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.8</h3>
-          <p class="log-time">2025-01-11</p>
-          <p>· 新年好！祝大家2025每天都是好心情！</p>
-          <p>
-            ·
-            修复游戏库时间趋势图只能展示从第一次到第三十次出勤日的问题。现在改为展示近30出勤日的记录
-          </p>
-          <p>· 部分样式、逻辑调整</p>
-          <p>· 不知道更新些啥了，之后就修修bug、慢慢更新吧。</p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本2.3.7</h3>
-          <p class="log-time">2024-12-27</p>
-          <p>· 新年好！祝大家2025每天都是好心情！</p>
-          <p>· 新增抽卡规划，支持查看各游戏每个版本的所有抽数</p>
-          <p>· 新增硬件加速选项，支持关闭和开启硬件加速</p>
-          <p>· 其他逻辑调整</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.6</h3>
-          <p class="log-time">2024-12-24</p>
-          <p>· 将米游五星/S最大值调整为90抽</p>
-          <p>· 修复了绝区零抽卡限定武器池的展示问题</p>
-          <p>· 现在可以自定义数据路径</p>
-          <p>· 其他逻辑调整</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.5</h3>
-          <p class="log-time">2024-12-20</p>
-          <p>· 支持鸣潮国际服祈愿分析</p>
-          <p>· 支持删除对应UID抽卡记录</p>
-          <p>· 修复了部分信息异常的问题、优化了部分样式</p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本2.3.4</h3>
-          <p class="log-time">2024-12-13</p>
-          <p>· 修复了如果进入绝区零抽卡分析后分析逻辑会覆盖其他游戏的逆天bug</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.3</h3>
-          <p class="log-time">2024-12-12</p>
-          <p>· 修复了数据备份相关问题</p>
-          <p>· 优化样式与性能</p>
-          <p>· 去除部分冗余逻辑</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.2</h3>
-          <p class="log-time">2024-12-10</p>
-          <p>· 新增SRGF1.0数据导入支持</p>
-          <p>· 调整了部分逻辑</p>
-          <p>· 抽卡数据支持选择UID导出</p>
-          <p>· 调整了导入导出逻辑、未来依然可能会不间断更新</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.3.1</h3>
-          <p class="log-time">2024-12-09</p>
-          <p>· 修复了无法启动应用与图片不在C盘无法加载的问题</p>
-          <p>· 调整了部分逻辑和样式</p>
-          <p>· 调整了导入导出逻辑、未来依然可能会不间断更新</p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本2.3.0</h3>
-          <p class="log-time">2024-12-08</p>
-          <p>· 支持原神崩铁绝区零抽卡记录分析</p>
-          <p>· 支持原神崩铁绝区零抽卡记录导入导出UIGF4.0</p>
-          <p>· 其他大量改进</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.2.5</h3>
-          <p class="log-time">2024-12-03</p>
-          <p>· 新增数据同步功能，并可通过手机查看数据</p>
-          <p>· 优化UI，添加自定义背景图</p>
-          <p>· 支持导出鸣潮抽卡数据</p>
-          <p>· 其他大量改进</p>
-          <p>
-            ·
-            未来会将鸣潮祈愿分析及其他新增功能移入游戏工具、下次大更新预期更新崩铁（遥遥无期）
-          </p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本 2.2.4</h3>
-          <p class="log-time">2024-11-29</p>
-          <p>· 处理了目前有些情况下会导致权限报错的问题。</p>
-          <p>
-            ·
-            调整了整理数据的逻辑，现在整理时会将一年前的游戏的时间记录按天合并为一条。
-          </p>
-          <p>· 新增日志文件，日志文件会按天保存，并只保存近8天的应用日志</p>
-          <p>· 调整了时长数据的展示的范围，部分时间从12/14天增加到了30天</p>
-          <p>· 修复了游戏库界面图表放大缩小时不会自动更新大小的问题</p>
-          <p>· 设置页面添加了此页入口以及手动更新按钮</p>
-          <p>· 调整了部分代码逻辑与部分样式、部分展示信息细化</p>
-          <p>
-            ·
-            未来会将鸣潮祈愿分析及其他新增功能移入游戏工具、下次大更新预期更新崩铁（遥遥无期）
-          </p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本 2.2.3</h3>
-          <p class="log-time">2024-11-25</p>
-          <p>· 修复了在祈愿分析时无法识别含中文路径的问题</p>
-          <p>· 修复了游戏时长趋势图按月显示数据异常的问题</p>
-          <p>· 调整了部分代码逻辑与样式、在没有灾难性bug的情况下不会再更新了</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.2.2</h3>
-          <p class="log-time">2024-11-22</p>
-          <p>· 现在可以在祈愿分析界面查看哪些角色歪了</p>
-          <p>· 调整了部分样式</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本 2.2.1</h3>
-          <p class="log-time">2024-11-21</p>
-          <p>
-            ·
-            修复了无法获取WeGame鸣潮祈愿路径的问题，WeGame用户须手动在游戏库中添加游戏路径
-          </p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>长期版本 2.2.0</h3>
-          <p class="log-time">2024-11-21</p>
-          <p>· 完善祈愿分析界面</p>
-          <p>· 新增原神祈愿链接获取</p>
-          <p>· 调整了整理数据逻辑</p>
-          <p>· 调整了更新逻辑、这次不会流氓下载力</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.1.10</h3>
-          <p class="log-time">2024-11-19</p>
-          <p>· 调整了部分逻辑</p>
-          <p>· 尝试修复某些情况下无法访问日志文件的情况</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.1.9</h3>
-          <p class="log-time">2024-11-19</p>
-          <p>· 修复了祈愿计算平均UP不准确的问题</p>
-          <p>· 部分样式调整</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.1.8</h3>
-          <p class="log-time">2024-11-18</p>
-          <p>· 新增鸣潮祈愿分析</p>
-          <p>· 新增崩铁祈愿链接获取，可以复制到其他分析工具中使用</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.1.7</h3>
-          <p class="log-time">2024-11-14</p>
-          <p>· 调整了游戏分布图的显示逻辑</p>
-          <p>· 其他部分逻辑调整</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
-        <div class="log-entry">
-          <h3>2.1.6</h3>
-          <p class="log-time">2024-11-12</p>
-          <p>· 新增主页启动游戏功能</p>
-          <p>· 修复了文件名过长无法识别的bug</p>
-          <p>· 主页所有图表功能完善</p>
-          <p>· 其他性能改进和小 bug 修复</p>
-        </div>
+        <p class="guide-text">请前往以下页面查看最新的更新日志：</p>
+        <ul>
+          <li>
+            <a
+              href="https://github.com/Lucas04-nhr/NekoGame/releases"
+              target="_blank"
+              class="guide-link"
+            >
+              NekoGame 仓库 Release 页面
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/Summer-Neko/NekoGame/releases"
+              target="_blank"
+              class="guide-link"
+            >
+              上游仓库 Release 页面
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
 

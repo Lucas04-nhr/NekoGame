@@ -171,6 +171,29 @@ ipcMain.handle(
   }
 );
 
+// 生成游戏字典文件
+ipcMain.handle("generate-game-dicts", async (event, lang = "CHS") => {
+  try {
+    const {
+      generateAllGameDicts,
+    } = require("../../utils/settings/export/generateGameDict");
+    const results = await generateAllGameDicts(lang);
+
+    return {
+      success: results.failed.length === 0,
+      message: `字典生成完成！成功: ${results.success.length}, 失败: ${results.failed.length}`,
+      results,
+    };
+  } catch (error) {
+    console.error("生成游戏字典时发生错误:", error);
+    return {
+      success: false,
+      message: `生成失败: ${error.message}`,
+      results: { success: [], failed: [] },
+    };
+  }
+});
+
 // 检查需要更新的物品名称数量（使用 Hakushi 数据源）
 ipcMain.handle(
   "check-item-names-need-update",
@@ -195,5 +218,137 @@ ipcMain.handle(
     }
   }
 );
+
+// 生成游戏字典文件
+ipcMain.handle(
+  "generate-all-game-dicts",
+  async (event, languages = ["CHS"]) => {
+    try {
+      const {
+        generateAllGameDicts,
+      } = require("../../utils/settings/export/generateGameDict");
+      const results = await generateAllGameDicts(languages);
+
+      return {
+        success: results.failed.length === 0,
+        message:
+          results.failed.length === 0
+            ? `成功生成 ${results.success.length} 个字典文件，包含 ${results.total.items} 个物品`
+            : `生成完成，${results.success.length} 个成功，${results.failed.length} 个失败`,
+        results,
+      };
+    } catch (error) {
+      console.error("生成游戏字典时发生错误:", error);
+      return {
+        success: false,
+        message: `生成失败: ${error.message}`,
+        results: {
+          success: [],
+          failed: [],
+          total: { games: 0, items: 0, files: 0 },
+        },
+      };
+    }
+  }
+);
+
+// 使用游戏字典更新物品名称
+ipcMain.handle(
+  "update-gacha-item-names-with-dict",
+  async (event, lang = "CHS") => {
+    try {
+      const {
+        updateAllGachaItemNamesWithGameDict,
+      } = require("../../utils/settings/export/updateItemNames");
+      const results = await updateAllGachaItemNamesWithGameDict(lang);
+
+      return {
+        success: results.failed.length === 0,
+        message:
+          results.failed.length === 0
+            ? `物品名称更新完成！共更新 ${results.total.updated} 条记录`
+            : `更新完成，${results.success.length} 个游戏成功，${results.failed.length} 个失败`,
+        results,
+      };
+    } catch (error) {
+      console.error("使用字典更新物品名称时发生错误:", error);
+      return {
+        success: false,
+        message: `更新失败: ${error.message}`,
+        results: {
+          success: [],
+          failed: [],
+          total: { updated: 0, records: 0, games: 0 },
+        },
+      };
+    }
+  }
+);
+
+// 检查使用游戏字典需要更新的物品名称数量
+ipcMain.handle(
+  "check-item-names-need-update-with-dict",
+  async (event, lang = "CHS") => {
+    try {
+      const {
+        checkItemNamesNeedUpdateWithGameDict,
+      } = require("../../utils/settings/export/updateItemNames");
+      const results = await checkItemNamesNeedUpdateWithGameDict(lang);
+
+      return {
+        success: true,
+        results,
+      };
+    } catch (error) {
+      console.error("检查物品名称时发生错误:", error);
+      return {
+        success: false,
+        message: `检查失败: ${error.message}`,
+        results: {},
+      };
+    }
+  }
+);
+
+// 获取游戏字典状态
+ipcMain.handle("get-game-dict-status", async (event, languages = ["CHS"]) => {
+  try {
+    const {
+      getGameDictStatus,
+    } = require("../../utils/settings/export/generateGameDict");
+    const status = getGameDictStatus(languages);
+
+    return {
+      success: true,
+      status,
+    };
+  } catch (error) {
+    console.error("获取游戏字典状态时发生错误:", error);
+    return {
+      success: false,
+      message: `获取状态失败: ${error.message}`,
+      status: {},
+    };
+  }
+});
+
+// 清理游戏字典文件
+ipcMain.handle("clean-all-game-dicts", async () => {
+  try {
+    const {
+      cleanAllGameDicts,
+    } = require("../../utils/settings/export/generateGameDict");
+    const result = cleanAllGameDicts();
+
+    return result;
+  } catch (error) {
+    console.error("清理游戏字典时发生错误:", error);
+    return {
+      success: false,
+      message: `清理失败: ${error.message}`,
+      deletedFiles: 0,
+    };
+  }
+});
 
 console.log("UIGF 字典 IPC 处理程序已注册");

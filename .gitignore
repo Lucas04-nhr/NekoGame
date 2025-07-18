@@ -3,6 +3,7 @@
 .vscode/
 
 # Node.js dependencies
+package-lock.json
 node_modules
 dist
 

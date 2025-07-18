@@ -129,6 +129,90 @@
     });
   }
 
+  // 监听更新状态反馈
+  window.electronAPI.on("update-status", (status) => {
+    if (status === "no-update") {
+      animationMessage(true, "当前已是最新版本");
+    }
+  });
+
+  // GitHub PAT 相关元素
+  const githubPatInput = document.getElementById("github-pat");
+  const saveGithubPatButton = document.getElementById("save-github-pat");
+  const clearGithubPatButton = document.getElementById("clear-github-pat");
+
+  // 加载 GitHub PAT 设置
+  async function loadGithubPatSettings() {
+    try {
+      const pat = await window.electronAPI.invoke("get-github-pat");
+      if (pat) {
+        githubPatInput.value = pat;
+        githubPatInput.type = "password"; // 保持密码模式
+      }
+    } catch (error) {
+      console.error("加载 GitHub PAT 失败:", error);
+    }
+  }
+
+  // 保存 GitHub PAT
+  if (saveGithubPatButton) {
+    saveGithubPatButton.addEventListener("click", async () => {
+      try {
+        const pat = githubPatInput.value.trim();
+
+        if (!pat) {
+          animationMessage(false, "请输入有效的 GitHub Personal Access Token");
+          return;
+        }
+
+        // 简单验证 PAT 格式
+        if (!pat.startsWith("ghp_") && !pat.startsWith("github_pat_")) {
+          animationMessage(
+            false,
+            "Token 格式不正确，应以 'ghp_' 或 'github_pat_' 开头"
+          );
+          return;
+        }
+
+        await window.electronAPI.invoke("save-github-pat", pat);
+        animationMessage(true, "GitHub Personal Access Token 已保存");
+
+        // 隐藏输入内容
+        githubPatInput.type = "password";
+      } catch (error) {
+        console.error("保存 GitHub PAT 失败:", error);
+        animationMessage(false, "保存失败: " + error.message);
+      }
+    });
+  }
+
+  // 清除 GitHub PAT
+  if (clearGithubPatButton) {
+    clearGithubPatButton.addEventListener("click", async () => {
+      try {
+        await window.electronAPI.invoke("clear-github-pat");
+        githubPatInput.value = "";
+        animationMessage(true, "GitHub Personal Access Token 已清除");
+      } catch (error) {
+        console.error("清除 GitHub PAT 失败:", error);
+        animationMessage(false, "清除失败: " + error.message);
+      }
+    });
+  }
+
+  // 点击输入框时显示明文，失去焦点时隐藏
+  if (githubPatInput) {
+    githubPatInput.addEventListener("focus", () => {
+      githubPatInput.type = "text";
+    });
+
+    githubPatInput.addEventListener("blur", () => {
+      if (githubPatInput.value) {
+        githubPatInput.type = "password";
+      }
+    });
+  }
+
   // 创建数据同步设置窗口
   document
     .getElementById("openDataSyncWindow")
@@ -723,4 +807,7 @@
 
   // 初始化自定义CSS设置
   loadCustomCSSSettings();
+
+  // 初始化 GitHub PAT 设置
+  loadGithubPatSettings();
 })();
