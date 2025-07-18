@@ -1,3 +1,110 @@
+// 处理联合导入功能
+async function handleCombinedImport() {
+  try {
+    // 禁用导入按钮
+    const importButton = document.getElementById("combinedImport");
+    importButton.disabled = true;
+    importButton.innerText = "正在检测...";
+
+    // 调用后端选择文件并检测游戏数据
+    const result = await window.electronAPI.invoke("detect-combined-uigf-data");
+
+    if (!result.success) {
+      animationMessage(false, result.message);
+      return;
+    }
+
+    if (result.cancelled) {
+      // 用户取消了文件选择，不显示错误消息
+      return;
+    }
+
+    // 显示检测结果模态窗口
+    showCombinedImportModal(result.detectedGames, result.filePath);
+  } catch (error) {
+    animationMessage(false, `联合导入失败: ${error.message}`);
+  } finally {
+    // 恢复导入按钮
+    const importButton = document.getElementById("combinedImport");
+    importButton.disabled = false;
+    importButton.innerText = "联合导入";
+  }
+}
+
+// 显示联合导入确认模态窗口
+function showCombinedImportModal(detectedGames, filePath) {
+  const modal = document.getElementById("combinedImportModal");
+  const container = document.getElementById("detectedGamesContainer");
+  const confirmButton = document.getElementById("confirmCombinedImport");
+  const cancelButton = document.getElementById("cancelCombinedImport");
+  const closeButton = document.getElementById("closeCombinedImportModal");
+
+  // 清空容器
+  container.innerHTML = "";
+
+  // 显示检测到的游戏数据
+  detectedGames.forEach((game) => {
+    const gameInfo = document.createElement("div");
+    gameInfo.className = "detected-game-info";
+    gameInfo.innerHTML = `
+      <div class="game-name">${game.name}</div>
+      <div class="game-data-count">${game.recordCount} 条记录</div>
+      <div class="game-uid-list">UID: ${game.uids.join(", ")}</div>
+    `;
+    container.appendChild(gameInfo);
+  });
+
+  // 移除旧的事件监听器
+  confirmButton.replaceWith(confirmButton.cloneNode(true));
+  cancelButton.replaceWith(cancelButton.cloneNode(true));
+  closeButton.replaceWith(closeButton.cloneNode(true));
+
+  // 重新获取按钮引用
+  const newConfirmButton = document.getElementById("confirmCombinedImport");
+  const newCancelButton = document.getElementById("cancelCombinedImport");
+  const newCloseButton = document.getElementById("closeCombinedImportModal");
+
+  // 确认导入
+  newConfirmButton.addEventListener("click", async () => {
+    closeModal(modal);
+
+    // 禁用导入按钮
+    const importButton = document.getElementById("combinedImport");
+    importButton.disabled = true;
+    importButton.innerText = "导入中...";
+
+    try {
+      const importResult = await window.electronAPI.invoke(
+        "import-combined-uigf-data",
+        filePath
+      );
+      if (importResult.success) {
+        animationMessage(true, importResult.message);
+      } else {
+        animationMessage(false, importResult.message);
+      }
+    } catch (error) {
+      animationMessage(false, `联合导入失败: ${error.message}`);
+    } finally {
+      importButton.disabled = false;
+      importButton.innerText = "联合导入";
+    }
+  });
+
+  // 取消导入
+  newCancelButton.addEventListener("click", () => {
+    closeModal(modal);
+  });
+
+  // 关闭模态窗口
+  newCloseButton.addEventListener("click", () => {
+    closeModal(modal);
+  });
+
+  // 显示模态窗口
+  openModal(modal);
+}
+
 // 处理联合导出功能
 async function handleCombinedExport() {
   const modal = document.getElementById("combinedExportModal");
@@ -444,6 +551,13 @@ function gameToolsInit() {
     .getElementById("combinedExport")
     .addEventListener("click", async () => {
       await handleCombinedExport();
+    });
+
+  // 联合导入功能
+  document
+    .getElementById("combinedImport")
+    .addEventListener("click", async () => {
+      await handleCombinedImport();
     });
 }
 

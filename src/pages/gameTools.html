@@ -1,24 +1,12 @@
 <div id="tool-container">
   <!-- 工具列表 -->
   <div id="tool-list">
-    <div class="tool-card" data-tool="gachaWuwa">
+
+    <div class="tool-card" data-tool="gachaWuwa" style="display: none;">
       <h3 class="tool-title">鸣潮唤取分析</h3>
       <p class="tool-description">进入获取与查看鸣潮抽卡记录</p>
       <div class="tool-actions">
         <button id="exportWuWa" class="action-button-export">导出数据</button>
-      </div>
-    </div>
-
-    <div class="tool-card" data-tool="gachaStarRail">
-      <h3 class="tool-title">崩铁跃迁分析</h3>
-      <p class="tool-description">进入获取与查看崩铁抽卡记录</p>
-      <div class="tool-actions">
-        <button id="exportStarRail" class="action-button-export">
-          导出数据
-        </button>
-        <button id="importStarRail" class="action-button-import">
-          导入数据
-        </button>
       </div>
     </div>
 
@@ -35,6 +23,19 @@
       </div>
     </div>
 
+    <div class="tool-card" data-tool="gachaStarRail">
+      <h3 class="tool-title">崩铁跃迁分析</h3>
+      <p class="tool-description">进入获取与查看崩铁抽卡记录</p>
+      <div class="tool-actions">
+        <button id="exportStarRail" class="action-button-export">
+          导出数据
+        </button>
+        <button id="importStarRail" class="action-button-import">
+          导入数据
+        </button>
+      </div>
+    </div>
+
     <div class="tool-card" data-tool="gachaZzz">
       <h3 class="tool-title">绝区零频段分析</h3>
       <p class="tool-description">进入获取与查看绝区零抽卡记录</p>
@@ -44,19 +45,14 @@
       </div>
     </div>
 
-    <div class="tool-card combined-export" style="pointer-events: none">
-      <h3 class="tool-title">UIGF v4 联合导出</h3>
+    <div class="tool-card" data-tool="combined-operations">
+      <h3 class="tool-title">UIGF v4 操作</h3>
       <p class="tool-description">
-        将多个游戏的抽卡记录导出到同一个UIGF v4文件
+        导出多个游戏的抽卡记录到同一个 UIGF v4 文件，或导入包含多个游戏数据的 UIGF v4 文件
       </p>
       <div class="tool-actions">
-        <button
-          id="combinedExport"
-          class="action-button-export"
-          style="pointer-events: auto"
-        >
-          联合导出
-        </button>
+        <button id="combinedExport" class="action-button-export">导出数据</button>
+        <button id="combinedImport" class="action-button-import">导入数据</button>
       </div>
     </div>
 
@@ -101,6 +97,33 @@
       <button id="selectAllUIDs" class="modal-button">全选</button>
       <button id="confirmUIDSelection" class="modal-button primary">
         确认
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--联合导入确认窗口-->
+<div id="combinedImportModal" class="modal">
+  <div class="modal-content-combined">
+    <div class="modal-header-combined">
+      <h2>UIGF v4 联合导入 - 确认导入</h2>
+      <button id="closeCombinedImportModal" class="close-button">
+        &times;
+      </button>
+    </div>
+    <div class="modal-body-combined">
+      <div class="import-preview">
+        <h3>检测到以下游戏数据:</h3>
+        <div id="detectedGamesContainer"></div>
+        <div class="import-warning">
+          <p>⚠️ 导入将会覆盖现有数据，请确保已做好备份</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer-combined">
+      <button id="cancelCombinedImport" class="modal-button">取消</button>
+      <button id="confirmCombinedImport" class="modal-button primary">
+        确认导入
       </button>
     </div>
   </div>
