@@ -3,7 +3,7 @@ const { db2 } = require("../../../app/database");
 const { ipcMain, dialog } = require("electron");
 const { fetchItemId, itemCache, fetchItemName } = require("./UIGFapi");
 const { checkUIGF } = require("./checkUIGF");
-const { loadDict } = require("./fetchUIGF");
+const { getHakushiMetadata } = require("../../metadata/metadataClient");
 
 const UIGF_FIELDS = [
   "id",
@@ -48,58 +48,121 @@ function convertZzzRankType(rankType) {
 }
 
 /**
- * 根据本地字典获取物品ID
+ * 从Hakushi元数据中根据物品名称获取物品ID
  * @param {string} itemName - 物品名称
  * @param {string} gameType - 游戏类型 (genshin, starrail, zzz)
- * @param {string} lang - 语言代码
+ * @param {string} itemType - 物品类型 (character, weapon, lightcone, bangboo)
+ * @param {string} lang - 语言代码 (CHS, EN, JP, KR)
  * @returns {string|null} - 物品ID或null
  */
-function getItemIdFromDict(itemName, gameType, lang = "chs") {
+function getItemIdFromHakushiMetadata(
+  itemName,
+  gameType,
+  itemType,
+  lang = "CHS"
+) {
   try {
-    const dict = loadDict(gameType, lang);
-    if (!dict) {
-      console.warn(`未找到 ${gameType} 的 ${lang} 字典`);
+    const metadata = getHakushiMetadata(gameType, itemType);
+    if (!metadata) {
+      console.warn(`未找到 ${gameType} 的 ${itemType} 元数据`);
       return null;
     }
 
-    // 字典格式是 "物品名称": ID，我们需要查找对应的ID
-    return dict[itemName] || null;
-  } catch (error) {
-    console.error(`从字典获取物品ID失败: ${error.message}`);
-    return null;
-  }
-}
-
-/**
- * 根据物品ID从字典中获取物品名称
- * @param {string} itemId - 物品ID
- * @param {string} gameType - 游戏类型 (genshin, starrail, zzz)
- * @param {string} lang - 语言代码
- * @returns {string|null} - 物品名称或null
- */
-function getItemNameFromDict(itemId, gameType, lang = "chs") {
-  try {
-    const dict = loadDict(gameType, lang);
-    if (!dict) {
-      console.warn(`未找到 ${gameType} 的 ${lang} 字典`);
-      return null;
-    }
-
-    // 遍历字典查找匹配的 item_id，支持字符串和数字类型比较
-    for (const [name, id] of Object.entries(dict)) {
-      if (String(id) === String(itemId)) {
-        return name;
+    // 遍历元数据查找匹配的物品名称
+    for (const [id, itemData] of Object.entries(metadata)) {
+      if (itemData[lang] === itemName) {
+        return id;
       }
     }
     return null;
   } catch (error) {
-    console.error(`从字典获取物品名称失败: ${error.message}`);
+    console.error(`从Hakushi元数据获取物品ID失败: ${error.message}`);
     return null;
   }
 }
 
 /**
- * 优先使用本地字典，失败时回退到API
+ * 从Hakushi元数据中根据物品ID获取物品名称
+ * @param {string} itemId - 物品ID
+ * @param {string} gameType - 游戏类型 (genshin, starrail, zzz)
+ * @param {string} itemType - 物品类型 (character, weapon, lightcone, bangboo)
+ * @param {string} lang - 语言代码 (CHS, EN, JP, KR)
+ * @returns {string|null} - 物品名称或null
+ */
+function getItemNameFromHakushiMetadata(
+  itemId,
+  gameType,
+  itemType,
+  lang = "CHS"
+) {
+  try {
+    const metadata = getHakushiMetadata(gameType, itemType);
+    if (!metadata) {
+      console.warn(`未找到 ${gameType} 的 ${itemType} 元数据`);
+      return null;
+    }
+
+    const itemData = metadata[itemId];
+    if (itemData && itemData[lang]) {
+      return itemData[lang];
+    }
+    return null;
+  } catch (error) {
+    console.error(`从Hakushi元数据获取物品名称失败: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * 综合查找物品名称（尝试所有可能的物品类型）
+ * @param {string} itemId - 物品ID
+ * @param {string} gameType - 游戏类型 (genshin, starrail, zzz)
+ * @param {string} lang - 语言代码 (CHS, EN, JP, KR)
+ * @returns {string|null} - 物品名称或null
+ */
+function findItemNameFromAllTypes(itemId, gameType, lang = "CHS") {
+  const typeMap = {
+    genshin: ["character", "weapon"],
+    starrail: ["character", "lightcone"],
+    zzz: ["character", "weapon", "bangboo"],
+  };
+
+  const types = typeMap[gameType] || [];
+  for (const type of types) {
+    const name = getItemNameFromHakushiMetadata(itemId, gameType, type, lang);
+    if (name) {
+      return name;
+    }
+  }
+  return null;
+}
+
+/**
+ * 综合查找物品ID（尝试所有可能的物品类型）
+ * @param {string} itemName - 物品名称
+ * @param {string} gameType - 游戏类型 (genshin, starrail, zzz)
+ * @param {string} lang - 语言代码 (CHS, EN, JP, KR)
+ * @returns {string|null} - 物品ID或null
+ */
+function findItemIdFromAllTypes(itemName, gameType, lang = "CHS") {
+  const typeMap = {
+    genshin: ["character", "weapon"],
+    starrail: ["character", "lightcone"],
+    zzz: ["character", "weapon", "bangboo"],
+  };
+
+  const types = typeMap[gameType] || [];
+  for (const type of types) {
+    const id = getItemIdFromHakushiMetadata(itemName, gameType, type, lang);
+    if (id) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/**
+ * 优先使用Hakushi元数据，失败时回退到API
  * @param {string} itemName - 物品名称
  * @param {string} gameType - 游戏类型
  * @param {string} lang - 语言代码
@@ -107,17 +170,20 @@ function getItemNameFromDict(itemId, gameType, lang = "chs") {
  * @returns {Promise<string|null>} - 物品ID
  */
 async function getItemIdWithFallback(itemName, gameType, lang, fetchItemIdFn) {
-  // 首先尝试从本地字典获取
-  const dictItemId = getItemIdFromDict(itemName, gameType, lang);
-  if (dictItemId) {
-    console.log(`从本地字典获取到物品ID: ${itemName} -> ${dictItemId}`);
-    return dictItemId;
+  // 将UIGF语言代码转换为Hakushi语言代码
+  const hakushiLang = lang.startsWith("zh") ? "CHS" : "EN";
+
+  // 首先尝试从Hakushi元数据获取
+  const hakushiItemId = findItemIdFromAllTypes(itemName, gameType, hakushiLang);
+  if (hakushiItemId) {
+    console.log(`从Hakushi元数据获取到物品ID: ${itemName} -> ${hakushiItemId}`);
+    return hakushiItemId;
   }
 
-  // 如果本地字典没有，则回退到API
+  // 如果Hakushi元数据没有，则回退到API
   if (fetchItemIdFn) {
     try {
-      console.log(`本地字典未找到 ${itemName}，尝试API获取...`);
+      console.log(`Hakushi元数据未找到 ${itemName}，尝试API获取...`);
       const apiItemId = await fetchItemIdFn(itemName);
       if (apiItemId) {
         console.log(`从API获取到物品ID: ${itemName} -> ${apiItemId}`);
@@ -235,15 +301,15 @@ async function insertUIGF(
   list,
   gameType
 ) {
-  // 将UIGF语言代码转换为字典语言代码
-  const dictLang = lang.startsWith("zh") ? "chs" : "chs"; // 目前只支持中文
+  // 将UIGF语言代码转换为Hakushi语言代码
+  const hakushiLang = lang.startsWith("zh") ? "CHS" : "EN";
 
   console.log(
     `开始处理 ${list.length} 条记录，游戏类型: ${gameType || "未知"}`
   );
 
-  // 统计字典使用情况
-  let dictHits = 0;
+  // 统计元数据使用情况
+  let metadataHits = 0;
   let apiFallbacks = 0;
   let failures = 0;
   let zzzConversions = 0; // 统计ZZZ星级转换次数
@@ -269,54 +335,51 @@ async function insertUIGF(
       recordData
     );
 
-    // 始终尝试根据 item_id 进行字典匹配
+    // 始终尝试根据 item_id 进行Hakushi元数据匹配
     try {
-      const dict = loadDict(gameType, dictLang);
-      if (dict && recordData.item_id) {
+      if (recordData.item_id) {
         // 根据 item_id 查找对应的名称
-        const foundName = getItemNameFromDict(
+        const foundName = findItemNameFromAllTypes(
           recordData.item_id,
           gameType,
-          dictLang
+          hakushiLang
         );
 
         if (foundName) {
-          // 在字典中找到了对应的名称
+          // 在Hakushi元数据中找到了对应的名称
           if (recordData.name && recordData.name !== foundName) {
             console.warn(
-              `名称不匹配，使用字典修正: ID ${recordData.item_id} (${recordData.name} -> ${foundName})`
+              `名称不匹配，使用Hakushi元数据修正: ID ${recordData.item_id} (${recordData.name} -> ${foundName})`
             );
             recordData.name = foundName;
           } else if (!recordData.name) {
             console.log(
-              `根据字典补充名称: ID ${recordData.item_id} -> ${foundName}`
+              `根据Hakushi元数据补充名称: ID ${recordData.item_id} -> ${foundName}`
             );
             recordData.name = foundName;
           } else {
             console.log(
-              `字典验证成功: ${recordData.name} (ID: ${recordData.item_id})`
+              `Hakushi元数据验证成功: ${recordData.name} (ID: ${recordData.item_id})`
             );
           }
-          dictHits++;
+          metadataHits++;
         } else {
-          // 字典中没有找到对应的 item_id
-          console.log(`字典中未找到 ID ${recordData.item_id}，保持原有数据`);
+          // Hakushi元数据中没有找到对应的 item_id
+          console.log(
+            `Hakushi元数据中未找到 ID ${recordData.item_id}，保持原有数据`
+          );
           apiFallbacks++;
         }
-      } else if (!dict) {
-        // 没有字典文件
-        console.log(`未加载到 ${gameType} 字典，保持原有数据`);
-        apiFallbacks++;
       } else if (!recordData.item_id && recordData.name) {
-        // 如果没有 item_id，尝试从字典或API获取
-        const dictItemId = getItemIdFromDict(
+        // 如果没有 item_id，尝试从Hakushi元数据或API获取
+        const metadataItemId = findItemIdFromAllTypes(
           recordData.name,
           gameType,
-          dictLang
+          hakushiLang
         );
-        if (dictItemId) {
-          recordData.item_id = dictItemId;
-          dictHits++;
+        if (metadataItemId) {
+          recordData.item_id = metadataItemId;
+          metadataHits++;
         } else {
           // 回退到API
           if (fetchItemIdFn) {
@@ -343,7 +406,7 @@ async function insertUIGF(
         apiFallbacks++;
       }
     } catch (err) {
-      console.warn(`字典处理失败: ${err.message}`);
+      console.warn(`Hakushi元数据处理失败: ${err.message}`);
       apiFallbacks++;
     }
     // ZZZ数据星级转换处理
@@ -367,19 +430,21 @@ async function insertUIGF(
 
   // 输出统计信息
   console.log(
-    `数据处理完成 - 字典验证/获取: ${dictHits}, 未使用字典: ${apiFallbacks}, 失败: ${failures}`
+    `数据处理完成 - Hakushi元数据命中: ${metadataHits}, API回退: ${apiFallbacks}, 失败: ${failures}`
   );
   if (gameType === "zzz" && zzzConversions > 0) {
     console.log(
       `🔄 ZZZ星级转换: ${zzzConversions} 条记录从3/4/5格式转换为2/3/4格式`
     );
   }
-  if (dictHits > 0) {
-    console.log(`✅ 本地字典有效，${dictHits} 个物品通过字典验证或获取ID`);
+  if (metadataHits > 0) {
+    console.log(
+      `✅ Hakushi元数据有效，${metadataHits} 个物品通过元数据验证或获取ID`
+    );
   }
   if (apiFallbacks > 0) {
     console.log(
-      `🔄 ${apiFallbacks} 个物品未使用字典（保持原有数据或通过API获取）`
+      `🔄 ${apiFallbacks} 个物品未使用Hakushi元数据（保持原有数据或通过API获取）`
     );
   }
   if (failures > 0) {

@@ -383,3 +383,43 @@ ipcMain.handle("export-combined-uigf-data", async (event, selectedData) => {
     return { success: false, message: `联合导出失败: ${error.message}` };
   }
 });
+
+// 添加联合导入功能的IPC处理
+const {
+  detectUIGFGames,
+  importCombinedUIGFData,
+} = require("./combinedImportUIGF");
+
+// 检测联合UIGF文件
+ipcMain.handle("detect-combined-uigf-data", async () => {
+  try {
+    const result = await dialog.showOpenDialog({
+      title: "选择UIGF v4文件",
+      filters: [
+        { name: "UIGF文件", extensions: ["json"] },
+        { name: "所有文件", extensions: ["*"] },
+      ],
+      properties: ["openFile"],
+    });
+
+    if (result.canceled) {
+      return { success: true, cancelled: true };
+    }
+
+    const filePath = result.filePaths[0];
+    return await detectUIGFGames(filePath);
+  } catch (error) {
+    console.error("检测UIGF文件失败:", error);
+    return { success: false, message: `检测文件失败: ${error.message}` };
+  }
+});
+
+// 导入联合UIGF数据
+ipcMain.handle("import-combined-uigf-data", async (event, filePath) => {
+  try {
+    return await importCombinedUIGFData(filePath);
+  } catch (error) {
+    console.error("联合导入失败:", error);
+    return { success: false, message: `联合导入失败: ${error.message}` };
+  }
+});
