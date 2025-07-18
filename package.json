@@ -74,13 +74,6 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "Summer-Neko",
-        "repo": "NekoGame"
-      }
-    ]
+    }
   }
 }
