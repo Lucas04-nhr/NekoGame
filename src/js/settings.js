@@ -17,6 +17,7 @@
 
   // 处理背景图片选择
   const backgroundImageInput = document.getElementById("background-path");
+  const backgroundURLInput = document.getElementById("background-url");
   const backgroundOpacityInput = document.getElementById(
     "backgroundOpacityInput"
   );
@@ -33,32 +34,54 @@
       .then((settings) => {
         // 检查背景图片路径是否存在
         if (settings.backgroundImage === null) {
-          document.getElementById("background-path").value = "没有设置背景图片";
+          document.getElementById("background-path").value = "";
+          document.getElementById("background-path").placeholder =
+            "未选择本地图片";
         } else {
           // 如果有背景图片
           document.getElementById("background-path").value =
             settings.backgroundImage || "";
+          document.getElementById("background-path").placeholder =
+            "本地图片路径";
         }
+
+        // 设置网络背景图片URL
+        document.getElementById("background-url").value =
+          settings.backgroundURL || "";
+
         // 检查透明度设置是否存在
-        if (settings.backgroundOpacity) {
-          // 默认透明度值为0.5
-          document.getElementById("backgroundOpacityInput").value =
-            settings.backgroundOpacity || "0.5";
+        const opacityValue = settings.backgroundOpacity || "0.5";
+        document.getElementById("backgroundOpacityInput").value = opacityValue;
+
+        // 更新透明度显示
+        updateOpacityDisplay(opacityValue);
+
+        // 应用背景样式，优先使用网络图片URL
+        const backgroundSource =
+          settings.backgroundURL ||
+          (settings.backgroundImage
+            ? window.electronAPI.filePathToURL(settings.backgroundImage)
+            : "");
+
+        if (backgroundSource) {
+          document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacityValue}), rgba(33, 33, 33, ${opacityValue})), url('${backgroundSource}')`;
+          document.body.style.backgroundSize = "cover";
+          document.body.style.backgroundRepeat = "no-repeat";
+          document.body.style.backgroundPosition = "center";
         }
-        document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${
-          backgroundOpacityInput.value
-        }), rgba(33, 33, 33, ${
-          backgroundOpacityInput.value
-        })), url('${window.electronAPI.filePathToURL(
-          backgroundImageInput.value
-        )}')`;
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundRepeat = "no-repeat";
-        document.body.style.backgroundPosition = "center";
       })
       .catch((error) => {
         console.error("加载背景设置失败:", error);
       });
+  }
+
+  // 更新透明度显示
+  function updateOpacityDisplay(value) {
+    const percentage = Math.round(value * 100);
+    const opacityDisplay = document.getElementById("opacity-display");
+    if (opacityDisplay) {
+      opacityDisplay.textContent = `${percentage}%`;
+    }
   }
   loadBackgroundSettings();
 
@@ -67,34 +90,139 @@
     document
       .getElementById("browse-background")
       .addEventListener("click", async () => {
-        // 通过IPC发送选择文件夹的请求
-        const result = await window.electronAPI.selectBackgroundFile();
-        if (result.canceled === false && result.filePaths.length > 0) {
-          const filePath = result.filePaths[0];
-          document.getElementById("background-path").value = filePath;
-          // 可选择保存路径到数据库或直接应用
-          await window.electronAPI.saveBackgroundSettings(
-            "backgroundImage",
-            filePath
-          );
-          document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${
-            backgroundOpacityInput.value
-          }), rgba(33, 33, 33, ${
-            backgroundOpacityInput.value
-          })), url('${window.electronAPI.filePathToURL(
-            backgroundImageInput.value
-          )}')`;
-          document.body.style.backgroundSize = "cover";
-          document.body.style.backgroundRepeat = "no-repeat";
-          document.body.style.backgroundPosition = "center";
+        // 添加加载状态
+        const browseBtn = document.getElementById("browse-background");
+        const originalHTML = browseBtn.innerHTML;
+        browseBtn.innerHTML = '<span class="btn-icon">⏳</span>选择中...';
+        browseBtn.disabled = true;
+
+        try {
+          // 通过IPC发送选择文件夹的请求
+          const result = await window.electronAPI.selectBackgroundFile();
+          if (result.canceled === false && result.filePaths.length > 0) {
+            const filePath = result.filePaths[0];
+            document.getElementById("background-path").value = filePath;
+            document.getElementById("background-path").placeholder =
+              "本地图片路径";
+            // 清除网络URL，实现互斥
+            document.getElementById("background-url").value = "";
+
+            // 保存本地路径并清除网络URL
+            await window.electronAPI.saveBackgroundSettings(
+              "backgroundImage",
+              filePath
+            );
+            await window.electronAPI.saveBackgroundSettings(
+              "backgroundURL",
+              ""
+            );
+
+            // 添加成功效果
+            const optionGroup = document
+              .getElementById("background-path")
+              .closest(".background-option-group");
+            if (optionGroup) {
+              optionGroup.classList.add("active");
+              setTimeout(() => optionGroup.classList.remove("active"), 2000);
+            }
+
+            document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${
+              backgroundOpacityInput.value
+            }), rgba(33, 33, 33, ${
+              backgroundOpacityInput.value
+            })), url('${window.electronAPI.filePathToURL(filePath)}')`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundRepeat = "no-repeat";
+            document.body.style.backgroundPosition = "center";
+
+            animationMessage(true, "本地背景图片已设置，网络图片已清除");
+          }
+        } catch (error) {
+          console.error("选择背景图片失败:", error);
+          animationMessage(false, "选择背景图片失败");
+        } finally {
+          // 恢复按钮状态
+          browseBtn.innerHTML = originalHTML;
+          browseBtn.disabled = false;
         }
       });
+  }
+
+  // 监听本地背景图片路径保存
+  const saveBackgroundPathButton = document.getElementById(
+    "save-background-path"
+  );
+  if (saveBackgroundPathButton) {
+    saveBackgroundPathButton.addEventListener("click", async () => {
+      // 添加加载状态
+      const saveBtn = document.getElementById("save-background-path");
+      const originalHTML = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<span class="btn-icon">⏳</span>保存中...';
+      saveBtn.disabled = true;
+
+      try {
+        const filePath = backgroundImageInput.value.trim();
+
+        if (!filePath) {
+          animationMessage(false, "请输入有效的文件路径！");
+          return;
+        }
+
+        // 检查文件是否存在
+        const fileExists = await window.electronAPI.invoke(
+          "checkFileExists",
+          filePath
+        );
+        if (!fileExists) {
+          animationMessage(false, "文件不存在，请检查路径是否正确！");
+          return;
+        }
+
+        // 清除网络URL，实现互斥
+        document.getElementById("background-url").value = "";
+
+        // 保存本地路径并清除网络URL
+        await window.electronAPI.saveBackgroundSettings(
+          "backgroundImage",
+          filePath
+        );
+        await window.electronAPI.saveBackgroundSettings("backgroundURL", "");
+
+        // 添加成功效果
+        const optionGroup = document
+          .getElementById("background-path")
+          .closest(".background-option-group");
+        if (optionGroup) {
+          optionGroup.classList.add("active");
+          setTimeout(() => optionGroup.classList.remove("active"), 2000);
+        }
+
+        // 立即应用背景
+        const opacity = backgroundOpacityInput.value || "0.5";
+        document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacity}), rgba(33, 33, 33, ${opacity})), url('${window.electronAPI.filePathToURL(
+          filePath
+        )}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundRepeat = "no-repeat";
+        document.body.style.backgroundPosition = "center";
+
+        animationMessage(true, "本地背景图片路径已保存，网络图片已清除");
+      } catch (error) {
+        console.error("保存背景图片路径失败:", error);
+        animationMessage(false, "保存背景图片路径失败");
+      } finally {
+        // 恢复按钮状态
+        saveBtn.innerHTML = originalHTML;
+        saveBtn.disabled = false;
+      }
+    });
   }
 
   // 监听背景透明度变化
   if (backgroundOpacityInput) {
     backgroundOpacityInput.addEventListener("change", async (event) => {
       const opacity = event.target.value;
+      updateOpacityDisplay(opacity);
       await window.electronAPI.saveBackgroundSettings(
         "backgroundOpacity",
         opacity
@@ -102,13 +230,101 @@
     });
     backgroundOpacityInput.addEventListener("input", async (event) => {
       const opacity = event.target.value;
-      // 更新背景样式
-      document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacity}), rgba(33, 33, 33, ${opacity})), url('${window.electronAPI.filePathToURL(
-        backgroundImageInput.value
-      )}')`;
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundRepeat = "no-repeat";
-      document.body.style.backgroundPosition = "center";
+      updateOpacityDisplay(opacity);
+
+      // 获取当前背景源（网络URL优先，然后是本地路径）
+      const backgroundURL = document.getElementById("background-url").value;
+      const backgroundPath = document.getElementById("background-path").value;
+
+      let backgroundSource = "";
+      if (backgroundURL) {
+        backgroundSource = backgroundURL;
+      } else if (
+        backgroundPath &&
+        backgroundPath !== "" &&
+        backgroundPath !== "未选择本地图片"
+      ) {
+        backgroundSource = window.electronAPI.filePathToURL(backgroundPath);
+      }
+
+      if (backgroundSource) {
+        // 更新背景样式
+        document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacity}), rgba(33, 33, 33, ${opacity})), url('${backgroundSource}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundRepeat = "no-repeat";
+        document.body.style.backgroundPosition = "center";
+      }
+    });
+  }
+
+  // 监听网络背景图片URL保存
+  const saveBackgroundURLButton = document.getElementById(
+    "save-background-url"
+  );
+  if (saveBackgroundURLButton) {
+    saveBackgroundURLButton.addEventListener("click", async () => {
+      // 添加加载状态
+      const saveBtn = document.getElementById("save-background-url");
+      const originalHTML = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<span class="btn-icon">⏳</span>保存中...';
+      saveBtn.disabled = true;
+
+      try {
+        const url = backgroundURLInput.value.trim();
+
+        if (!url) {
+          animationMessage(false, "请输入有效的图片URL！");
+          return;
+        }
+
+        // 简单的URL格式验证
+        if (
+          !url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i)
+        ) {
+          animationMessage(
+            false,
+            "请输入有效的图片URL格式！\n支持的格式: jpg, jpeg, png, gif, bmp, webp"
+          );
+          return;
+        }
+
+        // 清除本地图片路径，实现互斥
+        document.getElementById("background-path").value = "";
+        document.getElementById("background-path").placeholder =
+          "未选择本地图片";
+
+        // 保存网络URL并清除本地路径
+        await window.electronAPI.saveBackgroundSettings("backgroundURL", url);
+        await window.electronAPI.saveBackgroundSettings(
+          "backgroundImage",
+          null
+        );
+
+        // 添加成功效果
+        const optionGroup = document
+          .getElementById("background-url")
+          .closest(".background-option-group");
+        if (optionGroup) {
+          optionGroup.classList.add("active");
+          setTimeout(() => optionGroup.classList.remove("active"), 2000);
+        }
+
+        // 立即应用背景
+        const opacity = backgroundOpacityInput.value || "0.5";
+        document.body.style.background = `linear-gradient(rgba(33, 33, 33, ${opacity}), rgba(33, 33, 33, ${opacity})), url('${url}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundRepeat = "no-repeat";
+        document.body.style.backgroundPosition = "center";
+
+        animationMessage(true, "网络背景图片已保存，本地图片已清除");
+      } catch (error) {
+        console.error("保存网络背景图片失败:", error);
+        animationMessage(false, "保存网络背景图片失败");
+      } finally {
+        // 恢复按钮状态
+        saveBtn.innerHTML = originalHTML;
+        saveBtn.disabled = false;
+      }
     });
   }
 
@@ -736,6 +952,59 @@
       animationMessage(false, "选择CSS文件失败");
     }
   });
+
+  // 保存本地CSS文件路径
+  const saveLocalCSSPathButton = document.getElementById("save-local-css-path");
+  if (saveLocalCSSPathButton) {
+    saveLocalCSSPathButton.addEventListener("click", async () => {
+      // 添加加载状态
+      const saveBtn = document.getElementById("save-local-css-path");
+      const originalHTML = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<span class="btn-icon">⏳</span>保存中...';
+      saveBtn.disabled = true;
+
+      try {
+        const filePath = localCSSPathInput.value.trim();
+
+        if (!filePath) {
+          animationMessage(false, "请输入有效的CSS文件路径！");
+          return;
+        }
+
+        // 检查文件是否存在
+        const fileExists = await window.electronAPI.invoke(
+          "checkFileExists",
+          filePath
+        );
+        if (!fileExists) {
+          animationMessage(false, "CSS文件不存在，请检查路径是否正确！");
+          return;
+        }
+
+        // 清除网络CSS URL，实现互斥
+        remoteCSSURLInput.value = "";
+
+        // 保存本地路径并清除网络URL
+        await window.electronAPI.invoke("set-custom-css-local-path", filePath);
+        await window.electronAPI.invoke("set-custom-css-remote-url", ""); // 清除网络URL
+
+        // 如果CSS已启用，立即应用
+        if (enableCustomCSSCheckbox.checked) {
+          await window.electronAPI.invoke("apply-custom-css");
+        }
+
+        animationMessage(true, "本地CSS文件路径已保存，网络CSS已清除");
+        loadCustomCSSSettings();
+      } catch (error) {
+        console.error("保存CSS文件路径失败:", error);
+        animationMessage(false, "保存CSS文件路径失败");
+      } finally {
+        // 恢复按钮状态
+        saveBtn.innerHTML = originalHTML;
+        saveBtn.disabled = false;
+      }
+    });
+  }
 
   // 保存网络CSS URL
   saveRemoteCSSButton.addEventListener("click", async () => {
