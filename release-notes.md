@@ -1,4 +1,4 @@
-# v2.6.0 Release Notes
+# v2.6.1 Release Notes
 
 ### 🐛 Bug Fixes / 错误修复
 

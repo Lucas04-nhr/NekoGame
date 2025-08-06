@@ -1,0 +1,58 @@
+name: 功能请求
+description: 为此项目提出一个想法
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您提出新功能建议！请填写下面的表单。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 描述
+      description: 清晰简洁地描述该功能是什么以及为什么有用。
+      placeholder: 描述您希望看到的功能
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 提议的解决方案
+      description: 描述您想要的解决方案。
+      placeholder: 这个功能应该如何工作？
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives-considered
+    attributes:
+      label: 考虑的替代方案
+      description: 描述您考虑过的任何替代解决方案或功能。
+      placeholder: 您还想过哪些其他方法？
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      description: 这个功能对您有多重要？
+      options:
+        - 低
+        - 中
+        - 高
+        - 关键
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 其他上下文
+      description: 在此处添加有关功能请求的任何其他上下文或截图。
+      placeholder: 任何其他信息、模拟图或示例
+    validations:
+      required: false
