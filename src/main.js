@@ -362,6 +362,17 @@ ipcMain.handle("set-auto-launch", (event, enabled) => {
   app.setLoginItemSettings({ openAtLogin: enabled });
 });
 
+// 检查文件是否存在
+ipcMain.handle("checkFileExists", async (event, filePath) => {
+  const fs = require("fs").promises;
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+});
+
 ipcMain.on("open-external", (event, url) => {
   if (url) {
     shell.openExternal(url);

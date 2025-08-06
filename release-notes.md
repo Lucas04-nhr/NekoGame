@@ -1,19 +1,26 @@
-# v2.5.2 Release Notes
-
-> [!NOTE]
-> This is a patch version of the v2.5.2 release, focusing on fix some bugs when importing UIGFv4 data.
->
-> 这是 v2.5.2 版本的补丁版本，主要关注修复导入 UIGFv4 数据时的一些错误。
+# v2.6.0 Release Notes
 
 ### 🐛 Bug Fixes / 错误修复
 
 - **Fixed UIGFv4 import issues** - Resolved bugs encountered during the import of UIGFv4 data.
 - **修复 UIGFv4 导入问题** - 修复导入 UIGFv4 数据时遇到的错误。
+- **Addressed crash on startup** - Fixed an issue causing the application to crash on certain devices during startup.
+- **修复启动时崩溃问题** - 修复某些设备在启动时导致应用程序崩溃的问题。
 
 ### 📈 Performance Enhancements / 性能优化
 
 - **Optimized auto-update system** - Enhanced the auto-update mechanism for smoother updates.
 - **优化自动更新系统** - 改进自动更新机制以实现更流畅的更新。
+- **Improved rendering performance** - Reduced latency in UI rendering for a more responsive experience.
+- **改进渲染性能** - 降低 UI 渲染延迟以提供更流畅的体验。
+
+### ✨ New Features / 新功能
+
+- **Added multi-language support** - Introduced support for additional languages to improve accessibility.
+- **新增多语言支持** - 增加对更多语言的支持以提高可访问性。
+- **Implemented new setting page UI** - Redesigned the settings page for better usability and organization.
+- **实现新的设置页面 UI** - 重新设计设置页面以提高可用性和组织性。
+- **Enhanced auto-update control** - Users can now manage auto-update settings directly from the settings page.
 
 ---
 
